@@ -167,6 +167,22 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
 </style>
 </head>
 <body>
+<div id="loading-screen" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999">
+  <svg viewBox="0 0 210 105" xmlns="http://www.w3.org/2000/svg" style="height:60px;width:auto;margin-bottom:24px">
+    <rect x="0" y="60" width="22" height="40" rx="3" fill="#1DB954"/>
+    <rect x="28" y="44" width="22" height="56" rx="3" fill="#1DB954"/>
+    <rect x="56" y="28" width="22" height="72" rx="3" fill="#1DB954"/>
+    <rect x="84" y="48" width="22" height="52" rx="3" fill="#1DB954"/>
+    <rect x="112" y="18" width="22" height="82" rx="3" fill="#1DB954"/>
+    <rect x="140" y="40" width="22" height="60" rx="3" fill="#1DB954"/>
+    <rect x="168" y="56" width="22" height="44" rx="3" fill="#1DB954"/>
+    <circle cx="123" cy="12" r="12" fill="#1DB954"/>
+    <circle cx="117" cy="8" r="2.6" fill="#000"/>
+    <circle cx="129" cy="8" r="2.6" fill="#000"/>
+    <path d="M115 15 Q123 21 131 15" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </svg>
+  <div style="font-size:13px;color:#555">Łączenie...</div>
+</div>
 
 <!-- AUTH -->
 <div id="auth-screen">
@@ -603,6 +619,7 @@ async function initApp() {
 
   const hashParams = new URLSearchParams(window.location.hash.substring(1));
   if (hashParams.get('type') === 'recovery') {
+    document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('login-form').classList.add('hidden');
     document.getElementById('register-form').classList.add('hidden');
     document.getElementById('reset-form').classList.add('hidden');
@@ -616,9 +633,12 @@ async function initApp() {
     if (session) {
       currentUser = session.user;
       await loadProfile();
+    } else {
+      document.getElementById('loading-screen').style.display = 'none';
     }
   } catch(e) {
     console.warn('initApp error:', e);
+    document.getElementById('loading-screen').style.display = 'none';
   }
 }
 
@@ -888,6 +908,7 @@ async function saveProfile() {
 
 // ── APP SCREENS ───────────────────────────────────────────────────
 function showAuth() {
+  document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('auth-screen').classList.remove('hidden');
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('app').classList.add('hidden');
@@ -901,6 +922,7 @@ function showOnboarding() {
 }
 
 function showApp() {
+  document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
