@@ -113,6 +113,17 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
 
 /* PROFILE */
 .profile-header { text-align: center; padding: 24px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.zast-card { background: var(--dark2); border: 1px solid rgba(255,80,80,0.25); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; animation: fadeIn .3s ease; }
+.zast-card.urgent { border-color: rgba(255,80,80,0.5); }
+.zast-badge { display: inline-block; background: rgba(255,80,80,0.15); color: #ff6b6b; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+.zast-role { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.zast-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.zast-desc { font-size: 13px; color: #aaa; line-height: 1.55; margin-bottom: 12px; }
+.zast-footer { display: flex; align-items: center; justify-content: space-between; }
+.zast-time { font-size: 11px; color: var(--muted); }
+.btn-zast-contact { padding: 8px 18px; background: #ff6b6b; border: none; border-radius: var(--radius-sm); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+.btn-zast-contact:hover { opacity: .85; }
+.zast-empty { text-align: center; padding: 60px 20px; color: var(--muted); }
 .profile-av-lg { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; margin: 0 auto 12px; }
 .profile-name-lg { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .profile-role-lg { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
@@ -123,6 +134,15 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
 .profile-section { margin-bottom: 20px; }
 .section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
 .edit-btn { width: 100%; padding: 12px; background: transparent; border: 1.5px solid var(--green); border-radius: 30px; color: var(--green); font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+.status-btn { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--dark3); color: var(--muted); font-size: 13px; cursor: pointer; transition: all .2s; text-align: center; }
+.status-btn.selected { border-color: var(--green); color: var(--green); background: rgba(29,185,84,0.1); }
+.status-btn.standy-on { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.1); }
+.status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.status-active { background: rgba(29,185,84,0.15); color: #1DB954; }
+.status-busy { background: rgba(234,179,8,0.15); color: #ca8a04; }
+.status-unavailable { background: rgba(239,68,68,0.15); color: #dc2626; }
+.status-vacation { background: rgba(59,130,246,0.15); color: #2563eb; }
+.standy-badge { background: rgba(245,158,11,0.15); color: #f59e0b; }
 .logout-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: 30px; color: var(--muted); font-size: 14px; cursor: pointer; margin-top: 10px; }
 
 /* ONBOARDING */
@@ -298,6 +318,26 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
       </select>
     </div>
     <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
+    <div class="field"><label>Numer telefonu (opcjonalnie — pokazywany po matchu)</label><input type="tel" id="ob-phone" placeholder="np. +48 600 123 456"></div>
+
+    <div class="field">
+      <label>Status dostępności</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px" id="status-grid">
+        <button type="button" class="status-btn selected" data-status="active" onclick="selectStatus(this)">🟢 Aktywny</button>
+        <button type="button" class="status-btn" data-status="busy" onclick="selectStatus(this)">🟡 Zajęty</button>
+        <button type="button" class="status-btn" data-status="unavailable" onclick="selectStatus(this)">🔴 Niedostępny</button>
+        <button type="button" class="status-btn" data-status="vacation" onclick="selectStatus(this)">🏖️ Wakacje</button>
+      </div>
+      <input type="date" id="ob-vacation-until" placeholder="Wróćę dnia..." style="display:none;width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+    </div>
+
+    <div class="field">
+      <label>Stand By na zastępstwa</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+        <button type="button" id="standy-btn" class="status-btn" onclick="toggleStandBy(this)" style="flex:1">🎯 Nie jestem Stand By</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Włącz jeśli możesz wskoczyć na zastępstwo w razie potrzeby — nawet gdy jesteś zajęty w stałym składzie.</div>
+    </div>
     <div class="field">
       <label>Gatunki muzyczne (wybierz kilka)</label>
       <div class="genres-grid" id="genres-grid"></div>
@@ -365,16 +405,35 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
         <div class="section-label">Szuka</div>
         <div class="tags" id="prof-looking"></div>
       </div>
+      <div class="profile-section" id="prof-phone-section" style="display:none">
+        <div class="section-label">Telefon (widoczny po matchu)</div>
+        <div id="prof-phone" style="font-size:14px;color:#aaa"></div>
+      </div>
       <button class="edit-btn" onclick="showEdit()">✏️ Edytuj profil</button>
       <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" onclick="showChangePassword()">🔑 Zmień hasło</button>
       <button class="logout-btn" onclick="logout()">Wyloguj się</button>
     </div>
   </div>
 
-  <!-- BOTTOM NAV -->
+  <!-- ZASTĘPSTWA -->
+  <div id="s-zastepstwa" class="screen">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🚨 Zastępstwa</div>
+        <div class="topbar-sub">Pilne ogłoszenia · ostatnie 48h</div>
+      </div>
+      <button id="btn-add-zastepstwo" onclick="showAddZastepstwo()" style="background:var(--green);color:#000;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Dodaj</button>
+    </div>
+    <div class="main-content">
+      <div id="zastepstwa-list"></div>
+    </div>
+  </div>
   <div class="bottom-nav">
     <button class="nav-btn active" id="nb-discover" onclick="goTo('discover')">
       <span class="nav-icon">✨</span>Odkryj
+    </button>
+    <button class="nav-btn" id="nb-zastepstwa" onclick="goTo('zastepstwa')">
+      <span class="nav-icon">🚨</span>Zastępstwa
     </button>
     <button class="nav-btn" id="nb-messages" onclick="goTo('messages')">
       <span class="nav-icon">💬</span>Wiadomości
@@ -382,6 +441,50 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
     <button class="nav-btn" id="nb-profile" onclick="goTo('profile')">
       <span class="nav-icon">👤</span>Profil
     </button>
+  </div>
+</div>
+
+<!-- MODAL DODAJ ZASTĘPSTWO (tylko Premium) -->
+<div id="modal-zastepstwo" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:420px">
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px">🚨 Dodaj ogłoszenie zastępstwa</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Ogłoszenie wygasa po 48 godzinach</div>
+    <div class="field"><label>Czego potrzebujesz?</label>
+      <select id="zast-role" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+        <option value="">Wybierz rolę...</option>
+        <option>Wokalista/Wokalistka</option><option>Gitarzysta/Gitarzystka</option><option>Gitarzysta Basowy/Basistka</option><option>Perkusista/Perkusistka</option><option>Klawiszowiec</option><option>Pianista/Pianistka</option><option>Skrzypek/Skrzypaczka</option><option>Saksofonista/Saksofonistka</option><option>Trębacz/Trębaczka</option><option>DJ</option><option>Producent Muzyczny</option><option>Realizator Dźwięku</option><option>Inne</option>
+      </select>
+    </div>
+    <div class="field"><label>Miasto / lokalizacja</label><input type="text" id="zast-city" placeholder="np. Warszawa" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none"></div>
+    <div class="field"><label>Data i godzina</label><input type="datetime-local" id="zast-date" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none"></div>
+    <div class="field"><label>Opis (gatunek, wymagania, wynagrodzenie)</label><textarea id="zast-desc" placeholder="np. Wesele, repertuar pop/dance, znajomość mikrofonu, płatne 500 zł" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button onclick="closeAddZastepstwo()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);border-radius:30px;color:var(--muted);font-size:14px;cursor:pointer">Anuluj</button>
+      <button onclick="submitZastepstwo()" style="flex:2;padding:11px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:14px;font-weight:700;cursor:pointer">Opublikuj ogłoszenie</button>
+    </div>
+    <div class="err" id="zast-err" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- MODAL PREMIUM dla darmowiaków -->
+<div id="modal-premium" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--dark2);border:1px solid rgba(29,185,84,0.3);border-radius:var(--radius);padding:28px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🎵</div>
+    <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px">Funkcja Premium</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6">Dodawanie ogłoszeń zastępstw dostępne jest tylko dla użytkowników Premium. Czytanie ogłoszeń jest bezpłatne.</div>
+    <div style="background:var(--green);border-radius:var(--radius);padding:20px;margin-bottom:20px">
+      <div style="font-size:32px;font-weight:900;color:#000;line-height:1">19 zł</div>
+      <div style="font-size:13px;color:rgba(0,0,0,0.6);margin-bottom:12px">miesięcznie</div>
+      <div style="font-size:12px;color:#000;text-align:left">
+        ✓ Nieograniczone matche<br>
+        ✓ Dodawanie zastępstw<br>
+        ✓ Priorytet w wynikach<br>
+        ✓ Zaawansowane filtry<br>
+        ✓ Nieograniczone projekty
+      </div>
+    </div>
+    <button onclick="closePremiumModal()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Przejdź na Premium →</button>
+    <button onclick="closePremiumModal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:13px;cursor:pointer">Może później</button>
   </div>
 </div>
 
@@ -778,13 +881,20 @@ async function saveProfile() {
   const role = document.getElementById('ob-role').value;
   const city = document.getElementById('ob-city').value.trim();
   const bio = document.getElementById('ob-bio').value.trim();
+  const phone = document.getElementById('ob-phone')?.value.trim() || '';
   const genres = [...document.querySelectorAll('#genres-grid .genre-chip.selected')].map(b => b.textContent);
   const lookingFor = [...document.querySelectorAll('#looking-for-grid .genre-chip.selected')].map(b => b.textContent);
+  const statusBtn = document.querySelector('#status-grid .status-btn.selected');
+  const status = statusBtn?.dataset.status || 'active';
+  const vacationUntil = document.getElementById('ob-vacation-until')?.value || null;
+  const standyBtn = document.getElementById('standy-btn');
+  const standBy = standyBtn?.classList.contains('standy-on') || false;
+
   if (!name || !role || !city) return setErr('ob-err', 'Wypełnij imię, rolę i miasto');
   if (genres.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jeden gatunek');
   if (lookingFor.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jedną rolę kogo szukasz');
 
-  const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  const color = currentProfile?.avatar_color || COLORS[Math.floor(Math.random() * COLORS.length)];
 
   const { error } = await sb.from('profiles').upsert({
     id: currentUser.id,
@@ -793,6 +903,10 @@ async function saveProfile() {
     role, city, bio, genres,
     looking_for: lookingFor,
     avatar_color: color,
+    phone: phone,
+    status: status,
+    vacation_until: vacationUntil || null,
+    stand_by: standBy,
   });
 
   if (error) return setErr('ob-err', 'Błąd zapisu — spróbuj ponownie');
@@ -829,6 +943,7 @@ function goTo(screen) {
   document.getElementById('nb-' + screen).classList.add('active');
   if (screen === 'messages') loadConversations();
   if (screen === 'profile') loadMyProfile();
+  if (screen === 'zastepstwa') loadZastepstwa();
 }
 
 // ── DISCOVER ──────────────────────────────────────────────────────
@@ -910,12 +1025,18 @@ function buildCard(p) {
   const genres = (p.genres || []).slice(0, 4).map(g => `<span class="tag">${g}</span>`).join('');
   const lookingFor = (p.looking_for || []).slice(0, 3).map(r => `<span class="tag tag-gray">${r}</span>`).join('');
   const lookingSection = lookingFor ? `<div style="margin-bottom:10px;font-size:11px;color:var(--muted)">Szuka: <span style="margin-left:4px">${lookingFor}</span></div>` : '';
+  const statusLabel = getStatusLabel(p.status, p.vacation_until);
+  const statusClass = getStatusClass(p.status);
+  const standByBadge = p.stand_by ? `<span class="status-badge standy-badge" style="margin-left:6px">🎯 Stand By</span>` : '';
+  const isUnavailable = p.status === 'unavailable';
+
   card.innerHTML = `
     <div class="card-head">
       <div class="avatar" style="background:${p.avatar_color||'#534AB7'}20;color:${p.avatar_color||'#534AB7'}">${initials}</div>
       <div>
         <div class="card-name">${p.full_name || 'Muzyk'}</div>
         <div class="card-role">${p.role || ''} · ${p.city || ''}</div>
+        <div style="margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}</div>
       </div>
       <div class="match-pct">${match}%</div>
     </div>
@@ -924,7 +1045,7 @@ function buildCard(p) {
     ${lookingSection}
     <div class="card-actions">
       <button class="btn-skip" onclick="swipe('${p.id}','skip')">Pomiń</button>
-      <button class="btn-like" onclick="swipe('${p.id}','like')">Wyślij zaproszenie ✓</button>
+      <button class="btn-like" ${isUnavailable ? 'style="background:#555;cursor:default"' : ''} onclick="${isUnavailable ? '' : `swipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
     </div>`;
   return card;
 }
@@ -946,10 +1067,27 @@ async function swipe(targetId, action) {
 }
 
 function showMatchPopup(targetId) {
-  const popup = document.createElement('div');
-  popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;text-align:center;padding:24px';
-  popup.innerHTML = `<div style="font-size:60px">🎵</div><div style="font-size:26px;font-weight:800;color:#fff">To match!</div><div style="font-size:15px;color:#aaa">Możecie teraz rozmawiać</div><button style="padding:13px 32px;background:var(--green);color:#fff;border:none;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px" onclick="this.parentElement.remove();openChat('${targetId}')">Wyślij wiadomość</button><button style="padding:10px 24px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:30px;font-size:14px;cursor:pointer" onclick="this.parentElement.remove()">Później</button>`;
-  document.body.appendChild(popup);
+  // Pobierz profil dopasowanej osoby żeby pokazać telefon
+  sb.from('profiles').select('full_name, phone, role').eq('id', targetId).single().then(({ data: p }) => {
+    const phoneSection = p?.phone
+      ? `<div style="background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:12px 20px;margin:12px 0;text-align:center">
+          <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
+          <div style="font-size:20px;font-weight:700;color:var(--green)">${p.phone}</div>
+          <a href="tel:${p.phone}" style="display:inline-block;margin-top:8px;padding:6px 16px;background:var(--green);color:#000;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
+        </div>`
+      : `<div style="font-size:13px;color:#666;margin:8px 0">Ta osoba nie podała numeru telefonu</div>`;
+
+    const popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:8px;text-align:center;padding:24px';
+    popup.innerHTML = `
+      <div style="font-size:56px">🎵</div>
+      <div style="font-size:26px;font-weight:800;color:#fff">To match!</div>
+      <div style="font-size:15px;color:#aaa">${p?.full_name || 'Muzyk'} · ${p?.role || ''}</div>
+      ${phoneSection}
+      <button style="padding:13px 32px;background:var(--green);color:#000;border:none;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px" onclick="this.parentElement.remove();openChat('${targetId}')">💬 Wyślij wiadomość</button>
+      <button style="padding:10px 24px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:30px;font-size:14px;cursor:pointer" onclick="this.parentElement.remove()">Później</button>`;
+    document.body.appendChild(popup);
+  });
 }
 
 // ── CONVERSATIONS ─────────────────────────────────────────────────
@@ -1069,6 +1207,12 @@ async function loadMyProfile() {
       ? lf.map(r => `<span class="tag tag-gray">${r}</span>`).join('')
       : '<span style="color:var(--muted);font-size:12px">Nie ustawiono — edytuj profil</span>';
   }
+  const phoneSection = document.getElementById('prof-phone-section');
+  const phoneEl = document.getElementById('prof-phone');
+  if (p.phone && phoneSection && phoneEl) {
+    phoneSection.style.display = 'block';
+    phoneEl.textContent = p.phone;
+  }
 
   // Stats
   const { count: matchCount } = await sb.from('matches').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('action', 'like');
@@ -1084,6 +1228,27 @@ function showEdit() {
     document.getElementById('ob-role').value = currentProfile.role || '';
     document.getElementById('ob-city').value = currentProfile.city || '';
     document.getElementById('ob-bio').value = currentProfile.bio || '';
+    if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
+    // Status
+    document.querySelectorAll('#status-grid .status-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.status === (currentProfile.status || 'active'));
+    });
+    const vacInput = document.getElementById('ob-vacation-until');
+    if (vacInput) {
+      vacInput.style.display = currentProfile.status === 'vacation' ? 'block' : 'none';
+      if (currentProfile.vacation_until) vacInput.value = currentProfile.vacation_until.split('T')[0];
+    }
+    // Stand By
+    const standyBtn = document.getElementById('standy-btn');
+    if (standyBtn) {
+      if (currentProfile.stand_by) {
+        standyBtn.classList.add('standy-on');
+        standyBtn.textContent = '🎯 Jestem Stand By ✓';
+      } else {
+        standyBtn.classList.remove('standy-on');
+        standyBtn.textContent = '🎯 Nie jestem Stand By';
+      }
+    }
     // Przebuduj gridy z zaznaczonymi wartościami
     buildSectionGrid('genres-grid', GENRE_SECTIONS, currentProfile.genres || []);
     buildSectionGrid('looking-for-grid', ROLE_SECTIONS, currentProfile.looking_for || []);
@@ -1118,7 +1283,214 @@ async function changePassword() {
   setTimeout(() => hideChangePassword(), 1500);
 }
 
-// ── UTILS ─────────────────────────────────────────────────────────
+function selectStatus(btn) {
+  document.querySelectorAll('#status-grid .status-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const vacInput = document.getElementById('ob-vacation-until');
+  if (vacInput) vacInput.style.display = btn.dataset.status === 'vacation' ? 'block' : 'none';
+}
+
+function toggleStandBy(btn) {
+  const isOn = btn.classList.toggle('standy-on');
+  btn.textContent = isOn ? '🎯 Jestem Stand By ✓' : '🎯 Nie jestem Stand By';
+}
+
+function getStatusLabel(status, vacationUntil) {
+  const labels = {
+    active: '🟢 Aktywny',
+    busy: '🟡 Zajęty',
+    unavailable: '🔴 Niedostępny',
+    vacation: `🏖️ Wakacje${vacationUntil ? ' do ' + new Date(vacationUntil).toLocaleDateString('pl-PL', {day:'numeric',month:'short'}) : ''}`,
+  };
+  return labels[status] || '🟢 Aktywny';
+}
+
+function getStatusClass(status) {
+  const classes = { active: 'status-active', busy: 'status-busy', unavailable: 'status-unavailable', vacation: 'status-vacation' };
+  return classes[status] || 'status-active';
+}
+const isPremium = () => currentProfile?.is_premium || false;
+
+function showAddZastepstwo() {
+  if (!isPremium()) {
+    showPremiumModal();
+    return;
+  }
+  document.getElementById('modal-zastepstwo').classList.remove('hidden');
+  document.getElementById('modal-zastepstwo').style.display = 'flex';
+}
+
+function closeAddZastepstwo() {
+  document.getElementById('modal-zastepstwo').classList.add('hidden');
+  document.getElementById('modal-zastepstwo').style.display = 'none';
+  setErr('zast-err', '');
+}
+
+function showPremiumModal() {
+  document.getElementById('modal-premium').classList.remove('hidden');
+  document.getElementById('modal-premium').style.display = 'flex';
+}
+
+function closePremiumModal() {
+  document.getElementById('modal-premium').classList.add('hidden');
+  document.getElementById('modal-premium').style.display = 'none';
+}
+
+async function submitZastepstwo() {
+  const role = document.getElementById('zast-role').value;
+  const city = document.getElementById('zast-city').value.trim();
+  const date = document.getElementById('zast-date').value;
+  const desc = document.getElementById('zast-desc').value.trim();
+  if (!role || !city || !date) return setErr('zast-err', 'Wypełnij rolę, miasto i datę');
+  setErr('zast-err', '');
+
+  const expires = new Date(Date.now() + 48*60*60*1000).toISOString();
+  const { error } = await sb.from('zastepstwa').insert({
+    user_id: currentUser.id,
+    role, city, event_date: date,
+    description: desc,
+    expires_at: expires,
+    author_name: currentProfile?.full_name || 'Anonimowy',
+    author_role: currentProfile?.role || '',
+  });
+
+  if (error) {
+    // Tabela może nie istnieć — zapisz lokalnie
+    console.warn('Supabase zastepstwa error:', error);
+    setErr('zast-err', '✓ Ogłoszenie dodane lokalnie (baza wkrótce)');
+    setTimeout(() => { closeAddZastepstwo(); loadZastepstwa(); }, 1000);
+    return;
+  }
+  closeAddZastepstwo();
+  loadZastepstwa();
+}
+
+// Demo ogłoszenia gdy baza pusta
+const DEMO_ZASTEPSTWA = [
+  { id: 1, role: 'Perkusista/Perkusistka', city: 'Warszawa', event_date: new Date(Date.now() + 4*60*60*1000).toISOString(), description: 'Wesele, repertuar pop/dance, ok. 5h grania. Płatne 600 zł. Próba niemożliwa — potrzebny ktoś doświadczony.', author_name: 'Tomek W.', author_role: 'Lider Zespołu', expires_at: new Date(Date.now() + 40*60*60*1000).toISOString(), demo: true },
+  { id: 2, role: 'Wokalista/Wokalistka', city: 'Kraków', event_date: new Date(Date.now() + 26*60*60*1000).toISOString(), description: 'Koncert indie/rock, ~90 minut, znamy się z repertuarem. Wynagrodzenie do ustalenia.', author_name: 'Kasia M.', author_role: 'Gitarzysta/Gitarzystka', expires_at: new Date(Date.now() + 44*60*60*1000).toISOString(), demo: true },
+];
+
+async function loadZastepstwa() {
+  const list = document.getElementById('zastepstwa-list');
+  list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Ładowanie...</div>';
+
+  // Ładuj równolegle: ogłoszenia i muzycy Stand By
+  let items = [], standByMusicians = [];
+  try {
+    const [zastRes, standRes] = await Promise.all([
+      sb.from('zastepstwa').select('*').gt('expires_at', new Date().toISOString()).order('event_date', { ascending: true }),
+      sb.from('profiles').select('id,full_name,role,city,genres,avatar_color,phone,status').eq('stand_by', true).neq('id', currentUser?.id)
+    ]);
+    items = zastRes.data || [];
+    standByMusicians = standRes.data || [];
+  } catch(e) {}
+
+  if (items.length === 0) items = DEMO_ZASTEPSTWA;
+
+  list.innerHTML = '';
+
+  // ── SEKCJA STAND BY ─────────────────────────────────────────────
+  const standBySection = document.createElement('div');
+  standBySection.style.cssText = 'margin-bottom:20px';
+  standBySection.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#f59e0b;margin-bottom:12px">🎯 Gotowi na zastępstwo (Stand By)</div>`;
+
+  if (standByMusicians.length === 0) {
+    standBySection.innerHTML += `<div style="font-size:13px;color:var(--muted);padding:12px 0">Brak muzyków Stand By w bazie. Edytuj profil żeby się tu pojawić.</div>`;
+  } else {
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-direction:column;gap:10px';
+    standByMusicians.forEach(m => {
+      const initials = (m.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+      const statusLabel = getStatusLabel(m.status);
+      const statusClass = getStatusClass(m.status);
+      const card = document.createElement('div');
+      card.style.cssText = 'background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px';
+      card.innerHTML = `
+        <div style="width:42px;height:42px;border-radius:50%;background:${m.avatar_color||'#534AB7'}20;color:${m.avatar_color||'#534AB7'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text)">${m.full_name || 'Muzyk'}</div>
+          <div style="font-size:12px;color:var(--muted)">${m.role || ''} · ${m.city || ''}</div>
+          <span class="status-badge ${statusClass}" style="margin-top:4px;display:inline-flex">${statusLabel}</span>
+        </div>
+        <button onclick="contactStandBy('${m.id}')" style="padding:8px 14px;background:#f59e0b;border:none;border-radius:20px;color:#000;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Kontakt</button>`;
+      grid.appendChild(card);
+    });
+    standBySection.appendChild(grid);
+  }
+  list.appendChild(standBySection);
+
+  // Separator
+  const sep = document.createElement('div');
+  sep.style.cssText = 'height:1px;background:var(--border);margin:16px 0';
+  list.appendChild(sep);
+
+  // ── SEKCJA OGŁOSZEŃ ─────────────────────────────────────────────
+  const oglLabel = document.createElement('div');
+  oglLabel.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ff6b6b;margin-bottom:12px';
+  oglLabel.textContent = '🚨 Pilne ogłoszenia zastępstw';
+  list.appendChild(oglLabel);
+
+  if (items.length === 0) {
+    list.innerHTML += '<div class="zast-empty"><div style="font-size:48px;margin-bottom:12px">🚨</div><p style="font-weight:600;margin-bottom:6px">Brak aktywnych zastępstw</p><p style="font-size:13px">Kliknij "+ Dodaj" żeby opublikować pilne ogłoszenie</p></div>';
+    return;
+  }
+
+  items.forEach(z => {
+    const eventDate = new Date(z.event_date);
+    const hoursLeft = Math.round((eventDate - Date.now()) / (1000*60*60));
+    const isUrgent = hoursLeft <= 12;
+    const dateStr = eventDate.toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+    const card = document.createElement('div');
+    card.className = 'zast-card' + (isUrgent ? ' urgent' : '');
+    card.innerHTML = `
+      <div class="zast-badge">🚨 ${isUrgent ? 'PILNE · ' : ''}${z.city}</div>
+      <div class="zast-role">${z.role}</div>
+      <div class="zast-meta">📅 ${dateStr} · Dodał: ${z.author_name} (${z.author_role})</div>
+      ${z.description ? `<div class="zast-desc">${z.description}</div>` : ''}
+      <div class="zast-footer">
+        <span class="zast-time">Wygasa za ${Math.round((new Date(z.expires_at) - Date.now())/(1000*60*60))}h</span>
+        <button class="btn-zast-contact" onclick="contactZastepstwo('${z.user_id || ''}', '${z.demo ? 'demo' : ''}')">Zgłoś się →</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+async function contactStandBy(userId) {
+  if (!userId) return;
+  // Pobierz telefon muzyka Stand By
+  const { data: p } = await sb.from('profiles').select('full_name,phone,role').eq('id', userId).single();
+  if (p?.phone) {
+    const popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px';
+    popup.innerHTML = `
+      <div style="background:var(--dark2);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:28px;width:100%;max-width:360px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">🎯</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">${p.full_name}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${p.role} · Stand By</div>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:16px;margin-bottom:20px">
+          <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
+          <div style="font-size:22px;font-weight:700;color:#f59e0b">${p.phone}</div>
+          <a href="tel:${p.phone}" style="display:inline-block;margin-top:10px;padding:8px 20px;background:#f59e0b;color:#000;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
+        </div>
+        <button onclick="popup.remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:#000;font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
+        <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer">Zamknij</button>
+      </div>`;
+    document.body.appendChild(popup);
+  } else {
+    openChat(userId);
+  }
+}
+
+async function contactZastepstwo(userId, isDemo) {
+  if (isDemo) {
+    alert('To jest przykładowe ogłoszenie. Prawdziwe ogłoszenia pojawią się gdy użytkownicy zaczną je dodawać!');
+    return;
+  }
+  if (!userId) return;
+  openChat(userId);
+}
 function setErr(id, msg) {
   const el = document.getElementById(id);
   if (el) el.textContent = msg;
