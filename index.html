@@ -558,23 +558,36 @@ async function initApp() {
     return;
   }
 
-  // Otwieramy IndexedDB przed próbą sesji — to kluczowe
-  try { await openDB(); } catch(e) { console.warn('IndexedDB unavailable:', e); }
+  // Otwieramy IndexedDB
+  try { await openDB(); } catch(e) { console.warn('IndexedDB:', e); }
 
-  // Dajemy Supabase czas na odczyt z IndexedDB (async)
-  await new Promise(r => setTimeout(r, 300));
+  // Czekamy na Supabase
+  await new Promise(r => setTimeout(r, 400));
 
   let session = null;
-  for (let attempt = 0; attempt < 4; attempt++) {
+
+  // Próba 1: getSession
+  try {
+    const { data } = await sb.auth.getSession();
+    if (data?.session) session = data.session;
+  } catch(e) { console.warn('getSession error:', e); }
+
+  // Próba 2: refreshSession jeśli brak sesji
+  if (!session) {
     try {
-      const { data, error } = await sb.auth.getSession();
-      if (error) { console.warn('Session attempt', attempt, error); break; }
-      if (data.session) { session = data.session; break; }
-      if (attempt < 3) await new Promise(r => setTimeout(r, 600));
-    } catch (e) {
-      console.warn('Session attempt', attempt, e);
-      if (attempt < 3) await new Promise(r => setTimeout(r, 600));
-    }
+      await new Promise(r => setTimeout(r, 600));
+      const { data } = await sb.auth.refreshSession();
+      if (data?.session) session = data.session;
+    } catch(e) { console.warn('refreshSession error:', e); }
+  }
+
+  // Próba 3: jeszcze raz getSession
+  if (!session) {
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      const { data } = await sb.auth.getSession();
+      if (data?.session) session = data.session;
+    } catch(e) {}
   }
 
   if (session) {
@@ -670,9 +683,16 @@ async function login() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) return setErr('auth-err', 'Wypełnij wszystkie pola');
-  setErr('auth-err', '');
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) setErr('auth-err', 'Błędny e-mail lub hasło');
+  setErr('auth-err', 'Loguję...');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    setErr('auth-err', 'Błędny e-mail lub hasło');
+    return;
+  }
+  if (data.session) {
+    currentUser = data.session.user;
+    await loadProfile();
+  }
 }
 
 async function register() {
