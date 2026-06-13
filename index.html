@@ -521,72 +521,22 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
 const SUPABASE_URL = 'https://xjwbofgfdwivomvlppfm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__yBtwe_DMyYk8ZvuxtAhIw_WNr3zXIS';
 
-// IndexedDB storage — działa we wszystkich przeglądarkach
-// nawet gdy localStorage jest zablokowany (Brave, Safari ITP, Firefox strict)
-const DB_NAME = 'spotigraj_auth';
-const DB_STORE = 'session';
-let _db = null;
+const STORAGE_KEY = 'sb-xjwbofgfdwivomvlppfm-auth-token';
 
-async function openDB() {
-  if (_db) return _db;
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE);
-    req.onsuccess = e => { _db = e.target.result; resolve(_db); };
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function idbGet(key) {
-  try {
-    const db = await openDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(DB_STORE, 'readonly');
-      const req = tx.objectStore(DB_STORE).get(key);
-      req.onsuccess = () => resolve(req.result ?? null);
-      req.onerror = () => resolve(null);
-    });
-  } catch(e) { return null; }
-}
-
-async function idbSet(key, value) {
-  try {
-    const db = await openDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(DB_STORE, 'readwrite');
-      tx.objectStore(DB_STORE).put(value, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => resolve();
-    });
-  } catch(e) {}
-}
-
-async function idbDel(key) {
-  try {
-    const db = await openDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(DB_STORE, 'readwrite');
-      tx.objectStore(DB_STORE).delete(key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => resolve();
-    });
-  } catch(e) {}
-}
-
-// Custom storage używający IndexedDB z fallback na localStorage
+// Prosty synchroniczny storage — Supabase wymaga sync getItem
 const customStorage = {
-  getItem: async (key) => {
-    const val = await idbGet(key);
-    if (val) return val;
-    try { return localStorage.getItem(key); } catch(e) { return null; }
+  getItem: (key) => {
+    try { const v = localStorage.getItem(key); if (v) return v; } catch(e) {}
+    try { const v = sessionStorage.getItem(key); if (v) return v; } catch(e) {}
+    return null;
   },
-  setItem: async (key, value) => {
-    await idbSet(key, value);
+  setItem: (key, value) => {
     try { localStorage.setItem(key, value); } catch(e) {}
+    try { sessionStorage.setItem(key, value); } catch(e) {}
   },
-  removeItem: async (key) => {
-    await idbDel(key);
+  removeItem: (key) => {
     try { localStorage.removeItem(key); } catch(e) {}
+    try { sessionStorage.removeItem(key); } catch(e) {}
   }
 };
 
@@ -661,41 +611,14 @@ async function initApp() {
     return;
   }
 
-  // Otwieramy IndexedDB
-  try { await openDB(); } catch(e) { console.warn('IndexedDB:', e); }
-
-  // Czekamy na Supabase — dłużej dla cold start
-  await new Promise(r => setTimeout(r, 800));
-
-  let session = null;
-
-  // Próba 1: getSession
   try {
-    const { data } = await sb.auth.getSession();
-    if (data?.session) session = data.session;
-  } catch(e) { console.warn('getSession error:', e); }
-
-  // Próba 2: refreshSession jeśli brak sesji
-  if (!session) {
-    try {
-      await new Promise(r => setTimeout(r, 600));
-      const { data } = await sb.auth.refreshSession();
-      if (data?.session) session = data.session;
-    } catch(e) { console.warn('refreshSession error:', e); }
-  }
-
-  // Próba 3: jeszcze raz getSession
-  if (!session) {
-    try {
-      await new Promise(r => setTimeout(r, 800));
-      const { data } = await sb.auth.getSession();
-      if (data?.session) session = data.session;
-    } catch(e) {}
-  }
-
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await loadProfile();
+    }
+  } catch(e) {
+    console.warn('initApp error:', e);
   }
 }
 
