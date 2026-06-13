@@ -1338,27 +1338,8 @@ async function startCheckout() {
     alert('Musisz być zalogowany żeby przejść na Premium');
     return;
   }
-  try {
-    if (!stripeInstance) stripeInstance = Stripe(STRIPE_KEY);
-    const btn = document.querySelector('#modal-premium button');
-    if (btn) { btn.textContent = 'Przekierowuję...'; btn.disabled = true; }
-
-    const { error } = await stripeInstance.redirectToCheckout({
-      lineItems: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-      mode: 'subscription',
-      successUrl: `https://spotigraj.app/?premium=success&uid=${currentUser.id}`,
-      cancelUrl: 'https://spotigraj.app/?premium=cancel',
-      customerEmail: currentUser.email,
-    });
-
-    if (error) {
-      alert('Błąd płatności: ' + error.message);
-      if (btn) { btn.textContent = 'Przejdź na Premium →'; btn.disabled = false; }
-    }
-  } catch(e) {
-    console.error('Stripe error:', e);
-    alert('Błąd — spróbuj ponownie');
-  }
+  const paymentUrl = `https://buy.stripe.com/28EdRb7MHbzF3pB4Z0cwg00?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
+  window.location.href = paymentUrl;
 }
 
 // Obsługa powrotu ze Stripe
