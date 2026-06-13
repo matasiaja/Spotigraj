@@ -664,8 +664,8 @@ async function initApp() {
   // Otwieramy IndexedDB
   try { await openDB(); } catch(e) { console.warn('IndexedDB:', e); }
 
-  // Czekamy na Supabase
-  await new Promise(r => setTimeout(r, 400));
+  // Czekamy na Supabase — dłużej dla cold start
+  await new Promise(r => setTimeout(r, 800));
 
   let session = null;
 
@@ -884,9 +884,14 @@ async function logout() {
 }
 
 // ── PROFILE LOAD ──────────────────────────────────────────────────
+// Keep-alive — pinguję bazę co 4 minuty żeby nie zasypiała
+setInterval(() => {
+  if (currentUser) sb.from('profiles').select('id').eq('id', currentUser.id).single().catch(() => {});
+}, 4 * 60 * 1000);
+
 async function loadProfile() {
   try {
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000));
     const query = sb.from('profiles').select('*').eq('id', currentUser.id).single();
     const { data, error } = await Promise.race([query, timeout]);
 
@@ -898,8 +903,8 @@ async function loadProfile() {
     }
   } catch(e) {
     console.warn('loadProfile error:', e);
-    if (e.message === 'timeout' && currentUser) {
-      // Timeout — pokaż app mimo to, profil załaduje się później
+    if (currentUser) {
+      // Timeout — pokaż app mimo to
       showApp();
       // Spróbuj ponownie w tle
       setTimeout(async () => {
@@ -912,8 +917,8 @@ async function loadProfile() {
           } else {
             showOnboarding();
           }
-        } catch(e2) { console.warn('retry loadProfile:', e2); }
-      }, 2000);
+        } catch(e2) { console.warn('retry:', e2); }
+      }, 3000);
     } else {
       showOnboarding();
     }
