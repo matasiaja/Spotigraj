@@ -886,7 +886,6 @@ async function logout() {
 // ── PROFILE LOAD ──────────────────────────────────────────────────
 async function loadProfile() {
   try {
-    // Timeout 8 sekund — jeśli baza nie odpowiada, pokaż onboarding
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000));
     const query = sb.from('profiles').select('*').eq('id', currentUser.id).single();
     const { data, error } = await Promise.race([query, timeout]);
@@ -899,8 +898,25 @@ async function loadProfile() {
     }
   } catch(e) {
     console.warn('loadProfile error:', e);
-    // Mimo błędu bazy — pokaż onboarding żeby użytkownik mógł działać
-    showOnboarding();
+    if (e.message === 'timeout' && currentUser) {
+      // Timeout — pokaż app mimo to, profil załaduje się później
+      showApp();
+      // Spróbuj ponownie w tle
+      setTimeout(async () => {
+        try {
+          const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+          if (data) {
+            currentProfile = data;
+            loadMyProfile();
+            loadDiscover();
+          } else {
+            showOnboarding();
+          }
+        } catch(e2) { console.warn('retry loadProfile:', e2); }
+      }, 2000);
+    } else {
+      showOnboarding();
+    }
   }
 }
 
