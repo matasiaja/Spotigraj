@@ -787,14 +787,33 @@ async function login() {
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) return setErr('auth-err', 'Wypełnij wszystkie pola');
   setErr('auth-err', 'Loguję...');
+
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
   if (error) {
     setErr('auth-err', 'Błędny e-mail lub hasło');
     return;
   }
+
   if (data.session) {
     currentUser = data.session.user;
-    await loadProfile();
+    setErr('auth-err', '');
+
+    // Pokaż aplikację NATYCHMIAST — nie czekaj na profil
+    showApp();
+
+    // Załaduj profil w tle
+    sb.from('profiles').select('*').eq('id', currentUser.id).single().then(({ data: profile }) => {
+      if (profile) {
+        currentProfile = profile;
+        loadMyProfile();
+        loadDiscover();
+      } else {
+        showOnboarding();
+      }
+    }).catch(() => {
+      showOnboarding();
+    });
   }
 }
 
@@ -866,12 +885,22 @@ async function logout() {
 
 // ── PROFILE LOAD ──────────────────────────────────────────────────
 async function loadProfile() {
-  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  if (!data) {
+  try {
+    // Timeout 8 sekund — jeśli baza nie odpowiada, pokaż onboarding
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000));
+    const query = sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    const { data, error } = await Promise.race([query, timeout]);
+
+    if (error || !data) {
+      showOnboarding();
+    } else {
+      currentProfile = data;
+      showApp();
+    }
+  } catch(e) {
+    console.warn('loadProfile error:', e);
+    // Mimo błędu bazy — pokaż onboarding żeby użytkownik mógł działać
     showOnboarding();
-  } else {
-    currentProfile = data;
-    showApp();
   }
 }
 
