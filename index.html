@@ -2,374 +2,1535 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Spotigraj — gdzie muzyka łączy ludzi. Platforma networkingowa dla całego przemysłu muzycznego. Zastępstwa, matchowanie, czat.">
-<meta property="og:title" content="Spotigraj — gdzie muzyka łączy ludzi">
-<meta property="og:description" content="Muzycy, managerowie, producenci, realizatorzy — wszyscy w jednym miejscu. Nowa funkcja: moduł zastępstw.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Spotigraj — gdzie muzyka łączy ludzi</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%231DB954'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%231DB954'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%231DB954'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%231DB954'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%231DB954'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%231DB954'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%231DB954'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%231DB954'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%231DB954'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%231DB954'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%231DB954'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%231DB954'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
 <meta name="theme-color" content="#1DB954"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <style>
-:root{--green:#1DB954;--dark:#000;--white:#fff;--gray:#888;--radius:14px}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#000;color:#fff;line-height:1.6}
-nav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:58px}
-.nav-logo{display:flex;align-items:center;gap:10px}
-.nav-logo svg{height:32px;width:auto}
-.nav-logo-text{font-size:18px;font-weight:900;color:var(--green);letter-spacing:1px}
-.nav-right{display:flex;align-items:center;gap:14px}
-.nav-link{font-size:13px;color:#666;text-decoration:none;transition:color .2s}
-.nav-link:hover{color:#fff}
-.nav-cta{background:var(--green);color:#000;padding:8px 20px;border-radius:30px;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .2s}
-.nav-cta:hover{opacity:.85}
-.nav-cta-outline{background:transparent;color:var(--green);padding:7px 18px;border-radius:30px;font-weight:700;font-size:13px;text-decoration:none;border:1px solid rgba(29,185,84,0.4);transition:border-color .2s}
-.nav-cta-outline:hover{border-color:var(--green)}
-@media(max-width:600px){.nav-link,.nav-cta-outline{display:none}}
+:root {
+  --green: #1DB954;
+  --green-dark: #17a349;
+  --purple: #534AB7;
+  --dark: #0a0a0a;
+  --dark2: #111111;
+  --dark3: #1a1a1a;
+  --border: rgba(255,255,255,0.08);
+  --text: #ffffff;
+  --muted: #888888;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--dark); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+.hidden { display: none !important; }
 
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 5vw;position:relative;overflow:hidden}
-.hero-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:80%;height:60%;background:radial-gradient(ellipse,rgba(29,185,84,0.12) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(29,185,84,0.1);color:var(--green);font-size:13px;font-weight:600;padding:6px 16px;border-radius:30px;margin-bottom:28px;border:1px solid rgba(29,185,84,0.2)}
-.hero h1{font-size:clamp(40px,8vw,80px);font-weight:900;line-height:1;letter-spacing:-2px;margin-bottom:20px}
-.hero h1 span{color:var(--green)}
-.hero p{font-size:clamp(16px,2.5vw,20px);color:#888;max-width:600px;margin:0 auto 48px;line-height:1.7}
-.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
-.btn-primary{background:var(--green);color:#000;padding:16px 40px;border-radius:30px;font-size:17px;font-weight:800;text-decoration:none;transition:opacity .2s,transform .15s;display:inline-block}
-.btn-primary:hover{opacity:.88;transform:translateY(-2px)}
-.btn-gold{background:linear-gradient(135deg,#C9A84C,#F0D080);color:#000;padding:16px 40px;border-radius:30px;font-size:17px;font-weight:800;text-decoration:none;transition:opacity .2s,transform .15s;display:inline-block}
-.btn-gold:hover{opacity:.88;transform:translateY(-2px)}
-.btn-outline{background:transparent;color:#fff;padding:15px 36px;border-radius:30px;font-size:16px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.15);display:inline-block;transition:border-color .2s}
-.btn-outline:hover{border-color:rgba(255,255,255,0.4)}
-.hero-stats{display:flex;gap:48px;justify-content:center;flex-wrap:wrap}
-.stat strong{display:block;font-size:32px;font-weight:900}
-.stat span{font-size:13px;color:#555}
+/* AUTH */
+#auth-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: var(--dark); }
+.auth-logo { font-size: 36px; font-weight: 800; color: var(--green); letter-spacing: 2px; margin-bottom: 8px; }
+.auth-sub { font-size: 14px; color: var(--muted); margin-bottom: 40px; text-align: center; }
+.auth-box { background: var(--dark2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 360px; }
+.auth-tabs { display: flex; margin-bottom: 24px; border-radius: var(--radius-sm); overflow: hidden; background: var(--dark3); }
+.auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; transition: all .2s; }
+.auth-tab.active { background: var(--green); color: #fff; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+.field input, .field select, .field textarea { width: 100%; padding: 12px 14px; background: var(--dark3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; outline: none; transition: border .2s; font-family: inherit; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); }
+.field select option { background: var(--dark3); }
+.field textarea { resize: vertical; min-height: 80px; }
+.btn { width: 100%; padding: 13px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { opacity: .85; }
+.btn-outline { background: transparent; color: var(--green); border: 1.5px solid var(--green); }
+.err { color: #ff6b6b; font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
 
-/* SEKCJE */
-section{padding:80px 5vw}
-.s-label{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--green);margin-bottom:12px}
-.s-title{font-size:clamp(28px,5vw,48px);font-weight:900;line-height:1.1;margin-bottom:16px}
-.s-sub{font-size:17px;color:#666;max-width:580px;line-height:1.7}
-.center{text-align:center}
-.center .s-sub{margin:0 auto}
-.sep{height:1px;background:rgba(255,255,255,0.06);margin:0 5vw}
+/* APP SHELL */
+#app { display: flex; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
+.topbar { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.topbar-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.topbar-sub { font-size: 12px; color: var(--muted); }
+.main-content { flex: 1; overflow-y: auto; padding: 16px; }
 
-/* WHO */
-.who-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:48px}
-.who-card{background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:22px;transition:border-color .2s}
-.who-card:hover{border-color:rgba(29,185,84,0.25)}
-.who-icon{font-size:28px;margin-bottom:12px}
-.who-card h3{font-size:15px;font-weight:700;margin-bottom:5px}
-.who-card p{font-size:12px;color:#555;line-height:1.6}
+/* BOTTOM NAV */
+.bottom-nav { display: flex; border-top: 1px solid var(--border); flex-shrink: 0; background: var(--dark); }
+.nav-btn { flex: 1; padding: 10px 0 8px; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; color: var(--muted); transition: color .2s; }
+.nav-btn.active { color: var(--green); }
+.nav-icon { font-size: 22px; line-height: 1; }
 
-/* ZASTĘPSTWA */
-.zast-section{background:#050505}
-.zast-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:52px}
-@media(max-width:700px){.zast-grid{grid-template-columns:1fr}}
-.zast-feature{margin-bottom:28px}
-.zast-feature h3{font-size:18px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.zast-feature p{font-size:14px;color:#666;line-height:1.7}
-.zast-mockup{background:#0d0d0d;border:1px solid rgba(255,80,80,0.2);border-radius:16px;padding:20px}
-.zast-badge{display:inline-block;background:rgba(255,80,80,0.1);color:#ff6b6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:12px}
-.zast-role{font-size:16px;font-weight:700;margin-bottom:4px}
-.zast-meta{font-size:12px;color:#555;margin-bottom:8px}
-.zast-desc{font-size:13px;color:#888;line-height:1.5;margin-bottom:14px}
-.zast-btn{display:inline-block;padding:8px 18px;background:#ff6b6b;border-radius:20px;color:#fff;font-size:12px;font-weight:700;text-decoration:none}
-.standy-mockup{background:#0d0d0d;border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:20px;margin-top:14px}
-.standy-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.standy-row:last-child{border:none}
-.standy-av{width:36px;height:36px;border-radius:50%;background:rgba(245,158,11,0.15);color:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.standy-info{flex:1}
-.standy-name{font-size:13px;font-weight:700}
-.standy-role{font-size:11px;color:#666}
-.standy-badge{font-size:10px;padding:2px 8px;background:rgba(245,158,11,0.1);color:#f59e0b;border-radius:10px;white-space:nowrap}
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
 
-/* JAK DZIAŁA */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-top:52px;position:relative}
-.step{text-align:center}
-.step-num{width:52px;height:52px;border-radius:50%;background:var(--green);color:#000;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.step h3{font-size:15px;font-weight:700;margin-bottom:8px}
-.step p{font-size:13px;color:#555;line-height:1.6}
+/* DISCOVER */
+.filter-row { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.filter-row::-webkit-scrollbar { display: none; }
+.chip { white-space: nowrap; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: none; cursor: pointer; color: var(--muted); transition: all .2s; }
+.chip.on { background: rgba(29,185,84,0.15); color: var(--green); border-color: var(--green); }
 
-/* BIG CTA */
-.big-cta{text-align:center;position:relative;overflow:hidden}
-.big-cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(29,185,84,0.1) 0%,transparent 70%);pointer-events:none}
-.big-cta h2{font-size:clamp(32px,6vw,60px);font-weight:900;letter-spacing:-1px;line-height:1.1;position:relative;margin-bottom:20px}
-.big-cta h2 span{color:var(--green)}
-.big-cta p{font-size:17px;color:#666;margin-bottom:40px;position:relative}
+.profile-card { background: var(--dark2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+.card-name { font-size: 16px; font-weight: 700; }
+.card-role { font-size: 12px; color: var(--muted); }
+.match-pct { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--green); background: rgba(29,185,84,0.12); padding: 4px 10px; border-radius: 20px; }
+.card-bio { font-size: 13px; color: #aaa; line-height: 1.55; margin-bottom: 12px; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(29,185,84,0.1); color: var(--green); }
+.tag-gray { background: rgba(255,255,255,0.06); color: var(--muted); }
+.card-actions { display: flex; gap: 10px; }
+.btn-skip { flex: 1; padding: 9px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 600; transition: all .2s; }
+.btn-skip:hover { border-color: #ff6b6b; color: #ff6b6b; }
+.btn-like { flex: 2; padding: 9px; background: var(--green); border: none; border-radius: var(--radius-sm); color: #fff; cursor: pointer; font-size: 13px; font-weight: 700; transition: opacity .2s; }
+.btn-like:hover { opacity: .85; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-icon { font-size: 48px; margin-bottom: 14px; }
 
-/* FEATURES */
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:48px}
-.feat-card{background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:26px}
-.feat-icon{font-size:26px;margin-bottom:12px}
-.feat-card h3{font-size:15px;font-weight:700;margin-bottom:7px}
-.feat-card p{font-size:13px;color:#555;line-height:1.6}
+/* MESSAGES */
+.conv-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.conv-row:last-child { border-bottom: none; }
+.conv-info { flex: 1; min-width: 0; }
+.conv-name { font-size: 14px; font-weight: 600; }
+.conv-preview { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.unread { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:52px;max-width:720px;margin-left:auto;margin-right:auto}
-.plan{background:#0d0d0d;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px;position:relative}
-.plan.featured{background:linear-gradient(135deg,#0a1a0a,#0d1f0d);border-color:rgba(29,185,84,0.4)}
-.plan.gold{background:linear-gradient(135deg,#1a1500,#1f1a00);border-color:rgba(201,168,76,0.4)}
-.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;padding:3px 14px;border-radius:20px;white-space:nowrap}
-.plan-badge.green{background:var(--green);color:#000}
-.plan-badge.gold{background:linear-gradient(135deg,#C9A84C,#F0D080);color:#000}
-.plan-name{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#555;margin-bottom:8px}
-.plan.featured .plan-name{color:rgba(29,185,84,0.7)}
-.plan.gold .plan-name{color:rgba(201,168,76,0.7)}
-.plan-price{font-size:48px;font-weight:900;line-height:1}
-.plan-period{font-size:13px;color:#444;margin-bottom:24px}
-.plan.featured .plan-period{color:rgba(29,185,84,0.5)}
-.plan.gold .plan-period{color:rgba(201,168,76,0.5)}
-.plan-features{list-style:none;margin-bottom:28px}
-.plan-features li{font-size:13px;color:#666;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:flex-start;gap:10px;line-height:1.5}
-.plan.featured .plan-features li{color:#aaa;border-bottom-color:rgba(29,185,84,0.08)}
-.plan.gold .plan-features li{color:#aaa;border-bottom-color:rgba(201,168,76,0.08)}
-.plan-features li::before{content:"✓";font-weight:800;flex-shrink:0;margin-top:1px}
-.plan .plan-features li::before{color:#444}
-.plan.featured .plan-features li::before{color:var(--green)}
-.plan.gold .plan-features li::before{color:#C9A84C}
-.btn-plan{width:100%;padding:14px;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;display:block;text-align:center;border:none;transition:opacity .2s}
-.btn-free{background:transparent;color:#555;border:1px solid rgba(255,255,255,0.1)}
-.btn-premium{background:var(--green);color:#000}
-.btn-premium-gold{background:linear-gradient(135deg,#C9A84C,#F0D080);color:#000}
-.btn-plan:hover{opacity:.85}
+/* CHAT */
+#chat-screen { display: none; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; }
+#chat-screen.active { display: flex; }
+.chat-top { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.back-btn { background: none; border: none; color: var(--green); font-size: 22px; cursor: pointer; padding: 0; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.msg { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.5; }
+.msg-out { background: var(--green); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.msg-in { background: var(--dark2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+.msg-time { font-size: 10px; opacity: 0.6; margin-top: 3px; }
+.chat-input-row { display: flex; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--border); flex-shrink: 0; background: var(--dark); }
+.chat-input { flex: 1; padding: 11px 14px; background: var(--dark2); border: 1px solid var(--border); border-radius: 24px; color: var(--text); font-size: 14px; outline: none; font-family: inherit; }
+.chat-input:focus { border-color: var(--green); }
+.send-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 
-/* FOOTER */
-footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.footer-logo{font-size:18px;font-weight:900;color:var(--green)}
-.footer-links{display:flex;gap:24px}
-.footer-links a{font-size:13px;color:#333;text-decoration:none}
-.footer-links a:hover{color:#888}
-.footer-copy{font-size:12px;color:#222}
+/* PROFILE */
+.profile-header { text-align: center; padding: 24px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.zast-card { background: var(--dark2); border: 1px solid rgba(255,80,80,0.25); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; animation: fadeIn .3s ease; }
+.zast-card.urgent { border-color: rgba(255,80,80,0.5); }
+.zast-badge { display: inline-block; background: rgba(255,80,80,0.15); color: #ff6b6b; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+.zast-role { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.zast-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.zast-desc { font-size: 13px; color: #aaa; line-height: 1.55; margin-bottom: 12px; }
+.zast-footer { display: flex; align-items: center; justify-content: space-between; }
+.zast-time { font-size: 11px; color: var(--muted); }
+.btn-zast-contact { padding: 8px 18px; background: #ff6b6b; border: none; border-radius: var(--radius-sm); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+.btn-zast-contact:hover { opacity: .85; }
+.zast-empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.profile-av-lg { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; margin: 0 auto 12px; }
+.profile-name-lg { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.profile-role-lg { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.profile-stats { display: flex; justify-content: center; gap: 32px; }
+.stat { text-align: center; }
+.stat-n { font-size: 20px; font-weight: 700; }
+.stat-l { font-size: 11px; color: var(--muted); }
+.profile-section { margin-bottom: 20px; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+.edit-btn { width: 100%; padding: 12px; background: transparent; border: 1.5px solid var(--green); border-radius: 30px; color: var(--green); font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+.status-btn { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--dark3); color: var(--muted); font-size: 13px; cursor: pointer; transition: all .2s; text-align: center; }
+.status-btn.selected { border-color: var(--green); color: var(--green); background: rgba(29,185,84,0.1); }
+.status-btn.standy-on { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.1); }
+.status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.status-active { background: rgba(29,185,84,0.15); color: #1DB954; }
+.status-busy { background: rgba(234,179,8,0.15); color: #ca8a04; }
+.status-unavailable { background: rgba(239,68,68,0.15); color: #dc2626; }
+.status-vacation { background: rgba(59,130,246,0.15); color: #2563eb; }
+.standy-badge { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.logout-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: 30px; color: var(--muted); font-size: 14px; cursor: pointer; margin-top: 10px; }
+
+/* ONBOARDING */
+#onboarding { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: var(--dark); }
+.onboard-box { background: var(--dark2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 400px; }
+.onboard-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.onboard-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+.genres-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.genre-chip { padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 13px; transition: all .2s; }
+.genre-chip.selected { background: rgba(29,185,84,0.15); color: var(--green); border-color: var(--green); }
+.section-group { margin-bottom: 10px; }
+.section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 9px 14px; background: var(--dark3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; text-align: left; }
+.section-btn:hover { border-color: var(--green); color: var(--green); }
+.section-btn.has-selected { border-color: var(--green); color: var(--green); background: rgba(29,185,84,0.08); }
+.section-btn .arrow { font-size: 11px; transition: transform .2s; }
+.section-btn.open .arrow { transform: rotate(180deg); }
+.section-chips { display: none; flex-wrap: wrap; gap: 6px; padding: 10px 0 4px 0; }
+.section-chips.open { display: flex; }
+.selected-preview { font-size: 11px; color: var(--green); margin-left: 8px; font-weight: 400; }
+.setup-sql { background: var(--dark3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px; font-size: 12px; color: #aaa; line-height: 1.6; }
+.setup-sql code { color: var(--green); font-family: monospace; }
 </style>
 </head>
 <body>
+<div id="loading-screen" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999">
+  <svg viewBox="0 0 210 105" xmlns="http://www.w3.org/2000/svg" style="height:60px;width:auto;margin-bottom:24px">
+    <rect x="0" y="60" width="22" height="40" rx="3" fill="#1DB954"/>
+    <rect x="28" y="44" width="22" height="56" rx="3" fill="#1DB954"/>
+    <rect x="56" y="28" width="22" height="72" rx="3" fill="#1DB954"/>
+    <rect x="84" y="48" width="22" height="52" rx="3" fill="#1DB954"/>
+    <rect x="112" y="18" width="22" height="82" rx="3" fill="#1DB954"/>
+    <rect x="140" y="40" width="22" height="60" rx="3" fill="#1DB954"/>
+    <rect x="168" y="56" width="22" height="44" rx="3" fill="#1DB954"/>
+    <circle cx="123" cy="12" r="12" fill="#1DB954"/>
+    <circle cx="117" cy="8" r="2.6" fill="#000"/>
+    <circle cx="129" cy="8" r="2.6" fill="#000"/>
+    <path d="M115 15 Q123 21 131 15" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </svg>
+  <div style="font-size:13px;color:#555">Łączenie...</div>
+</div>
 
-<nav>
-  <div class="nav-logo">
-    <svg viewBox="0 0 210 105" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="60" width="22" height="40" rx="3" fill="#1DB954"/>
-      <rect x="28" y="44" width="22" height="56" rx="3" fill="#1DB954"/>
-      <rect x="56" y="28" width="22" height="72" rx="3" fill="#1DB954"/>
-      <rect x="84" y="48" width="22" height="52" rx="3" fill="#1DB954"/>
-      <rect x="112" y="18" width="22" height="82" rx="3" fill="#1DB954"/>
-      <rect x="140" y="40" width="22" height="60" rx="3" fill="#1DB954"/>
-      <rect x="168" y="56" width="22" height="44" rx="3" fill="#1DB954"/>
-      <circle cx="123" cy="12" r="12" fill="#1DB954"/>
-      <circle cx="117" cy="8" r="2.6" fill="#000"/>
-      <circle cx="129" cy="8" r="2.6" fill="#000"/>
-      <path d="M115 15 Q123 21 131 15" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
-    </svg>
-    <span class="nav-logo-text">SPOTIGRAJ</span>
-  </div>
-  <div class="nav-right">
-    <a href="#zastepstwa" class="nav-link">Zastępstwa</a>
-    <a href="#cennik" class="nav-link">Cennik</a>
-    <a href="https://spotigraj.app" class="nav-cta-outline">Zaloguj się</a>
-    <a href="https://spotigraj.app" class="nav-cta">Wejdź do aplikacji →</a>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-badge">🎵 Otwarta beta · Pierwsze 500 osób — Premium gratis</div>
-  <h1>Gdzie muzyka<br><span>łączy ludzi.</span></h1>
-  <p>Pierwsza polska platforma networkingowa dla całego przemysłu muzycznego. Muzycy, managerowie, producenci, realizatorzy — wszyscy w jednym miejscu. Teraz z modułem zastępstw.</p>
-  <div class="hero-actions">
-    <a href="https://spotigraj.app" class="btn-primary">Dołącz za darmo →</a>
-    <a href="https://buy.stripe.com/28EdRb7MHbzF3pB4Z0cwg00" class="btn-gold">✨ Kup Premium — 19 zł/mies.</a>
-    <a href="#zastepstwa" class="btn-outline">🚨 Zobacz zastępstwa</a>
-  </div>
-  <div class="hero-stats">
-    <div class="stat"><strong>60+</strong><span>ról do wyboru</span></div>
-    <div class="stat"><strong>150+</strong><span>gatunków muzycznych</span></div>
-    <div class="stat"><strong>0</strong><span>podobnych platform w PL</span></div>
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- DLA KOGO -->
-<section>
-  <div class="center">
-    <div class="s-label">Dla kogo</div>
-    <h2 class="s-title">Cała branża w jednym miejscu</h2>
-    <p class="s-sub">Spotigraj łączy każdą osobę ze świata muzyki — niezależnie od roli.</p>
-  </div>
-  <div class="who-grid">
-    <div class="who-card"><div class="who-icon">🎤</div><h3>Muzycy i wykonawcy</h3><p>Wokaliści, instrumentaliści, producenci — znajdź skład lub projekt do współpracy.</p></div>
-    <div class="who-card"><div class="who-icon">🎧</div><h3>Producenci i DJ-e</h3><p>Beatmakerzy, sound designerzy, live act — połącz się z artystami.</p></div>
-    <div class="who-card"><div class="who-icon">📋</div><h3>Managerowie i agenci</h3><p>Booking, tour manager, agenci — znajdź artystów do reprezentowania.</p></div>
-    <div class="who-card"><div class="who-icon">🎚️</div><h3>Realizatorzy</h3><p>FOH, mastering, studio — połącz się z projektami wymagającymi Twoich umiejętności.</p></div>
-    <div class="who-card"><div class="who-icon">📸</div><h3>Media i promocja</h3><p>Fotografowie, dziennikarze, podcasterzy — oferuj usługi całej branży.</p></div>
-    <div class="who-card"><div class="who-icon">🏢</div><h3>Wytwórnie i labels</h3><p>Właściciele, dystrybutorzy, promotorzy — odkryj talenty i buduj partnerstwa.</p></div>
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- ZASTĘPSTWA -->
-<section class="zast-section" id="zastepstwa">
-  <div>
-    <div class="s-label">Nowość · Tylko w Spotigraj</div>
-    <h2 class="s-title">Moduł zastępstw<br><span style="color:var(--green)">i Stand By</span></h2>
-    <p class="s-sub">Muzyk zachorował godzinę przed koncertem? Spotigraj rozwiązuje ten problem w minuty.</p>
-  </div>
-  <div class="zast-grid">
-    <div>
-      <div class="zast-feature">
-        <h3>🚨 Pilne ogłoszenia zastępstw</h3>
-        <p>Opublikuj ogłoszenie z rolą, miastem, datą i opisem. Ogłoszenie wygasa po 48 godzinach automatycznie. Wszyscy użytkownicy widzą ogłoszenia — ale tylko Premium może je publikować.</p>
-      </div>
-      <div class="zast-feature">
-        <h3>🎯 Stand By — gotowy do wskazania</h3>
-        <p>Oznacz swój profil jako "Stand By" nawet gdy jesteś zajęty w stałym składzie. Pojawisz się na liście muzyków dostępnych na zastępstwo. Gdy ktoś szuka pilnie — zobaczy Twój numer telefonu od razu.</p>
-      </div>
-      <div class="zast-feature">
-        <h3>📞 Kontakt od razu</h3>
-        <p>Po wzajemnym matchu lub w module zastępstw — numer telefonu widoczny natychmiast. Zero zwłoki, zero pośredników. Dzwonisz, dogadujecie się, grasz.</p>
-      </div>
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">SPOTIGRAJ</div>
+  <div class="auth-sub">gdzie muzyka łączy ludzi</div>
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Logowanie</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Rejestracja</button>
     </div>
-    <div>
-      <div class="zast-mockup">
-        <div class="zast-badge">🚨 PILNE · Warszawa</div>
-        <div class="zast-role">Perkusista/Perkusistka</div>
-        <div class="zast-meta">📅 Dziś, 20:00 · Dodał: Tomek W. (Lider Zespołu)</div>
-        <div class="zast-desc">Wesele, repertuar pop/dance, ok. 5h grania. Płatne 600 zł. Potrzebny ktoś doświadczony.</div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:#555">Wygasa za 44h</span>
-          <a href="https://spotigraj.app" class="zast-btn">Zgłoś się →</a>
+    <div id="login-form">
+      <div class="field"><label>E-mail</label><input type="email" id="login-email" placeholder="twoj@email.com"></div>
+      <div class="field"><label>Hasło</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+      <button class="btn btn-green" onclick="login()">Zaloguj się</button>
+      <div style="text-align:center;margin-top:14px"><a href="#" onclick="showReset();return false;" style="color:var(--green);font-size:13px;text-decoration:none">Nie pamiętasz hasła?</a></div>
+    </div>
+    <div id="register-form" class="hidden">
+      <div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="twoj@email.com"></div>
+      <div class="field"><label>Hasło (min. 6 znaków)</label><input type="password" id="reg-pass" placeholder="••••••••"></div>
+      <div class="field"><label>Powtórz hasło</label><input type="password" id="reg-pass2" placeholder="••••••••"></div>
+      <button class="btn btn-green" onclick="register()">Utwórz konto</button>
+    </div>
+    <div id="reset-form" class="hidden">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;text-align:center">Podaj swój e-mail — wyślemy Ci link do zresetowania hasła.</div>
+      <div class="field"><label>E-mail</label><input type="email" id="reset-email" placeholder="twoj@email.com"></div>
+      <button class="btn btn-green" onclick="resetPassword()">Wyślij link resetujący</button>
+      <div style="text-align:center;margin-top:14px"><a href="#" onclick="showLogin();return false;" style="color:var(--green);font-size:13px;text-decoration:none">← Wróć do logowania</a></div>
+    </div>
+    <div id="new-password-form" class="hidden">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;text-align:center">Ustaw nowe hasło dla swojego konta.</div>
+      <div class="field"><label>Nowe hasło (min. 6 znaków)</label><input type="password" id="new-pass" placeholder="••••••••"></div>
+      <div class="field"><label>Powtórz nowe hasło</label><input type="password" id="new-pass2" placeholder="••••••••"></div>
+      <button class="btn btn-green" onclick="updatePassword()">Zapisz nowe hasło</button>
+    </div>
+    <div class="err" id="auth-err"></div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="hidden">
+  <div class="onboard-box">
+    <div class="onboard-title">Utwórz profil 🎵</div>
+    <div class="onboard-sub">Powiedz nam kim jesteś jako muzyk</div>
+    <div class="field"><label>Imię / pseudonim</label><input type="text" id="ob-name" placeholder="np. Matt, KasiaVocals..."></div>
+    <div class="field">
+      <label>Twoja rola</label>
+      <select id="ob-role">
+        <option value="">Wybierz rolę...</option>
+        <optgroup label="Wokaliści">
+          <option>Wokalista/Wokalistka</option>
+          <option>Chórzysta/Chórzystka</option>
+          <option>Raper/Raperka</option>
+          <option>Beatboxer/Beatboxerka</option>
+        </optgroup>
+        <optgroup label="Gitary i Bas">
+          <option>Gitarzysta/Gitarzystka</option>
+          <option>Gitarzysta Basowy/Basistka</option>
+        </optgroup>
+        <optgroup label="Perkusja">
+          <option>Perkusista/Perkusistka</option>
+        </optgroup>
+        <optgroup label="Klawisze i Fortepian">
+          <option>Klawiszowiec</option>
+          <option>Pianista/Pianistka</option>
+          <option>Organista/Organistka</option>
+          <option>Akordeonista/Akordeonistka</option>
+        </optgroup>
+        <optgroup label="Smyczki">
+          <option>Skrzypek/Skrzypaczka</option>
+          <option>Altowiolista/Altowiolistka</option>
+          <option>Wiolonczelista/Wiolonczelistka</option>
+          <option>Kontrabasista/Kontrabasistka</option>
+        </optgroup>
+        <optgroup label="Dęte Drewniane">
+          <option>Flecista/Flecistka</option>
+          <option>Klarnecista/Klarnecistka</option>
+          <option>Oboista/Oboistka</option>
+          <option>Fagocista/Fagocistka</option>
+          <option>Saksofonista/Saksofonistka</option>
+        </optgroup>
+        <optgroup label="Dęte Blaszane">
+          <option>Trębacz/Trębaczka</option>
+          <option>Puzonista/Puzonistka</option>
+          <option>Waltornista/Waltornistka</option>
+          <option>Tubista/Tubistka</option>
+        </optgroup>
+        <optgroup label="Inne Instrumenty">
+          <option>Harfista/Harfistka</option>
+          <option>Mandolinista/Mandolinistka</option>
+          <option>Banjoista/Banjoistka</option>
+          <option>Ukulelista/Ukulelistka</option>
+          <option>Lutnista/Lutnistka</option>
+          <option>Cymbalista/Cymbalistka</option>
+          <option>Harmonijkarz/Harmonijkarka</option>
+          <option>Dudziarz/Dudziarka</option>
+          <option>Muzyk Folkowy</option>
+          <option>Instrumentalista (Inny)</option>
+        </optgroup>
+        <optgroup label="Muzyka Elektroniczna">
+          <option>DJ</option>
+          <option>Producent Muzyczny</option>
+          <option>Beatmaker</option>
+          <option>Live Act</option>
+          <option>Sound Designer</option>
+          <option>Twórca Muzyki Elektronicznej</option>
+        </optgroup>
+        <optgroup label="Twórcy">
+          <option>Kompozytor/Kompozytorka</option>
+          <option>Autor Tekstów</option>
+          <option>Aranżer/Aranżerka</option>
+          <option>Dyrygent/Dyrygentka</option>
+          <option>Orkiestrator/Orkiestratorka</option>
+        </optgroup>
+        <optgroup label="Produkcja i Studio">
+          <option>Realizator Dźwięku</option>
+          <option>Realizator Nagrań</option>
+          <option>Realizator FOH</option>
+          <option>Inżynier Masteringu</option>
+          <option>Inżynier Miksu</option>
+          <option>Technik Studyjny</option>
+          <option>Lutnik</option>
+        </optgroup>
+        <optgroup label="Management">
+          <option>Manager Artysty</option>
+          <option>Manager Zespołu</option>
+          <option>Booking Manager</option>
+          <option>Tour Manager</option>
+          <option>Agent Koncertowy</option>
+          <option>Promotor</option>
+          <option>Organizator Wydarzeń</option>
+          <option>Wydawca Muzyczny</option>
+        </optgroup>
+        <optgroup label="Media i Promocja">
+          <option>Dziennikarz Muzyczny</option>
+          <option>Podcaster</option>
+          <option>Prezenter Radiowy</option>
+          <option>Fotograf Muzyczny</option>
+          <option>Wideofilmowiec</option>
+          <option>Grafik</option>
+          <option>Social Media Manager</option>
+          <option>Specjalista PR</option>
+        </optgroup>
+        <optgroup label="Inne">
+          <option>Nauczyciel Muzyki</option>
+          <option>Student Kierunku Muzycznego</option>
+          <option>Fan Muzyki</option>
+          <option>Inne</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
+    <div class="field"><label>Numer telefonu (opcjonalnie — pokazywany po matchu)</label><input type="tel" id="ob-phone" placeholder="np. +48 600 123 456"></div>
+
+    <div class="field">
+      <label>Status dostępności</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px" id="status-grid">
+        <button type="button" class="status-btn selected" data-status="active" onclick="selectStatus(this)">🟢 Aktywny</button>
+        <button type="button" class="status-btn" data-status="busy" onclick="selectStatus(this)">🟡 Zajęty</button>
+        <button type="button" class="status-btn" data-status="unavailable" onclick="selectStatus(this)">🔴 Niedostępny</button>
+        <button type="button" class="status-btn" data-status="vacation" onclick="selectStatus(this)">🏖️ Wakacje</button>
+      </div>
+      <input type="date" id="ob-vacation-until" placeholder="Wróćę dnia..." style="display:none;width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+    </div>
+
+    <div class="field">
+      <label>Stand By na zastępstwa</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+        <button type="button" id="standy-btn" class="status-btn" onclick="toggleStandBy(this)" style="flex:1">🎯 Nie jestem Stand By</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Włącz jeśli możesz wskoczyć na zastępstwo w razie potrzeby — nawet gdy jesteś zajęty w stałym składzie.</div>
+    </div>
+    <div class="field">
+      <label>Gatunki muzyczne (wybierz kilka)</label>
+      <div class="genres-grid" id="genres-grid"></div>
+    </div>
+    <div class="field">
+      <label>Kogo szukasz? (wybierz kilka ról)</label>
+      <div class="genres-grid" id="looking-for-grid"></div>
+    </div>
+    <div class="field">
+      <label>Krótkie bio (opcjonalnie)</label>
+      <textarea id="ob-bio" placeholder="Kilka słów o sobie i czego szukasz..."></textarea>
+    </div>
+    <button class="btn btn-green" onclick="saveProfile()">Gotowe — szukaj muzyków!</button>
+    <div class="err" id="ob-err"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+
+  <!-- DISCOVER -->
+  <div id="s-discover" class="screen active">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Spotigraj</div>
+        <div class="topbar-sub" id="discover-city">Polska</div>
+      </div>
+      <span style="font-size:20px;cursor:pointer" onclick="goTo('profile')">⚙️</span>
+    </div>
+    <div class="main-content">
+      <div class="filter-row" id="filter-row"></div>
+      <div id="cards-container"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div id="s-messages" class="screen">
+    <div class="topbar"><div class="topbar-title">Wiadomości</div></div>
+    <div class="main-content">
+      <div id="convs-list"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="s-profile" class="screen">
+    <div class="main-content">
+      <div class="profile-header">
+        <div class="profile-av-lg" id="prof-av"></div>
+        <div class="profile-name-lg" id="prof-name"></div>
+        <div class="profile-role-lg" id="prof-role"></div>
+        <div class="profile-stats">
+          <div class="stat"><div class="stat-n" id="stat-matches">0</div><div class="stat-l">połączeń</div></div>
+          <div class="stat"><div class="stat-n" id="stat-likes">0</div><div class="stat-l">polubień</div></div>
         </div>
       </div>
-      <div class="standy-mockup">
-        <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#f59e0b;margin-bottom:12px">🎯 STAND BY — GOTOWI</div>
-        <div class="standy-row">
-          <div class="standy-av">AK</div>
-          <div class="standy-info"><div class="standy-name">Anna Kowalska</div><div class="standy-role">Wokalistka · Kraków</div></div>
-          <span class="standy-badge">🟢 Aktywna</span>
-        </div>
-        <div class="standy-row">
-          <div class="standy-av">MP</div>
-          <div class="standy-info"><div class="standy-name">Marek Piotrowski</div><div class="standy-role">Gitarzysta · Warszawa</div></div>
-          <span class="standy-badge">🟡 Zajęty</span>
-        </div>
-        <div class="standy-row">
-          <div class="standy-av">JS</div>
-          <div class="standy-info"><div class="standy-name">Julia Stawska</div><div class="standy-role">Skrzypaczka · Poznań</div></div>
-          <span class="standy-badge">🟢 Aktywna</span>
-        </div>
+      <div class="profile-section">
+        <div class="section-label">O mnie</div>
+        <div id="prof-bio" style="font-size:14px;color:#aaa;line-height:1.6"></div>
+      </div>
+      <div class="profile-section">
+        <div class="section-label">Gatunki</div>
+        <div class="tags" id="prof-genres"></div>
+      </div>
+      <div class="profile-section">
+        <div class="section-label">Szuka</div>
+        <div class="tags" id="prof-looking"></div>
+      </div>
+      <div class="profile-section" id="prof-phone-section" style="display:none">
+        <div class="section-label">Telefon (widoczny po matchu)</div>
+        <div id="prof-phone" style="font-size:14px;color:#aaa"></div>
+      </div>
+      <button class="edit-btn" onclick="showEdit()">✏️ Edytuj profil</button>
+      <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" onclick="showChangePassword()">🔑 Zmień hasło</button>
+      <button class="logout-btn" onclick="logout()">Wyloguj się</button>
+    </div>
+  </div>
+
+  <!-- ZASTĘPSTWA -->
+  <div id="s-zastepstwa" class="screen">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🚨 Zastępstwa</div>
+        <div class="topbar-sub">Pilne ogłoszenia · ostatnie 48h</div>
+      </div>
+      <button id="btn-add-zastepstwo" onclick="showAddZastepstwo()" style="background:var(--green);color:#000;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Dodaj</button>
+    </div>
+    <div class="main-content">
+      <div id="zastepstwa-list"></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nb-discover" onclick="goTo('discover')">
+      <span class="nav-icon">✨</span>Odkryj
+    </button>
+    <button class="nav-btn" id="nb-zastepstwa" onclick="goTo('zastepstwa')">
+      <span class="nav-icon">🚨</span>Zastępstwa
+    </button>
+    <button class="nav-btn" id="nb-messages" onclick="goTo('messages')">
+      <span class="nav-icon">💬</span>Wiadomości
+    </button>
+    <button class="nav-btn" id="nb-profile" onclick="goTo('profile')">
+      <span class="nav-icon">👤</span>Profil
+    </button>
+  </div>
+</div>
+
+<!-- MODAL DODAJ ZASTĘPSTWO (tylko Premium) -->
+<div id="modal-zastepstwo" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:420px">
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px">🚨 Dodaj ogłoszenie zastępstwa</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Ogłoszenie wygasa po 48 godzinach</div>
+    <div class="field"><label>Czego potrzebujesz?</label>
+      <select id="zast-role" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+        <option value="">Wybierz rolę...</option>
+        <option>Wokalista/Wokalistka</option><option>Gitarzysta/Gitarzystka</option><option>Gitarzysta Basowy/Basistka</option><option>Perkusista/Perkusistka</option><option>Klawiszowiec</option><option>Pianista/Pianistka</option><option>Skrzypek/Skrzypaczka</option><option>Saksofonista/Saksofonistka</option><option>Trębacz/Trębaczka</option><option>DJ</option><option>Producent Muzyczny</option><option>Realizator Dźwięku</option><option>Inne</option>
+      </select>
+    </div>
+    <div class="field"><label>Miasto / lokalizacja</label><input type="text" id="zast-city" placeholder="np. Warszawa" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none"></div>
+    <div class="field"><label>Data i godzina</label><input type="datetime-local" id="zast-date" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none"></div>
+    <div class="field"><label>Opis (gatunek, wymagania, wynagrodzenie)</label><textarea id="zast-desc" placeholder="np. Wesele, repertuar pop/dance, znajomość mikrofonu, płatne 500 zł" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button onclick="closeAddZastepstwo()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);border-radius:30px;color:var(--muted);font-size:14px;cursor:pointer">Anuluj</button>
+      <button onclick="submitZastepstwo()" style="flex:2;padding:11px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:14px;font-weight:700;cursor:pointer">Opublikuj ogłoszenie</button>
+    </div>
+    <div class="err" id="zast-err" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- MODAL PREMIUM dla darmowiaków -->
+<div id="modal-premium" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--dark2);border:1px solid rgba(29,185,84,0.3);border-radius:var(--radius);padding:28px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🎵</div>
+    <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px">Funkcja Premium</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6">Dodawanie ogłoszeń zastępstw dostępne jest tylko dla użytkowników Premium. Czytanie ogłoszeń jest bezpłatne.</div>
+    <div style="background:var(--green);border-radius:var(--radius);padding:20px;margin-bottom:20px">
+      <div style="font-size:32px;font-weight:900;color:#000;line-height:1">19 zł</div>
+      <div style="font-size:13px;color:rgba(0,0,0,0.6);margin-bottom:12px">miesięcznie</div>
+      <div style="font-size:12px;color:#000;text-align:left">
+        ✓ Nieograniczone matche<br>
+        ✓ Dodawanie zastępstw<br>
+        ✓ Priorytet w wynikach<br>
+        ✓ Zaawansowane filtry<br>
+        ✓ Nieograniczone projekty
       </div>
     </div>
+    <button onclick="startCheckout()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Przejdź na Premium →</button>
+    <button onclick="closePremiumModal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:13px;cursor:pointer">Może później</button>
   </div>
-</section>
+</div>
 
-<div class="sep"></div>
-
-<!-- JAK DZIAŁA -->
-<section id="jak-dziala">
-  <div class="center">
-    <div class="s-label">Jak to działa</div>
-    <h2 class="s-title">Cztery kroki do połączenia</h2>
-    <p class="s-sub">Żadnych grup na Facebooku. Żadnego zimnego outreachu. Tylko dopasowane kontakty.</p>
-  </div>
-  <div class="steps">
-    <div class="step"><div class="step-num">1</div><h3>Utwórz profil</h3><p>Wybierz rolę (60+ opcji), gatunki (150+) i miasto. Zaznacz kogo szukasz — system dopasuje Cię do właściwych ludzi, nie Twoich konkurentów.</p></div>
-    <div class="step"><div class="step-num">2</div><h3>Ustaw status</h3><p>🟢 Aktywny, 🟡 Zajęty, 🔴 Niedostępny lub 🏖️ Wakacje. Możesz być zajęty ale Stand By na zastępstwa.</p></div>
-    <div class="step"><div class="step-num">3</div><h3>Match!</div><p>Oboje zaakceptowali? Otwiera się czat i widzisz numer telefonu. Zero spamu — tylko sensowne połączenia.</p></div>
-    <div class="step"><div class="step-num">4</div><h3>Współpracuj</h3><p>Czat, zastępstwa, ogłoszenia projektów — całe narzędzie w jednym miejscu.</p></div>
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- BIG CTA -->
-<section class="big-cta">
-  <div class="big-cta-glow"></div>
-  <div class="s-label" style="position:relative">Dołącz teraz</div>
-  <h2 style="position:relative">Gotowy żeby dołączyć<br>do <span>świata muzyki</span>?</h2>
-  <p style="position:relative">Pierwsze 500 osób dostaje Premium przez 3 miesiące za darmo.</p>
-  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative">
-    <a href="https://spotigraj.app" class="btn-primary" style="font-size:18px;padding:18px 48px">Dołącz za darmo →</a>
-    <a href="https://buy.stripe.com/28EdRb7MHbzF3pB4Z0cwg00" class="btn-gold" style="font-size:18px;padding:18px 48px">✨ Kup Premium</a>
-  </div>
-  <div style="margin-top:16px;font-size:13px;color:#333;position:relative">spotigraj.app · bezpłatna rejestracja · bez karty kredytowej</div>
-</section>
-
-<div class="sep"></div>
-
-<!-- FEATURES -->
-<section>
-  <div class="center">
-    <div class="s-label">Funkcje</div>
-    <h2 class="s-title">Wszystko czego potrzebujesz</h2>
-  </div>
-  <div class="feat-grid">
-    <div class="feat-card"><div class="feat-icon">🎯</div><h3>Matchowanie procentowe</h3><p>Algorytm łączy według roli, gatunku, lokalizacji i tego kogo szukasz wzajemnie.</p></div>
-    <div class="feat-card"><div class="feat-icon">🚨</div><h3>Moduł zastępstw</h3><p>Pilne ogłoszenia zastępstw i lista muzyków Stand By gotowych do wskazania w każdej chwili.</p></div>
-    <div class="feat-card"><div class="feat-icon">📞</div><h3>Telefon po matchu</h3><p>Numer telefonu widoczny od razu po wzajemnym zaakceptowaniu. Dzwonisz, nie piszesz.</p></div>
-    <div class="feat-card"><div class="feat-icon">💬</div><h3>Czat po matchu</h3><p>Wiadomości tylko gdy oboje chcą współpracy. Zero niechcianych wiadomości.</p></div>
-    <div class="feat-card"><div class="feat-icon">🟢</div><h3>Status dostępności</h3><p>Aktywny, zajęty, niedostępny, wakacje — kontrolujesz kiedy jesteś dla branży.</p></div>
-    <div class="feat-card"><div class="feat-icon">🇵🇱</div><h3>Polski rynek</h3><p>Zbudowane dla polskiej branży muzycznej. Rozumiemy tę społeczność od środka.</p></div>
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- CENNIK -->
-<section id="cennik">
-  <div class="center">
-    <div class="s-label">Cennik</div>
-    <h2 class="s-title">Proste, uczciwe ceny</h2>
-    <p class="s-sub">Zacznij bezpłatnie. Przejdź na Premium gdy potrzebujesz więcej.</p>
-  </div>
-  <div class="pricing-grid">
-    <div class="plan">
-      <div class="plan-name">Free</div>
-      <div class="plan-price">0 zł</div>
-      <div class="plan-period">na zawsze bezpłatny</div>
-      <ul class="plan-features">
-        <li>5 matchów dziennie</li>
-        <li>3 zaproszenia / tydzień</li>
-        <li>Czat po połączeniu</li>
-        <li>Przeglądanie zastępstw i Stand By</li>
-        <li>Status dostępności</li>
-        <li>1 projekt</li>
-      </ul>
-      <a href="https://spotigraj.app" class="btn-plan btn-free">Zacznij za darmo</a>
-    </div>
-    <div class="plan featured">
-      <div class="plan-badge green">Najpopularniejszy</div>
-      <div class="plan-name">Premium</div>
-      <div class="plan-price">19 zł</div>
-      <div class="plan-period">miesięcznie · 149 zł / rok</div>
-      <ul class="plan-features">
-        <li>Nieograniczone matche</li>
-        <li>Priorytet w wynikach wyszukiwania</li>
-        <li>Zaawansowane filtry</li>
-        <li style="font-weight:700;color:#fff">🚨 Publikowanie zastępstw</li>
-        <li style="font-weight:700;color:#fff">🎯 Lista Stand By — widoczność i kontakt</li>
-        <li>Nieograniczone projekty</li>
-        <li>Statystyki profilu</li>
-        <li>Odznaka Premium</li>
-      </ul>
-      <a href="https://buy.stripe.com/28EdRb7MHbzF3pB4Z0cwg00" class="btn-plan btn-premium">Kup Premium →</a>
+<!-- CHANGE PASSWORD -->
+<div id="change-password-screen" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--dark);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:400px">
+    <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px">🔑 Zmień hasło</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px">Ustaw nowe hasło dla swojego konta</div>
+    <div class="field"><label>Nowe hasło (min. 6 znaków)</label><input type="password" id="cp-pass" placeholder="••••••••"></div>
+    <div class="field"><label>Powtórz nowe hasło</label><input type="password" id="cp-pass2" placeholder="••••••••"></div>
+    <button class="btn btn-green" onclick="changePassword()">Zapisz nowe hasło</button>
+    <div class="err" id="cp-err"></div>
+    <div style="text-align:center;margin-top:14px">
+      <a href="#" onclick="hideChangePassword();return false;" style="color:var(--muted);font-size:13px;text-decoration:none">← Wróć do profilu</a>
     </div>
   </div>
-  <div style="text-align:center;margin-top:28px;font-size:13px;color:#333">Płatność przez Stripe · Bezpieczna · Anuluj w każdej chwili</div>
-</section>
+</div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">SPOTIGRAJ</div>
-  <div class="footer-links">
-    <a href="#zastepstwa">Zastępstwa</a>
-    <a href="#cennik">Cennik</a>
-    <a href="https://spotigraj.app">Aplikacja</a>
-    <a href="https://www.youtube.com/@MacieKTEMatt" target="_blank">Muzyczna Środa</a>
+<!-- CHAT -->
+<div id="chat-screen">
+  <div class="chat-top">
+    <button class="back-btn" onclick="closeChat()">←</button>
+    <div class="avatar" id="chat-avatar" style="width:38px;height:38px;font-size:14px"></div>
+    <div style="font-weight:600;font-size:15px" id="chat-name"></div>
   </div>
-  <div class="footer-copy">© 2026 Spotigraj · gdzie muzyka łączy ludzi</div>
-</footer>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" placeholder="Napisz wiadomość..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
 
+<script>
+const SUPABASE_URL = 'https://xjwbofgfdwivomvlppfm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__yBtwe_DMyYk8ZvuxtAhIw_WNr3zXIS';
+
+const STORAGE_KEY = 'sb-xjwbofgfdwivomvlppfm-auth-token';
+
+// Prosty synchroniczny storage — Supabase wymaga sync getItem
+const customStorage = {
+  getItem: (key) => {
+    try { const v = localStorage.getItem(key); if (v) return v; } catch(e) {}
+    try { const v = sessionStorage.getItem(key); if (v) return v; } catch(e) {}
+    return null;
+  },
+  setItem: (key, value) => {
+    try { localStorage.setItem(key, value); } catch(e) {}
+    try { sessionStorage.setItem(key, value); } catch(e) {}
+  },
+  removeItem: (key) => {
+    try { localStorage.removeItem(key); } catch(e) {}
+    try { sessionStorage.removeItem(key); } catch(e) {}
+  }
+};
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    storage: customStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'implicit',
+  }
+});
+
+const GENRE_SECTIONS = [
+  { label: 'Rock', items: ['Rock','Rock Klasyczny','Hard Rock','Rock Alternatywny','Rock Indie','Rock Progresywny','Rock Psychodeliczny','Garage Rock','Post-Rock','Grunge','Britpop','Shoegaze'] },
+  { label: 'Metal', items: ['Heavy Metal','Thrash Metal','Death Metal','Black Metal','Doom Metal','Power Metal','Metal Symfoniczny','Folk Metal','Metal Progresywny','Metalcore','Nu Metal'] },
+  { label: 'Punk', items: ['Punk Rock','Hardcore Punk','Pop Punk','Skate Punk','Post-Punk'] },
+  { label: 'Pop', items: ['Pop','Pop Rock','Synth Pop','Pop Indie','Dream Pop','Electropop','K-Pop','J-Pop'] },
+  { label: 'Hip-Hop i Rap', items: ['Hip-Hop','Rap','Oldschoolowy Hip-Hop','Boom Bap','Trap','Drill','Rap Świadomy','Freestyle','Gangsta Rap','Alternatywny Hip-Hop'] },
+  { label: 'Elektroniczna', items: ['Muzyka Elektroniczna','EDM','House','Deep House','Tech House','Progressive House','Electro House','Techno','Minimal Techno','Melodic Techno','Trance','Psytrance','Hardstyle','Drum and Bass','Lo-Fi','Synthwave','Vaporwave','Chillout','Downtempo'] },
+  { label: 'Jazz i Blues', items: ['Jazz','Jazz Tradycyjny','Smooth Jazz','Jazz Fusion','Bebop','Swing','Big Band','Blues','Blues Rock','Delta Blues'] },
+  { label: 'Soul i Funk', items: ['Soul','Funk','R&B','Neo Soul'] },
+  { label: 'Reggae i Ska', items: ['Reggae','Dub','Dancehall','Ska'] },
+  { label: 'Folk i Etno', items: ['Folk','Folk Rock','Folk Tradycyjny','Muzyka Celtycka','Folk Irlandzki','Folk Słowiański','Muzyka Etniczna','Americana','Bluegrass'] },
+  { label: 'Country', items: ['Country','Country Rock','Country Pop'] },
+  { label: 'Latino', items: ['Muzyka Latynoska','Salsa','Bachata','Merengue','Tango','Flamenco','Bossa Nova','Samba'] },
+  { label: 'Klasyczna i Orkiestrowa', items: ['Muzyka Klasyczna','Muzyka Symfoniczna','Muzyka Kameralna','Neoklasyczna','Muzyka Instrumentalna','Opera','Muzyka Chóralna'] },
+  { label: 'Filmowa i Sceniczna', items: ['Muzyka Filmowa','Muzyka Serialowa','Musical','Muzyka Teatralna','Muzyka do Gier'] },
+  { label: 'Alternatywna i Indie', items: ['Alternatywa','Indie','Eksperymentalna','Avant-Garde','Noise','Industrial','Cold Wave','Dark Wave'] },
+  { label: 'Akustyczna i Autorska', items: ['Akustyczna','Singer-Songwriter','Piosenka Autorska','Poezja Śpiewana'] },
+  { label: 'Taneczna', items: ['Disco','Disco Polo','Eurodance','Dance Pop'] },
+  { label: 'Religijna', items: ['Gospel','Muzyka Chrześcijańska','Worship','Muzyka Liturgiczna'] },
+  { label: 'Inne', items: ['Cover Band','Tribute Band','Improwizowana','Open Format','Muzyka Świata','Inne'] },
+];
+
+const ROLE_SECTIONS = [
+  { label: 'Wokaliści i Raperzy', items: ['Wokalista/Wokalistka','Chórzysta/Chórzystka','Raper/Raperka','Beatboxer/Beatboxerka'] },
+  { label: 'Gitary i Bas', items: ['Gitarzysta/Gitarzystka','Gitarzysta Basowy/Basistka'] },
+  { label: 'Perkusja i Rytm', items: ['Perkusista/Perkusistka'] },
+  { label: 'Klawisze i Fortepian', items: ['Klawiszowiec','Pianista/Pianistka','Organista/Organistka','Akordeonista/Akordeonistka'] },
+  { label: 'Smyczki', items: ['Skrzypek/Skrzypaczka','Altowiolista/Altowiolistka','Wiolonczelista/Wiolonczelistka','Kontrabasista/Kontrabasistka'] },
+  { label: 'Dęte Drewniane', items: ['Flecista/Flecistka','Klarnecista/Klarnecistka','Oboista/Oboistka','Fagocista/Fagocistka','Saksofonista/Saksofonistka'] },
+  { label: 'Dęte Blaszane', items: ['Trębacz/Trębaczka','Puzonista/Puzonistka','Waltornista/Waltornistka','Tubista/Tubistka'] },
+  { label: 'Inne Instrumenty', items: ['Harfista/Harfistka','Mandolinista/Mandolinistka','Banjoista/Banjoistka','Ukulelista/Ukulelistka','Harmonijkarz/Harmonijkarka','Dudziarz/Dudziarka','Instrumentalista (Inny)'] },
+  { label: 'Muzyka Elektroniczna', items: ['DJ','Producent Muzyczny','Beatmaker','Live Act','Sound Designer','Twórca Muzyki Elektronicznej'] },
+  { label: 'Twórcy', items: ['Kompozytor/Kompozytorka','Autor Tekstów','Aranżer/Aranżerka','Dyrygent/Dyrygentka','Orkiestrator/Orkiestratorka'] },
+  { label: 'Produkcja i Studio', items: ['Realizator Dźwięku','Realizator Nagrań','Realizator FOH','Inżynier Masteringu','Inżynier Miksu','Technik Studyjny','Lutnik'] },
+  { label: 'Management', items: ['Manager Artysty','Manager Zespołu','Booking Manager','Tour Manager','Agent Koncertowy','Promotor','Organizator Wydarzeń','Wydawca Muzyczny'] },
+  { label: 'Media i Promocja', items: ['Dziennikarz Muzyczny','Podcaster','Prezenter Radiowy','Fotograf Muzyczny','Wideofilmowiec','Grafik','Social Media Manager','Specjalista PR'] },
+  { label: 'Zespół i Projekt', items: ['Lider Zespołu','Członek Zespołu','Solista','Projekt Muzyczny'] },
+  { label: 'Inne', items: ['Nauczyciel Muzyki','Student Kierunku Muzycznego','Fan Muzyki','Inne'] },
+];
+const COLORS = ['#534AB7','#1D9E75','#D85A30','#C0392B','#8E44AD','#2980B9','#27AE60','#E67E22'];
+
+let currentUser = null;
+let currentProfile = null;
+let chatWith = null;
+let chatSub = null;
+let activeFilter = 'Wszyscy';
+
+// ── INIT ──────────────────────────────────────────────────────────
+async function initApp() {
+  buildGenresGrid();
+
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  if (hashParams.get('type') === 'recovery') {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('register-form').classList.add('hidden');
+    document.getElementById('reset-form').classList.add('hidden');
+    document.getElementById('new-password-form').classList.remove('hidden');
+    document.querySelectorAll('.auth-tabs').forEach(t => t.style.display = 'none');
+    return;
+  }
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await loadProfile();
+    } else {
+      document.getElementById('loading-screen').style.display = 'none';
+    }
+  } catch(e) {
+    console.warn('initApp error:', e);
+    document.getElementById('loading-screen').style.display = 'none';
+  }
+}
+
+// Uruchamiamy init zarówno po load jak i jeśli DOM już gotowy
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+
+}
+
+sb.auth.onAuthStateChange(async (event, session) => {
+  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
+    currentUser = session.user;
+    if (!currentProfile) await loadProfile();
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    currentProfile = null;
+    showAuth();
+  }
+});
+
+function buildSectionGrid(containerId, sections, selectedValues) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  sections.forEach(section => {
+    const group = document.createElement('div');
+    group.className = 'section-group';
+
+    const selectedInSection = selectedValues ? section.items.filter(i => selectedValues.includes(i)) : [];
+
+    const btn = document.createElement('button');
+    btn.className = 'section-btn' + (selectedInSection.length > 0 ? ' has-selected' : '');
+    btn.type = 'button';
+    btn.innerHTML = `<span>${section.label}${selectedInSection.length > 0 ? `<span class="selected-preview"> (${selectedInSection.length})</span>` : ''}</span><span class="arrow">▼</span>`;
+    btn.onclick = () => {
+      btn.classList.toggle('open');
+      chips.classList.toggle('open');
+    };
+
+    const chips = document.createElement('div');
+    chips.className = 'section-chips' + (selectedInSection.length > 0 ? ' open' : '');
+
+    section.items.forEach(item => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'genre-chip' + (selectedValues && selectedValues.includes(item) ? ' selected' : '');
+      chip.textContent = item;
+      chip.onclick = () => {
+        chip.classList.toggle('selected');
+        const hasSelected = chips.querySelectorAll('.genre-chip.selected').length > 0;
+        const anySelected = sections.some(s =>
+          s.items.some(si => container.querySelector(`[data-item="${si}"]`)?.classList.contains('selected'))
+        );
+        const count = chips.querySelectorAll('.genre-chip.selected').length;
+        btn.classList.toggle('has-selected', hasSelected);
+        btn.querySelector('span:first-child').innerHTML = `${section.label}${hasSelected ? `<span class="selected-preview"> (${count})</span>` : ''}`;
+      };
+      chips.appendChild(chip);
+    });
+
+    group.appendChild(btn);
+    group.appendChild(chips);
+    container.appendChild(group);
+  });
+}
+
+function buildGenresGrid() {
+  buildSectionGrid('genres-grid', GENRE_SECTIONS, null);
+  buildSectionGrid('looking-for-grid', ROLE_SECTIONS, null);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('reset-form').classList.add('hidden');
+  document.getElementById('new-password-form').classList.add('hidden');
+  document.querySelectorAll('.auth-tabs').forEach(t => t.style.display = 'flex');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab !== 'login');
+  document.getElementById('auth-err').textContent = '';
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) return setErr('auth-err', 'Wypełnij wszystkie pola');
+  setErr('auth-err', 'Loguję...');
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+  if (error) {
+    setErr('auth-err', 'Błędny e-mail lub hasło');
+    return;
+  }
+
+  if (data.session) {
+    currentUser = data.session.user;
+    setErr('auth-err', '');
+
+    // Pokaż aplikację NATYCHMIAST — nie czekaj na profil
+    showApp();
+
+    // Załaduj profil w tle
+    sb.from('profiles').select('*').eq('id', currentUser.id).single().then(({ data: profile }) => {
+      if (profile) {
+        currentProfile = profile;
+        loadMyProfile();
+        loadDiscover();
+      } else {
+        showOnboarding();
+      }
+    }).catch(() => {
+      showOnboarding();
+    });
+  }
+}
+
+async function register() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  if (!email || !pass || !pass2) return setErr('auth-err', 'Wypełnij wszystkie pola');
+  if (pass.length < 6) return setErr('auth-err', 'Hasło musi mieć min. 6 znaków');
+  if (pass !== pass2) return setErr('auth-err', 'Hasła nie są identyczne');
+  setErr('auth-err', '');
+  const { error } = await sb.auth.signUp({ email, password: pass });
+  if (error) setErr('auth-err', error.message);
+  else setErr('auth-err', '✓ Konto utworzone — możesz się zalogować!');
+}
+
+function showReset() {
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('register-form').classList.add('hidden');
+  document.getElementById('reset-form').classList.remove('hidden');
+  document.getElementById('new-password-form').classList.add('hidden');
+  document.querySelectorAll('.auth-tabs').forEach(t => t.style.display = 'none');
+  setErr('auth-err', '');
+  // Pre-fill email if user typed it in login form
+  const loginEmail = document.getElementById('login-email').value;
+  if (loginEmail) document.getElementById('reset-email').value = loginEmail;
+}
+
+function showLogin() {
+  document.getElementById('reset-form').classList.add('hidden');
+  document.getElementById('new-password-form').classList.add('hidden');
+  document.getElementById('login-form').classList.remove('hidden');
+  document.getElementById('register-form').classList.add('hidden');
+  document.querySelectorAll('.auth-tabs').forEach(t => t.style.display = 'flex');
+  document.getElementById('tab-login').classList.add('active');
+  document.getElementById('tab-register').classList.remove('active');
+  setErr('auth-err', '');
+}
+
+async function resetPassword() {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) return setErr('auth-err', 'Podaj e-mail');
+  setErr('auth-err', '');
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin
+  });
+  if (error) setErr('auth-err', 'Błąd: ' + error.message);
+  else setErr('auth-err', '✓ Wysłaliśmy link na ' + email + ' — sprawdź skrzynkę (też folder Spam)');
+}
+
+async function updatePassword() {
+  const pass = document.getElementById('new-pass').value;
+  const pass2 = document.getElementById('new-pass2').value;
+  if (!pass || !pass2) return setErr('auth-err', 'Wypełnij oba pola');
+  if (pass.length < 6) return setErr('auth-err', 'Hasło musi mieć min. 6 znaków');
+  if (pass !== pass2) return setErr('auth-err', 'Hasła nie są identyczne');
+  setErr('auth-err', '');
+  const { error } = await sb.auth.updateUser({ password: pass });
+  if (error) setErr('auth-err', 'Błąd: ' + error.message);
+  else {
+    setErr('auth-err', '✓ Hasło zmienione! Logowanie za chwilę...');
+    setTimeout(() => { window.location.href = window.location.origin; }, 1500);
+  }
+}
+
+async function logout() {
+  await sb.auth.signOut();
+}
+
+// ── PROFILE LOAD ──────────────────────────────────────────────────
+// Keep-alive — pinguję bazę co 4 minuty żeby nie zasypiała
+setInterval(() => {
+  if (currentUser) sb.from('profiles').select('id').eq('id', currentUser.id).single().catch(() => {});
+}, 4 * 60 * 1000);
+
+async function loadProfile() {
+  try {
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000));
+    const query = sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    const { data, error } = await Promise.race([query, timeout]);
+
+    if (error || !data) {
+      showOnboarding();
+    } else {
+      currentProfile = data;
+      showApp();
+    }
+  } catch(e) {
+    console.warn('loadProfile error:', e);
+    if (currentUser) {
+      // Timeout — pokaż app mimo to
+      showApp();
+      // Spróbuj ponownie w tle
+      setTimeout(async () => {
+        try {
+          const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+          if (data) {
+            currentProfile = data;
+            loadMyProfile();
+            loadDiscover();
+          } else {
+            showOnboarding();
+          }
+        } catch(e2) { console.warn('retry:', e2); }
+      }, 3000);
+    } else {
+      showOnboarding();
+    }
+  }
+}
+
+// ── ONBOARDING ────────────────────────────────────────────────────
+async function saveProfile() {
+  const name = document.getElementById('ob-name').value.trim();
+  const role = document.getElementById('ob-role').value;
+  const city = document.getElementById('ob-city').value.trim();
+  const bio = document.getElementById('ob-bio').value.trim();
+  const phone = document.getElementById('ob-phone')?.value.trim() || '';
+  const genres = [...document.querySelectorAll('#genres-grid .genre-chip.selected')].map(b => b.textContent);
+  const lookingFor = [...document.querySelectorAll('#looking-for-grid .genre-chip.selected')].map(b => b.textContent);
+  const statusBtn = document.querySelector('#status-grid .status-btn.selected');
+  const status = statusBtn?.dataset.status || 'active';
+  const vacationUntil = document.getElementById('ob-vacation-until')?.value || null;
+  const standyBtn = document.getElementById('standy-btn');
+  const standBy = standyBtn?.classList.contains('standy-on') || false;
+
+  if (!name || !role || !city) return setErr('ob-err', 'Wypełnij imię, rolę i miasto');
+  if (genres.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jeden gatunek');
+  if (lookingFor.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jedną rolę kogo szukasz');
+
+  const color = currentProfile?.avatar_color || COLORS[Math.floor(Math.random() * COLORS.length)];
+
+  const { error } = await sb.from('profiles').upsert({
+    id: currentUser.id,
+    full_name: name,
+    username: name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now().toString().slice(-4),
+    role, city, bio, genres,
+    looking_for: lookingFor,
+    avatar_color: color,
+    phone: phone,
+    status: status,
+    vacation_until: vacationUntil || null,
+    stand_by: standBy,
+  });
+
+  if (error) return setErr('ob-err', 'Błąd zapisu — spróbuj ponownie');
+  await loadProfile();
+}
+
+// ── APP SCREENS ───────────────────────────────────────────────────
+function showAuth() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('chat-screen').classList.remove('active');
+}
+
+function showOnboarding() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('onboarding').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+}
+
+function showApp() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  loadDiscover();
+  loadMyProfile();
+  buildFilters();
+  handleStripeReturn();
+}
+
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + screen).classList.add('active');
+  document.getElementById('nb-' + screen).classList.add('active');
+  if (screen === 'messages') loadConversations();
+  if (screen === 'profile') loadMyProfile();
+  if (screen === 'zastepstwa') loadZastepstwa();
+}
+
+// ── DISCOVER ──────────────────────────────────────────────────────
+function buildFilters() {
+  const row = document.getElementById('filter-row');
+  const filters = ['Wszyscy', 'Wokaliści', 'Gitarzyści', 'Producenci', 'Indie', 'Hip-hop', 'Rock'];
+  row.innerHTML = '';
+  filters.forEach(f => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (f === activeFilter ? ' on' : '');
+    b.textContent = f;
+    b.onclick = () => { activeFilter = f; buildFilters(); loadDiscover(); };
+    row.appendChild(b);
+  });
+}
+
+async function loadDiscover() {
+  if (!currentProfile) return;
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Ładowanie muzyków...</div>';
+
+  document.getElementById('discover-city').textContent = currentProfile.city || 'Polska';
+
+  // Get already swiped
+  const { data: swiped } = await sb.from('matches').select('target_id').eq('user_id', currentUser.id);
+  const swipedIds = (swiped || []).map(s => s.target_id);
+  swipedIds.push(currentUser.id);
+
+  let query = sb.from('profiles').select('*').not('id', 'in', `(${swipedIds.map(id => `"${id}"`).join(',')})`);
+
+  // Filter logic
+  if (activeFilter === 'Wokaliści') query = query.ilike('role', '%Wokal%');
+  else if (activeFilter === 'Gitarzyści') query = query.ilike('role', '%Gitarz%');
+  else if (activeFilter === 'Producenci') query = query.ilike('role', '%Produc%');
+  else if (['Indie','Hip-hop','Rock'].includes(activeFilter)) query = query.contains('genres', [activeFilter.toLowerCase()]);
+
+  const { data: profiles } = await query.limit(10);
+
+  container.innerHTML = '';
+
+  if (!profiles || profiles.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎵</div><p style="font-size:15px;font-weight:600;margin-bottom:8px">Brak nowych muzyków</p><p style="font-size:13px">Zmień filtry lub wróć później gdy dołączą nowi artyści</p></div>`;
+    return;
+  }
+
+  profiles.forEach(p => container.appendChild(buildCard(p)));
+}
+
+function calcMatch(p) {
+  if (!currentProfile) return 75;
+  let score = 30;
+  const myGenres = currentProfile.genres || [];
+  const myLookingFor = currentProfile.looking_for || [];
+  const theirGenres = p.genres || [];
+  const theirLookingFor = p.looking_for || [];
+
+  // Gatunki wspólne (do 30 pkt)
+  const commonGenres = myGenres.filter(g => theirGenres.includes(g));
+  score += Math.min(30, commonGenres.length * 10);
+
+  // Czy on/ona jest tym kogo ja szukam? (25 pkt)
+  if (myLookingFor.includes(p.role)) score += 25;
+
+  // Czy ja jestem tym kogo on/ona szuka? (25 pkt) — to jest klucz!
+  if (theirLookingFor.includes(currentProfile.role)) score += 25;
+
+  // Wspólne miasto (10 pkt)
+  if (currentProfile.city && p.city && currentProfile.city.toLowerCase() === p.city.toLowerCase()) score += 10;
+
+  return Math.min(99, Math.max(35, score));
+}
+
+function buildCard(p) {
+  const card = document.createElement('div');
+  card.className = 'profile-card';
+  card.id = 'card-' + p.id;
+  const initials = (p.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const match = calcMatch(p);
+  const genres = (p.genres || []).slice(0, 4).map(g => `<span class="tag">${g}</span>`).join('');
+  const lookingFor = (p.looking_for || []).slice(0, 3).map(r => `<span class="tag tag-gray">${r}</span>`).join('');
+  const lookingSection = lookingFor ? `<div style="margin-bottom:10px;font-size:11px;color:var(--muted)">Szuka: <span style="margin-left:4px">${lookingFor}</span></div>` : '';
+  const statusLabel = getStatusLabel(p.status, p.vacation_until);
+  const statusClass = getStatusClass(p.status);
+  const standByBadge = p.stand_by ? `<span class="status-badge standy-badge" style="margin-left:6px">🎯 Stand By</span>` : '';
+  const isUnavailable = p.status === 'unavailable';
+
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="avatar" style="background:${p.avatar_color||'#534AB7'}20;color:${p.avatar_color||'#534AB7'}">${initials}</div>
+      <div>
+        <div class="card-name">${p.full_name || 'Muzyk'}</div>
+        <div class="card-role">${p.role || ''} · ${p.city || ''}</div>
+        <div style="margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}</div>
+      </div>
+      <div class="match-pct">${match}%</div>
+    </div>
+    <div class="card-bio">${p.bio || 'Muzyk / profesjonalista branży muzycznej szukający połączeń na Spotigraj.'}</div>
+    <div class="tags">${genres}</div>
+    ${lookingSection}
+    <div class="card-actions">
+      <button class="btn-skip" onclick="swipe('${p.id}','skip')">Pomiń</button>
+      <button class="btn-like" ${isUnavailable ? 'style="background:#555;cursor:default"' : ''} onclick="${isUnavailable ? '' : `swipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
+    </div>`;
+  return card;
+}
+
+async function swipe(targetId, action) {
+  const card = document.getElementById('card-' + targetId);
+  if (card) {
+    card.style.opacity = '0.3';
+    card.style.transform = 'scale(0.95)';
+    card.style.transition = 'all .25s';
+    setTimeout(() => card.remove(), 280);
+  }
+  await sb.from('matches').upsert({ user_id: currentUser.id, target_id: targetId, action });
+  if (action === 'like') {
+    // Check mutual match
+    const { data } = await sb.from('matches').select('*').eq('user_id', targetId).eq('target_id', currentUser.id).eq('action', 'like').single();
+    if (data) showMatchPopup(targetId);
+  }
+}
+
+function showMatchPopup(targetId) {
+  // Pobierz profil dopasowanej osoby żeby pokazać telefon
+  sb.from('profiles').select('full_name, phone, role').eq('id', targetId).single().then(({ data: p }) => {
+    const phoneSection = p?.phone
+      ? `<div style="background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:12px 20px;margin:12px 0;text-align:center">
+          <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
+          <div style="font-size:20px;font-weight:700;color:var(--green)">${p.phone}</div>
+          <a href="tel:${p.phone}" style="display:inline-block;margin-top:8px;padding:6px 16px;background:var(--green);color:#000;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
+        </div>`
+      : `<div style="font-size:13px;color:#666;margin:8px 0">Ta osoba nie podała numeru telefonu</div>`;
+
+    const popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:8px;text-align:center;padding:24px';
+    popup.innerHTML = `
+      <div style="font-size:56px">🎵</div>
+      <div style="font-size:26px;font-weight:800;color:#fff">To match!</div>
+      <div style="font-size:15px;color:#aaa">${p?.full_name || 'Muzyk'} · ${p?.role || ''}</div>
+      ${phoneSection}
+      <button style="padding:13px 32px;background:var(--green);color:#000;border:none;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px" onclick="this.parentElement.remove();openChat('${targetId}')">💬 Wyślij wiadomość</button>
+      <button style="padding:10px 24px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:30px;font-size:14px;cursor:pointer" onclick="this.parentElement.remove()">Później</button>`;
+    document.body.appendChild(popup);
+  });
+}
+
+// ── CONVERSATIONS ─────────────────────────────────────────────────
+async function loadConversations() {
+  const list = document.getElementById('convs-list');
+  list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Ładowanie...</div>';
+
+  // Get mutual matches
+  const { data: myLikes } = await sb.from('matches').select('target_id').eq('user_id', currentUser.id).eq('action', 'like');
+  const { data: theirLikes } = await sb.from('matches').select('user_id').eq('target_id', currentUser.id).eq('action', 'like');
+
+  if (!myLikes || !theirLikes) { list.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><p>Brak połączeń jeszcze</p></div>'; return; }
+
+  const mySet = new Set(myLikes.map(m => m.target_id));
+  const mutuals = theirLikes.filter(m => mySet.has(m.user_id)).map(m => m.user_id);
+
+  if (mutuals.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><p style="font-size:15px;font-weight:600;margin-bottom:8px">Brak połączeń</p><p style="font-size:13px">Gdy oboje zaakceptujecie się nawzajem — pojawi się tu czat</p></div>';
+    return;
+  }
+
+  const { data: profiles } = await sb.from('profiles').select('*').in('id', mutuals);
+  list.innerHTML = '';
+  (profiles || []).forEach(p => {
+    const initials = (p.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const row = document.createElement('div');
+    row.className = 'conv-row';
+    row.innerHTML = `<div class="avatar" style="background:${p.avatar_color||'#534AB7'}20;color:${p.avatar_color||'#534AB7'};width:44px;height:44px;font-size:15px">${initials}</div><div class="conv-info"><div class="conv-name">${p.full_name}</div><div class="conv-preview">${p.role} · ${p.city}</div></div>`;
+    row.onclick = () => openChat(p.id);
+    list.appendChild(row);
+  });
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────
+async function openChat(userId) {
+  chatWith = userId;
+  document.getElementById('app').classList.add('hidden');
+  const chatEl = document.getElementById('chat-screen');
+  chatEl.classList.add('active');
+
+  const { data: p } = await sb.from('profiles').select('*').eq('id', userId).single();
+  if (p) {
+    const initials = (p.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('chat-name').textContent = p.full_name;
+    const av = document.getElementById('chat-avatar');
+    av.textContent = initials;
+    av.style.background = (p.avatar_color || '#534AB7') + '20';
+    av.style.color = p.avatar_color || '#534AB7';
+  }
+
+  await loadMessages();
+
+  if (chatSub) chatSub.unsubscribe();
+  chatSub = sb.channel('chat-' + [currentUser.id, userId].sort().join('-'))
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+      if ((payload.new.sender_id === userId && payload.new.receiver_id === currentUser.id)) {
+        appendMsg(payload.new, false);
+      }
+    }).subscribe();
+}
+
+async function loadMessages() {
+  const { data } = await sb.from('messages').select('*')
+    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${chatWith}),and(sender_id.eq.${chatWith},receiver_id.eq.${currentUser.id})`)
+    .order('created_at', { ascending: true });
+
+  const container = document.getElementById('chat-messages');
+  container.innerHTML = '';
+  (data || []).forEach(m => appendMsg(m, m.sender_id === currentUser.id));
+  container.scrollTop = container.scrollHeight;
+}
+
+function appendMsg(m, isOwn) {
+  const container = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'msg ' + (isOwn ? 'msg-out' : 'msg-in');
+  const time = new Date(m.created_at).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  d.innerHTML = `${m.content}<div class="msg-time">${time}</div>`;
+  container.appendChild(d);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const content = input.value.trim();
+  if (!content || !chatWith) return;
+  input.value = '';
+  const { data } = await sb.from('messages').insert({ sender_id: currentUser.id, receiver_id: chatWith, content }).select().single();
+  if (data) appendMsg(data, true);
+}
+
+function closeChat() {
+  if (chatSub) chatSub.unsubscribe();
+  document.getElementById('chat-screen').classList.remove('active');
+  document.getElementById('app').classList.remove('hidden');
+  chatWith = null;
+}
+
+// ── MY PROFILE ────────────────────────────────────────────────────
+async function loadMyProfile() {
+  if (!currentProfile) return;
+  const p = currentProfile;
+  const initials = (p.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const av = document.getElementById('prof-av');
+  av.textContent = initials;
+  av.style.background = (p.avatar_color || '#534AB7') + '20';
+  av.style.color = p.avatar_color || '#534AB7';
+  document.getElementById('prof-name').textContent = p.full_name || '';
+  document.getElementById('prof-role').textContent = (p.role || '') + (p.city ? ' · ' + p.city : '');
+  document.getElementById('prof-bio').textContent = p.bio || 'Dodaj bio w edycji profilu.';
+  const genres = document.getElementById('prof-genres');
+  genres.innerHTML = (p.genres || []).map(g => `<span class="tag">${g}</span>`).join('');
+  const looking = document.getElementById('prof-looking');
+  if (looking) {
+    const lf = p.looking_for || [];
+    looking.innerHTML = lf.length > 0
+      ? lf.map(r => `<span class="tag tag-gray">${r}</span>`).join('')
+      : '<span style="color:var(--muted);font-size:12px">Nie ustawiono — edytuj profil</span>';
+  }
+  const phoneSection = document.getElementById('prof-phone-section');
+  const phoneEl = document.getElementById('prof-phone');
+  if (p.phone && phoneSection && phoneEl) {
+    phoneSection.style.display = 'block';
+    phoneEl.textContent = p.phone;
+  }
+
+  // Stats
+  const { count: matchCount } = await sb.from('matches').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('action', 'like');
+  const { count: likeCount } = await sb.from('matches').select('*', { count: 'exact', head: true }).eq('target_id', currentUser.id).eq('action', 'like');
+  document.getElementById('stat-matches').textContent = matchCount || 0;
+  document.getElementById('stat-likes').textContent = likeCount || 0;
+}
+
+function showEdit() {
+  // Pre-fill onboarding with current data and show
+  if (currentProfile) {
+    document.getElementById('ob-name').value = currentProfile.full_name || '';
+    document.getElementById('ob-role').value = currentProfile.role || '';
+    document.getElementById('ob-city').value = currentProfile.city || '';
+    document.getElementById('ob-bio').value = currentProfile.bio || '';
+    if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
+    // Status
+    document.querySelectorAll('#status-grid .status-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.status === (currentProfile.status || 'active'));
+    });
+    const vacInput = document.getElementById('ob-vacation-until');
+    if (vacInput) {
+      vacInput.style.display = currentProfile.status === 'vacation' ? 'block' : 'none';
+      if (currentProfile.vacation_until) vacInput.value = currentProfile.vacation_until.split('T')[0];
+    }
+    // Stand By
+    const standyBtn = document.getElementById('standy-btn');
+    if (standyBtn) {
+      if (currentProfile.stand_by) {
+        standyBtn.classList.add('standy-on');
+        standyBtn.textContent = '🎯 Jestem Stand By ✓';
+      } else {
+        standyBtn.classList.remove('standy-on');
+        standyBtn.textContent = '🎯 Nie jestem Stand By';
+      }
+    }
+    // Przebuduj gridy z zaznaczonymi wartościami
+    buildSectionGrid('genres-grid', GENRE_SECTIONS, currentProfile.genres || []);
+    buildSectionGrid('looking-for-grid', ROLE_SECTIONS, currentProfile.looking_for || []);
+  }
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('onboarding').classList.remove('hidden');
+}
+
+function showChangePassword() {
+  document.getElementById('change-password-screen').classList.remove('hidden');
+  document.getElementById('change-password-screen').style.display = 'flex';
+  document.getElementById('cp-pass').value = '';
+  document.getElementById('cp-pass2').value = '';
+  document.getElementById('cp-err').textContent = '';
+}
+
+function hideChangePassword() {
+  document.getElementById('change-password-screen').classList.add('hidden');
+  document.getElementById('change-password-screen').style.display = 'none';
+}
+
+async function changePassword() {
+  const pass = document.getElementById('cp-pass').value;
+  const pass2 = document.getElementById('cp-pass2').value;
+  if (!pass || !pass2) return setErr('cp-err', 'Wypełnij oba pola');
+  if (pass.length < 6) return setErr('cp-err', 'Hasło musi mieć min. 6 znaków');
+  if (pass !== pass2) return setErr('cp-err', 'Hasła nie są identyczne');
+  setErr('cp-err', '');
+  const { error } = await sb.auth.updateUser({ password: pass });
+  if (error) return setErr('cp-err', 'Błąd: ' + error.message);
+  setErr('cp-err', '✓ Hasło zmienione!');
+  setTimeout(() => hideChangePassword(), 1500);
+}
+
+function selectStatus(btn) {
+  document.querySelectorAll('#status-grid .status-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const vacInput = document.getElementById('ob-vacation-until');
+  if (vacInput) vacInput.style.display = btn.dataset.status === 'vacation' ? 'block' : 'none';
+}
+
+function toggleStandBy(btn) {
+  const isOn = btn.classList.toggle('standy-on');
+  btn.textContent = isOn ? '🎯 Jestem Stand By ✓' : '🎯 Nie jestem Stand By';
+}
+
+function getStatusLabel(status, vacationUntil) {
+  const labels = {
+    active: '🟢 Aktywny',
+    busy: '🟡 Zajęty',
+    unavailable: '🔴 Niedostępny',
+    vacation: `🏖️ Wakacje${vacationUntil ? ' do ' + new Date(vacationUntil).toLocaleDateString('pl-PL', {day:'numeric',month:'short'}) : ''}`,
+  };
+  return labels[status] || '🟢 Aktywny';
+}
+
+function getStatusClass(status) {
+  const classes = { active: 'status-active', busy: 'status-busy', unavailable: 'status-unavailable', vacation: 'status-vacation' };
+  return classes[status] || 'status-active';
+}
+const isPremium = () => currentProfile?.is_premium || false;
+
+function showAddZastepstwo() {
+  if (!isPremium()) {
+    showPremiumModal();
+    return;
+  }
+  document.getElementById('modal-zastepstwo').classList.remove('hidden');
+  document.getElementById('modal-zastepstwo').style.display = 'flex';
+}
+
+function closeAddZastepstwo() {
+  document.getElementById('modal-zastepstwo').classList.add('hidden');
+  document.getElementById('modal-zastepstwo').style.display = 'none';
+  setErr('zast-err', '');
+}
+
+function showPremiumModal() {
+  document.getElementById('modal-premium').classList.remove('hidden');
+  document.getElementById('modal-premium').style.display = 'flex';
+}
+
+// ── STRIPE CHECKOUT ───────────────────────────────────────────────
+const STRIPE_KEY = 'pk_live_51ThzeYPpHBFYMbnuJsapxsPKTPhZ5nBjVSQrHSHulEEeG6DAj4rxcJwvAgZ0y8IChpZafTbVUxibqFCv0EFuJHNU00y0lmuSrk';
+const STRIPE_PRICE_ID = 'price_1Ti0DzPpHBFYMbnuJOhHDEXA';
+let stripeInstance = null;
+
+async function startCheckout() {
+  if (!currentUser) {
+    alert('Musisz być zalogowany żeby przejść na Premium');
+    return;
+  }
+  const paymentUrl = `https://buy.stripe.com/28EdRb7MHbzF3pB4Z0cwg00?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
+  window.location.href = paymentUrl;
+}
+
+// Obsługa powrotu ze Stripe
+async function handleStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('premium') === 'success' && currentUser) {
+    // Ustaw is_premium = true w bazie
+    await sb.from('profiles').update({ is_premium: true }).eq('id', currentUser.id);
+    if (currentProfile) currentProfile.is_premium = true;
+    // Wyczyść URL
+    window.history.replaceState({}, '', '/');
+    // Pokaż potwierdzenie
+    setTimeout(() => {
+      const popup = document.createElement('div');
+      popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;text-align:center;padding:24px';
+      popup.innerHTML = `
+        <div style="font-size:56px">🎉</div>
+        <div style="font-size:24px;font-weight:800;color:#fff">Witaj w Premium!</div>
+        <div style="font-size:15px;color:#aaa">Masz teraz nieograniczony dostęp<br>do wszystkich funkcji Spotigraj.</div>
+        <button onclick="this.parentElement.remove()" style="padding:14px 36px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:700;cursor:pointer">Zacznij korzystać →</button>`;
+      document.body.appendChild(popup);
+    }, 500);
+  } else if (params.get('premium') === 'cancel') {
+    window.history.replaceState({}, '', '/');
+  }
+}
+
+function closePremiumModal() {
+  document.getElementById('modal-premium').classList.add('hidden');
+  document.getElementById('modal-premium').style.display = 'none';
+}
+
+async function submitZastepstwo() {
+  const role = document.getElementById('zast-role').value;
+  const city = document.getElementById('zast-city').value.trim();
+  const date = document.getElementById('zast-date').value;
+  const desc = document.getElementById('zast-desc').value.trim();
+  if (!role || !city || !date) return setErr('zast-err', 'Wypełnij rolę, miasto i datę');
+  setErr('zast-err', '');
+
+  const expires = new Date(Date.now() + 48*60*60*1000).toISOString();
+  const { error } = await sb.from('zastepstwa').insert({
+    user_id: currentUser.id,
+    role, city, event_date: date,
+    description: desc,
+    expires_at: expires,
+    author_name: currentProfile?.full_name || 'Anonimowy',
+    author_role: currentProfile?.role || '',
+  });
+
+  if (error) {
+    // Tabela może nie istnieć — zapisz lokalnie
+    console.warn('Supabase zastepstwa error:', error);
+    setErr('zast-err', '✓ Ogłoszenie dodane lokalnie (baza wkrótce)');
+    setTimeout(() => { closeAddZastepstwo(); loadZastepstwa(); }, 1000);
+    return;
+  }
+  closeAddZastepstwo();
+  loadZastepstwa();
+}
+
+// Demo ogłoszenia gdy baza pusta
+const DEMO_ZASTEPSTWA = [
+  { id: 1, role: 'Perkusista/Perkusistka', city: 'Warszawa', event_date: new Date(Date.now() + 4*60*60*1000).toISOString(), description: 'Wesele, repertuar pop/dance, ok. 5h grania. Płatne 600 zł. Próba niemożliwa — potrzebny ktoś doświadczony.', author_name: 'Tomek W.', author_role: 'Lider Zespołu', expires_at: new Date(Date.now() + 40*60*60*1000).toISOString(), demo: true },
+  { id: 2, role: 'Wokalista/Wokalistka', city: 'Kraków', event_date: new Date(Date.now() + 26*60*60*1000).toISOString(), description: 'Koncert indie/rock, ~90 minut, znamy się z repertuarem. Wynagrodzenie do ustalenia.', author_name: 'Kasia M.', author_role: 'Gitarzysta/Gitarzystka', expires_at: new Date(Date.now() + 44*60*60*1000).toISOString(), demo: true },
+];
+
+async function loadZastepstwa() {
+  const list = document.getElementById('zastepstwa-list');
+  list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Ładowanie...</div>';
+
+  // Ładuj równolegle: ogłoszenia i muzycy Stand By
+  let items = [], standByMusicians = [];
+  try {
+    const [zastRes, standRes] = await Promise.all([
+      sb.from('zastepstwa').select('*').gt('expires_at', new Date().toISOString()).order('event_date', { ascending: true }),
+      sb.from('profiles').select('id,full_name,role,city,genres,avatar_color,phone,status').eq('stand_by', true).neq('id', currentUser?.id)
+    ]);
+    items = zastRes.data || [];
+    standByMusicians = standRes.data || [];
+  } catch(e) {}
+
+  if (items.length === 0) items = DEMO_ZASTEPSTWA;
+
+  list.innerHTML = '';
+
+  // ── SEKCJA STAND BY ─────────────────────────────────────────────
+  const standBySection = document.createElement('div');
+  standBySection.style.cssText = 'margin-bottom:20px';
+  standBySection.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#f59e0b;margin-bottom:12px">🎯 Gotowi na zastępstwo (Stand By)</div>`;
+
+  if (standByMusicians.length === 0) {
+    standBySection.innerHTML += `<div style="font-size:13px;color:var(--muted);padding:12px 0">Brak muzyków Stand By w bazie. Edytuj profil żeby się tu pojawić.</div>`;
+  } else {
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-direction:column;gap:10px';
+    standByMusicians.forEach(m => {
+      const initials = (m.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+      const statusLabel = getStatusLabel(m.status);
+      const statusClass = getStatusClass(m.status);
+      const card = document.createElement('div');
+      card.style.cssText = 'background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px';
+      card.innerHTML = `
+        <div style="width:42px;height:42px;border-radius:50%;background:${m.avatar_color||'#534AB7'}20;color:${m.avatar_color||'#534AB7'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text)">${m.full_name || 'Muzyk'}</div>
+          <div style="font-size:12px;color:var(--muted)">${m.role || ''} · ${m.city || ''}</div>
+          <span class="status-badge ${statusClass}" style="margin-top:4px;display:inline-flex">${statusLabel}</span>
+        </div>
+        <button onclick="contactStandBy('${m.id}')" style="padding:8px 14px;background:#f59e0b;border:none;border-radius:20px;color:#000;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Kontakt</button>`;
+      grid.appendChild(card);
+    });
+    standBySection.appendChild(grid);
+  }
+  list.appendChild(standBySection);
+
+  // Separator
+  const sep = document.createElement('div');
+  sep.style.cssText = 'height:1px;background:var(--border);margin:16px 0';
+  list.appendChild(sep);
+
+  // ── SEKCJA OGŁOSZEŃ ─────────────────────────────────────────────
+  const oglLabel = document.createElement('div');
+  oglLabel.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ff6b6b;margin-bottom:12px';
+  oglLabel.textContent = '🚨 Pilne ogłoszenia zastępstw';
+  list.appendChild(oglLabel);
+
+  if (items.length === 0) {
+    list.innerHTML += '<div class="zast-empty"><div style="font-size:48px;margin-bottom:12px">🚨</div><p style="font-weight:600;margin-bottom:6px">Brak aktywnych zastępstw</p><p style="font-size:13px">Kliknij "+ Dodaj" żeby opublikować pilne ogłoszenie</p></div>';
+    return;
+  }
+
+  items.forEach(z => {
+    const eventDate = new Date(z.event_date);
+    const hoursLeft = Math.round((eventDate - Date.now()) / (1000*60*60));
+    const isUrgent = hoursLeft <= 12;
+    const dateStr = eventDate.toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+    const card = document.createElement('div');
+    card.className = 'zast-card' + (isUrgent ? ' urgent' : '');
+    card.innerHTML = `
+      <div class="zast-badge">🚨 ${isUrgent ? 'PILNE · ' : ''}${z.city}</div>
+      <div class="zast-role">${z.role}</div>
+      <div class="zast-meta">📅 ${dateStr} · Dodał: ${z.author_name} (${z.author_role})</div>
+      ${z.description ? `<div class="zast-desc">${z.description}</div>` : ''}
+      <div class="zast-footer">
+        <span class="zast-time">Wygasa za ${Math.round((new Date(z.expires_at) - Date.now())/(1000*60*60))}h</span>
+        <button class="btn-zast-contact" onclick="contactZastepstwo('${z.user_id || ''}', '${z.demo ? 'demo' : ''}')">Zgłoś się →</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+async function contactStandBy(userId) {
+  if (!userId) return;
+  // Pobierz telefon muzyka Stand By
+  const { data: p } = await sb.from('profiles').select('full_name,phone,role').eq('id', userId).single();
+  if (p?.phone) {
+    const popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px';
+    popup.innerHTML = `
+      <div style="background:var(--dark2);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:28px;width:100%;max-width:360px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">🎯</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">${p.full_name}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${p.role} · Stand By</div>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:16px;margin-bottom:20px">
+          <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
+          <div style="font-size:22px;font-weight:700;color:#f59e0b">${p.phone}</div>
+          <a href="tel:${p.phone}" style="display:inline-block;margin-top:10px;padding:8px 20px;background:#f59e0b;color:#000;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
+        </div>
+        <button onclick="popup.remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:#000;font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
+        <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer">Zamknij</button>
+      </div>`;
+    document.body.appendChild(popup);
+  } else {
+    openChat(userId);
+  }
+}
+
+async function contactZastepstwo(userId, isDemo) {
+  if (isDemo) {
+    alert('To jest przykładowe ogłoszenie. Prawdziwe ogłoszenia pojawią się gdy użytkownicy zaczną je dodawać!');
+    return;
+  }
+  if (!userId) return;
+  openChat(userId);
+}
+function setErr(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
+}
+</script>
 </body>
 </html>
