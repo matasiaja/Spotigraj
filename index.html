@@ -42,6 +42,34 @@
   --dark3: var(--navy3);
 }
 
+/* ── ZŁOTY MOTYW PREMIUM ───────────────────────────────── */
+body.premium-mode {
+  --accent: #f3b000;
+  --accent-dark: #d49a00;
+  --accent-glow: rgba(243,176,0,0.15);
+  --accent2: #f3b000;
+  --border-accent: rgba(243,176,0,0.3);
+  --shadow-accent: 0 4px 20px rgba(243,176,0,0.25);
+  --green: #f3b000;
+  --green-dark: #d49a00;
+}
+body.premium-mode .auth-logo {
+  background: linear-gradient(135deg, #f3b000, #fff176);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.premium-mode #app {
+  border-color: rgba(243,176,0,0.15);
+}
+body.premium-mode .bottom-nav {
+  border-top-color: rgba(243,176,0,0.2);
+}
+body.premium-mode .nav-btn.active { color: #f3b000; }
+body.premium-mode .nav-btn.active::before { background: #f3b000; }
+body.premium-mode .topbar { border-bottom-color: rgba(243,176,0,0.15); }
+body.premium-mode #prof-av { box-shadow: 0 0 0 3px #f3b000, 0 4px 20px rgba(243,176,0,0.3); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 html, body {
@@ -900,6 +928,14 @@ html, body {
       <div id="zastepstwa-list"></div>
     </div>
   </div>
+  <!-- BANER PREMIUM (tylko dla non-premium) -->
+  <div id="premium-banner" class="hidden" onclick="showPremiumModal('default')" style="padding:10px 16px;background:linear-gradient(135deg,rgba(29,185,84,0.12),rgba(29,185,84,0.06));border-top:1px solid rgba(29,185,84,0.2);display:flex;align-items:center;justify-content:space-between;cursor:pointer;flex-shrink:0">
+    <div>
+      <div style="font-size:12px;font-weight:800;color:var(--green)">✨ Przejdź na Premium</div>
+      <div style="font-size:11px;color:var(--muted)">7 dni za darmo · kod SPOTIGRAJ500</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#000;background:var(--green);padding:6px 14px;border-radius:50px">Wypróbuj →</div>
+  </div>
   <div class="bottom-nav">
     <button class="nav-btn active" id="nb-discover" onclick="goTo('discover')">
       <span class="nav-icon">✨</span>Odkryj
@@ -1431,6 +1467,7 @@ function showApp() {
   loadMyProfile();
   buildFilters();
   handleStripeReturn();
+  applyPremiumTheme();
 }
 
 function goTo(screen) {
@@ -1868,6 +1905,16 @@ function getStatusClass(status) {
   return classes[status] || 'status-active';
 }
 const isPremium = () => currentProfile?.is_premium || false;
+
+function applyPremiumTheme() {
+  if (isPremium()) {
+    document.body.classList.add('premium-mode');
+    document.getElementById('premium-banner').classList.add('hidden');
+  } else {
+    document.body.classList.remove('premium-mode');
+    document.getElementById('premium-banner').classList.remove('hidden');
+  }
+}
 
 function showAddZastepstwo() {
   if (!isPremium()) {
