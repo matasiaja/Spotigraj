@@ -1881,7 +1881,7 @@ async function startCheckout() {
     alert('Musisz być zalogowany żeby przejść na Premium');
     return;
   }
-  const paymentUrl = `https://buy.stripe.com/28EdRb7MHbzF3pB4Z0cwg00?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
+  const paymentUrl = `https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
   window.location.href = paymentUrl;
 }
 
