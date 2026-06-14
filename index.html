@@ -493,15 +493,24 @@ html, body { height: 100%; background: var(--dark); color: var(--text); font-fam
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#000;margin-bottom:4px">PREMIUM</div>
       <div style="font-size:32px;font-weight:900;color:#000;line-height:1">19 zł</div>
       <div style="font-size:13px;color:rgba(0,0,0,0.6);margin-bottom:12px">miesięcznie · 149 zł / rok</div>
-      <div style="font-size:12px;color:#000;text-align:left;line-height:1.9">
-        ✓ Nieograniczone matche<br>
-        ✓ Priorytet w wynikach wyszukiwania<br>
-        ✓ Zaawansowane filtry<br>
-        ✓ 🚑 Publikowanie zastępstw<br>
-        ✓ 🎯 Lista Stand By — widoczność i kontakt<br>
-        ✓ Nieograniczone projekty<br>
-        ✓ Statystyki profilu<br>
-        ✓ Odznaka Premium
+      <div style="font-size:12px;color:#000;text-align:left">
+        <style>
+          .prem-feature { display:flex; align-items:center; gap:6px; padding:5px 0; position:relative; }
+          .prem-tip { position:relative; display:inline-flex; }
+          .prem-tip-btn { width:16px; height:16px; border-radius:50%; background:rgba(0,0,0,0.2); color:#000; font-size:10px; font-weight:800; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1; }
+          .prem-tip-box { display:none; position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 6px); background:#000; color:#fff; font-size:11px; line-height:1.5; padding:8px 10px; border-radius:8px; width:200px; text-align:center; z-index:999; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+          .prem-tip-box::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#000; }
+          .prem-tip:hover .prem-tip-box,
+          .prem-tip.open .prem-tip-box { display:block; }
+        </style>
+        <div class="prem-feature">✓ Nieograniczone matche <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Możesz polubić i dopasować się z dowolną liczbą muzyków — bez żadnych dziennych limitów.</span></span></div>
+        <div class="prem-feature">✓ Priorytet w wynikach wyszukiwania <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Twój profil pojawia się wyżej w wynikach — więcej muzyków Cię zobaczy.</span></span></div>
+        <div class="prem-feature">✓ Zaawansowane filtry <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Filtruj muzyków po gatunku, statusie dostępności, mieście i roli — precyzyjnie znajdź kogo szukasz.</span></span></div>
+        <div class="prem-feature">✓ 🚑 Publikowanie zastępstw <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Dodaj pilne ogłoszenie kiedy potrzebujesz kogoś na zastępstwo na koncert lub próbę.</span></span></div>
+        <div class="prem-feature">✓ 🎯 Lista Stand By <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Pojawisz się na liście muzyków gotowych do zastępstw — zespoły zobaczą Twój numer i mogą zadzwonić od razu.</span></span></div>
+        <div class="prem-feature">✓ Nieograniczone projekty <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Twórz i dołączaj do dowolnej liczby projektów muzycznych jednocześnie.</span></span></div>
+        <div class="prem-feature">✓ Statystyki profilu <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Sprawdź ile osób odwiedziło Twój profil, ile razy się pojawiłeś i jak rośnie Twój zasięg.</span></span></div>
+        <div class="prem-feature">✓ Odznaka Premium <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Zielona odznaka przy Twoim profilu — sygnał że jesteś poważnym muzykiem szukającym współpracy.</span></span></div>
       </div>
     </div>
     <button onclick="startCheckout()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Kup Premium →</button>
