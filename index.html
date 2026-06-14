@@ -985,6 +985,10 @@ html, body {
         <div class="prem-feature">✓ Odznaka Premium <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Zielona odznaka — sygnał że jesteś poważnym muzykiem.</span></span></div>
       </div>
     </div>
+    <!-- Info o kuponie -->
+    <div id="prem-coupon-info" style="background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
+      🎁 Masz kod promocyjny? Wpisz <strong style="color:var(--green)">SPOTIGRAJ500</strong> przy płatności — pierwsze 3 miesiące za darmo (dotyczy planu miesięcznego).
+    </div>
 
     <!-- Testimonial -->
     <div class="prem-testimonial">
@@ -1943,7 +1947,7 @@ async function startCheckout() {
     return;
   }
   const links = {
-    monthly: 'https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01',
+    monthly: 'https://buy.stripe.com/9B6dRb6IDdHNf8jezAcwg03',
     yearly:  'https://buy.stripe.com/6oU7sN9UP47d9NZ3UWcwg02'
   };
   const base = links[currentPremPlan] || links.monthly;
