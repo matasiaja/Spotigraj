@@ -1857,7 +1857,10 @@ function showPremiumModal(context) {
   document.getElementById('modal-premium').style.display = 'flex';
 }
 
+let currentPremPlan = 'monthly';
+
 function setPremPlan(plan, btn) {
+  currentPremPlan = plan;
   document.querySelectorAll('.prem-plan-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   const priceEl = document.getElementById('prem-price');
@@ -1881,7 +1884,12 @@ async function startCheckout() {
     alert('Musisz być zalogowany żeby przejść na Premium');
     return;
   }
-  const paymentUrl = `https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
+  const links = {
+    monthly: 'https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01',
+    yearly:  'https://buy.stripe.com/6oU7sN9UP47d9NZ3UWcwg02'
+  };
+  const base = links[currentPremPlan] || links.monthly;
+  const paymentUrl = `${base}?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
   window.location.href = paymentUrl;
 }
 

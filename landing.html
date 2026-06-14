@@ -365,7 +365,7 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex
         <li>Statystyki profilu</li>
         <li>Odznaka Premium</li>
       </ul>
-      <a href="https://spotigraj.app" class="btn-plan btn-premium" id="landing-cta">Zacznij 7 dni za darmo →</a>
+      <a href="https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01" class="btn-plan btn-premium" id="landing-cta">Zacznij 7 dni za darmo →</a>
     </div>
   </div>
   <div style="text-align:center;margin-top:28px;font-size:13px;color:#333">Płatność przez Stripe · Bezpieczna · Anuluj w każdej chwili · Bez karty na trial</div>
@@ -382,12 +382,12 @@ function setPricingPlan(plan, btn) {
   if (plan === 'yearly') {
     document.getElementById('landing-price').textContent = '12,40 zł';
     document.getElementById('landing-period').textContent = 'miesięcznie · 149 zł rocznie · oszczędzasz 79 zł';
-    document.getElementById('landing-cta').href = 'https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01';
+    document.getElementById('landing-cta').href = 'https://buy.stripe.com/6oU7sN9UP47d9NZ3UWcwg02';
     document.getElementById('landing-cta').textContent = 'Kup plan roczny →';
   } else {
     document.getElementById('landing-price').textContent = '19 zł';
     document.getElementById('landing-period').textContent = 'miesięcznie · anuluj kiedy chcesz';
-    document.getElementById('landing-cta').href = 'https://spotigraj.app';
+    document.getElementById('landing-cta').href = 'https://buy.stripe.com/bJe7sN6ID0V1d0b778cwg01';
     document.getElementById('landing-cta').textContent = 'Zacznij 7 dni za darmo →';
   }
 }
