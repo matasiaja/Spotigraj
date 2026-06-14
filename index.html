@@ -844,7 +844,7 @@ html, body {
     </div>
     <div class="field">
       <label>Krótkie bio (opcjonalnie)</label>
-      <textarea id="ob-bio" placeholder="Kilka słów o sobie i czego szukasz..."></textarea>
+      <textarea id="ob-bio" placeholder="Kilka słów o sobie i czego szukasz... (nie podawaj kontaktów — telefon i czat dostępne po matchu)"></textarea>
     </div>
     <button class="btn btn-green" onclick="saveProfile()">Gotowe — szukaj muzyków!</button>
     <div class="err" id="ob-err"></div>
@@ -1424,6 +1424,18 @@ async function saveProfile() {
   if (!name || !role || !city) return setErr('ob-err', 'Wypełnij imię, rolę i miasto');
   if (genres.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jeden gatunek');
   if (lookingFor.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jedną rolę kogo szukasz');
+
+  // Blokada kontaktów w bio
+  const bioPatterns = [
+    { r: /(\+\d{1,3}[\s\-]?)?(\(?\d{2,3}\)?[\s\-]?)(\d{3}[\s\-]?\d{3}[\s\-]?\d{3,4}|\d{2}[\s\-]?\d{2}[\s\-]?\d{2}[\s\-]?\d{2,3})/, msg: 'Bio nie może zawierać numeru telefonu — kontakt udostępniany jest automatycznie po matchu.' },
+    { r: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/, msg: 'Bio nie może zawierać adresu email — skorzystaj z czatu po matchu.' },
+    { r: /(https?:\/\/|www\.)[^\s]+/i, msg: 'Bio nie może zawierać linków.' },
+    { r: /\b(facebook|instagram|tiktok|youtube|spotify|linkedin|twitter|snapchat|whatsapp|telegram|viber|messenger|IG|FB|YT)\b/i, msg: 'Bio nie może zawierać nazw platform społecznościowych ani komunikatorów.' },
+    { r: /\b\w+\.(pl|com|net|org|eu|io|me|tv)\b/i, msg: 'Bio nie może zawierać linków ani adresów stron.' },
+  ];
+  for (const { r, msg } of bioPatterns) {
+    if (r.test(bio)) return setErr('ob-err', msg);
+  }
 
   const color = currentProfile?.avatar_color || COLORS[Math.floor(Math.random() * COLORS.length)];
 
