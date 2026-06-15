@@ -1365,6 +1365,23 @@ async function updatePassword() {
 }
 
 function confirmClearMatches() {
+  // Premium — bez limitu
+  if (isPremium()) {
+    if (confirm('Czy na pewno chcesz wyczyścić wszystkie swoje matche i polubienia? Tej operacji nie można cofnąć.')) {
+      clearMatches();
+    }
+    return;
+  }
+  // Free — limit 30 dni
+  const lastClear = localStorage.getItem('lastClearMatches_' + currentUser.id);
+  if (lastClear) {
+    const daysSince = (Date.now() - parseInt(lastClear)) / (1000 * 60 * 60 * 24);
+    if (daysSince < 30) {
+      const daysLeft = Math.ceil(30 - daysSince);
+      alert(`Możesz wyczyścić matche raz na 30 dni. Następna możliwość za ${daysLeft} ${daysLeft === 1 ? 'dzień' : 'dni'}.\n\nUżytkownicy Premium mogą to robić bez ograniczeń.`);
+      return;
+    }
+  }
   if (confirm('Czy na pewno chcesz wyczyścić wszystkie swoje matche i polubienia? Tej operacji nie można cofnąć.')) {
     clearMatches();
   }
@@ -1376,6 +1393,10 @@ async function clearMatches() {
   if (error) {
     alert('Błąd: ' + error.message);
     return;
+  }
+  // Zapisz datę ostatniego czyszczenia
+  if (!isPremium()) {
+    localStorage.setItem('lastClearMatches_' + currentUser.id, Date.now().toString());
   }
   alert('Matche wyczyszczone! Możesz zacząć od nowa.');
   loadMyProfile();
