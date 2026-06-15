@@ -918,6 +918,7 @@ html, body {
       </div>
       <button class="edit-btn" onclick="showEdit()">✏️ Edytuj profil</button>
       <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" onclick="showChangePassword()">🔑 Zmień hasło</button>
+      <button class="edit-btn" style="margin-top:10px;border-color:#ff6b7a;color:#ff6b7a" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
       <button class="logout-btn" onclick="logout()">Wyloguj się</button>
     </div>
   </div>
@@ -1361,6 +1362,24 @@ async function updatePassword() {
     setErr('auth-err', '✓ Hasło zmienione! Logowanie za chwilę...');
     setTimeout(() => { window.location.href = window.location.origin; }, 1500);
   }
+}
+
+function confirmClearMatches() {
+  if (confirm('Czy na pewno chcesz wyczyścić wszystkie swoje matche i polubienia? Tej operacji nie można cofnąć.')) {
+    clearMatches();
+  }
+}
+
+async function clearMatches() {
+  if (!currentUser) return;
+  const { error } = await sb.from('matches').delete().eq('user_id', currentUser.id);
+  if (error) {
+    alert('Błąd: ' + error.message);
+    return;
+  }
+  alert('Matche wyczyszczone! Możesz zacząć od nowa.');
+  loadMyProfile();
+  loadDiscover();
 }
 
 async function logout() {
