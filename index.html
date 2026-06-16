@@ -614,7 +614,7 @@ html, body {
   font-family: inherit;
 }
 .genre-chip.selected { background: var(--accent-glow); color: var(--accent); border-color: var(--border-accent); }
-.section-group { margin-bottom: 10px; }
+.section-group { margin-bottom: 10px; width: 100%; }
 .section-btn {
   display: flex;
   align-items: center;
@@ -636,8 +636,20 @@ html, body {
 .section-btn.has-selected { border-color: var(--border-accent); color: var(--accent); background: var(--accent-glow); }
 .section-btn .arrow { font-size: 11px; transition: transform .2s; }
 .section-btn.open .arrow { transform: rotate(180deg); }
-.section-chips { display: none; flex-wrap: wrap; gap: 6px; padding: 10px 0 4px 0; }
-.section-chips.open { display: flex; }
+.section-chips {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 0 4px 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.section-chips.open {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
 .selected-preview { font-size: 11px; color: var(--accent); margin-left: 8px; font-weight: 400; }
 .setup-sql {
   background: var(--navy3);
@@ -1242,12 +1254,26 @@ function buildSectionGrid(containerId, sections, selectedValues) {
     btn.type = 'button';
     btn.innerHTML = `<span>${section.label}${selectedInSection.length > 0 ? `<span class="selected-preview"> (${selectedInSection.length})</span>` : ''}</span><span class="arrow">▼</span>`;
     btn.onclick = () => {
+      const isOpen = btn.classList.contains('open');
       btn.classList.toggle('open');
-      chips.classList.toggle('open');
+      if (isOpen) {
+        chips.classList.remove('open');
+        chips.style.display = 'none';
+      } else {
+        chips.classList.add('open');
+        chips.style.display = 'flex';
+      }
+      // Trigger reflow so parent container rescales
+      void chips.offsetHeight;
     };
 
     const chips = document.createElement('div');
-    chips.className = 'section-chips' + (selectedInSection.length > 0 ? ' open' : '');
+    chips.className = 'section-chips';
+    if (selectedInSection.length > 0) {
+      chips.classList.add('open');
+      chips.style.display = 'flex';
+      btn.classList.add('open');
+    }
 
     section.items.forEach(item => {
       const chip = document.createElement('button');
@@ -1497,6 +1523,15 @@ async function saveProfile() {
   const standBy = standyBtn?.classList.contains('standy-on') || false;
 
   if (!name || !role || !city) return setErr('ob-err', 'Wypełnij imię, rolę i miasto');
+
+  // Walidacja numeru telefonu
+  if (phone) {
+    const phoneDigits = phone.replace(/[\s\-\(\)]/g, '');
+    const phoneRegex = /^\+?[0-9]{7,15}$/;
+    if (!phoneRegex.test(phoneDigits)) {
+      return setErr('ob-err', 'Nieprawidłowy numer telefonu. Podaj numer w formacie np. +48 600 123 456');
+    }
+  }
   if (genres.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jeden gatunek');
   if (lookingFor.length === 0) return setErr('ob-err', 'Wybierz przynajmniej jedną rolę kogo szukasz');
 
