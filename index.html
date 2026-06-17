@@ -1337,8 +1337,24 @@ async function initApp() {
 
 // Blokada Backspace — zapobiega wyjściu z appki w przeglądarce
 window.history.pushState(null, null, window.location.href);
-window.addEventListener('popstate', function() {
-  window.history.pushState(null, null, window.location.href);
+// Blokada klawisza Backspace i strzałek poza polami tekstowymi
+document.addEventListener('keydown', function(e) {
+  const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+  const editable = document.activeElement && document.activeElement.isContentEditable;
+  const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || editable;
+  if (!isInput) {
+    if (e.key === 'Backspace') e.preventDefault();
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+      // Przewijaj aktywny .main-content
+      const activeScreen = document.querySelector('.screen.active');
+      const mc = activeScreen ? activeScreen.querySelector('.main-content') : null;
+      if (mc) {
+        if (e.key === 'ArrowDown') mc.scrollTop += 60;
+        if (e.key === 'ArrowUp') mc.scrollTop -= 60;
+      }
+    }
+  }
 });
 
 // Uruchamiamy init zarówno po load jak i jeśli DOM już gotowy
@@ -2480,6 +2496,8 @@ function showPremiumModal(context) {
   setPremPlan('monthly', document.querySelector('.prem-plan-btn'));
   document.getElementById('modal-premium').classList.remove('hidden');
   document.getElementById('modal-premium').style.display = 'flex';
+  // Backspace zamknie modal zamiast wyjść z appki
+  window.history.pushState({ modal: 'premium' }, '');
 }
 
 let currentPremPlan = 'monthly';
@@ -2521,7 +2539,7 @@ async function startCheckout() {
   };
   const base = links[currentPremPlan] || links.monthly;
   const paymentUrl = `${base}?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
-  window.location.href = paymentUrl;
+  window.open(paymentUrl, '_blank');
 }
 
 // Obsługa powrotu ze Stripe
@@ -2553,6 +2571,16 @@ function closePremiumModal() {
   document.getElementById('modal-premium').classList.add('hidden');
   document.getElementById('modal-premium').style.display = 'none';
 }
+
+// Obsługa popstate — backspace zamyka modal zamiast wychodzić z appki
+window.addEventListener('popstate', function(e) {
+  if (document.getElementById('modal-premium') && !document.getElementById('modal-premium').classList.contains('hidden')) {
+    closePremiumModal();
+    window.history.pushState(null, null, window.location.href);
+  } else {
+    window.history.pushState(null, null, window.location.href);
+  }
+});
 
 async function submitZastepstwo() {
   const role = document.getElementById('zast-role').value;
