@@ -834,6 +834,43 @@ html, body {
           <option>Inne</option>
         </optgroup>
       </select>
+      <!-- Dodatkowe profesje — widoczne dla wszystkich, Premium wymagane -->
+      <div id="extra-roles-section" style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+        <div id="role2-wrap">
+          <select id="ob-role2" onchange="checkRolePremium(this,'role2-wrap')" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit">
+            <option value="">+ Dodaj drugą profesję (Premium) ⭐</option>
+          <optgroup label="Wokaliści"><option>Wokalista/Wokalistka</option><option>Chórzysta/Chórzystka</option><option>Raper/Raperka</option><option>Beatboxer/Beatboxerka</option></optgroup>
+          <optgroup label="Gitary i Bas"><option>Gitarzysta/Gitarzystka</option><option>Gitarzysta Basowy/Basistka</option></optgroup>
+          <optgroup label="Perkusja"><option>Perkusista/Perkusistka</option></optgroup>
+          <optgroup label="Klawisze"><option>Klawiszowiec</option><option>Pianista/Pianistka</option><option>Organista/Organistka</option></optgroup>
+          <optgroup label="Smyczki"><option>Skrzypek/Skrzypaczka</option><option>Wiolonczelista/Wiolonczelistka</option></optgroup>
+          <optgroup label="Dęte"><option>Saksofonista/Saksofonistka</option><option>Trębacz/Trębaczka</option><option>Flecista/Flecistka</option></optgroup>
+          <optgroup label="Muzyka Elektroniczna"><option>DJ</option><option>Producent Muzyczny</option><option>Beatmaker</option><option>Live Act</option><option>Sound Designer</option></optgroup>
+          <optgroup label="Twórcy"><option>Kompozytor/Kompozytorka</option><option>Autor Tekstów</option><option>Aranżer/Aranżerka</option></optgroup>
+          <optgroup label="Produkcja i Studio"><option>Realizator Dźwięku</option><option>Realizator Nagrań</option><option>Inżynier Masteringu</option><option>Inżynier Miksu</option></optgroup>
+          <optgroup label="Management"><option>Manager Artysty</option><option>Booking Manager</option><option>Promotor</option><option>Organizator Wydarzeń</option></optgroup>
+          <optgroup label="Media"><option>Dziennikarz Muzyczny</option><option>Podcaster</option><option>Fotograf Muzyczny</option><option>Grafik</option><option>Social Media Manager</option></optgroup>
+          <optgroup label="Inne"><option>Nauczyciel Muzyki</option><option>Student Kierunku Muzycznego</option><option>Inne</option></optgroup>
+          </select>
+        </div>
+        <div id="role3-wrap" class="hidden">
+          <select id="ob-role3" onchange="checkRolePremium(this,'role3-wrap')" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit">
+            <option value="">+ Dodaj trzecią profesję (Premium) ⭐</option>
+          <optgroup label="Wokaliści"><option>Wokalista/Wokalistka</option><option>Chórzysta/Chórzystka</option><option>Raper/Raperka</option><option>Beatboxer/Beatboxerka</option></optgroup>
+          <optgroup label="Gitary i Bas"><option>Gitarzysta/Gitarzystka</option><option>Gitarzysta Basowy/Basistka</option></optgroup>
+          <optgroup label="Perkusja"><option>Perkusista/Perkusistka</option></optgroup>
+          <optgroup label="Klawisze"><option>Klawiszowiec</option><option>Pianista/Pianistka</option><option>Organista/Organistka</option></optgroup>
+          <optgroup label="Smyczki"><option>Skrzypek/Skrzypaczka</option><option>Wiolonczelista/Wiolonczelistka</option></optgroup>
+          <optgroup label="Dęte"><option>Saksofonista/Saksofonistka</option><option>Trębacz/Trębaczka</option><option>Flecista/Flecistka</option></optgroup>
+          <optgroup label="Muzyka Elektroniczna"><option>DJ</option><option>Producent Muzyczny</option><option>Beatmaker</option><option>Live Act</option><option>Sound Designer</option></optgroup>
+          <optgroup label="Twórcy"><option>Kompozytor/Kompozytorka</option><option>Autor Tekstów</option><option>Aranżer/Aranżerka</option></optgroup>
+          <optgroup label="Produkcja i Studio"><option>Realizator Dźwięku</option><option>Realizator Nagrań</option><option>Inżynier Masteringu</option><option>Inżynier Miksu</option></optgroup>
+          <optgroup label="Management"><option>Manager Artysty</option><option>Booking Manager</option><option>Promotor</option><option>Organizator Wydarzeń</option></optgroup>
+          <optgroup label="Media"><option>Dziennikarz Muzyczny</option><option>Podcaster</option><option>Fotograf Muzyczny</option><option>Grafik</option><option>Social Media Manager</option></optgroup>
+          <optgroup label="Inne"><option>Nauczyciel Muzyki</option><option>Student Kierunku Muzycznego</option><option>Inne</option></optgroup>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
     <div class="field">
@@ -1109,6 +1146,7 @@ html, body {
         <div class="prem-feature">✓ Nieograniczone projekty <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Twórz i dołączaj do dowolnej liczby projektów muzycznych.</span></span></div>
         <div class="prem-feature">✓ Statystyki profilu <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Ile osób widziało Twój profil i jak rośnie Twój zasięg.</span></span></div>
         <div class="prem-feature">✓ Odznaka Premium <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Zielona odznaka — sygnał że jesteś poważnym muzykiem.</span></span></div>
+        <div class="prem-feature">✓ 🎭 Do 3 profesji <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Pokaż wszystkie swoje role — gitarzysta, producent i realizator w jednym profilu.</span></span></div>
       </div>
     </div>
     <!-- Info o kuponie -->
@@ -1605,9 +1643,24 @@ function removeLanguage(btn) {
   if (addBtn) { addBtn.style.opacity = '1'; addBtn.disabled = false; }
 }
 
+function checkRolePremium(select, wrapId) {
+  if (!isPremium()) {
+    select.value = '';
+    showPremiumModal('roles');
+    return;
+  }
+  if (wrapId === 'role2-wrap' && select.value) {
+    const r3 = document.getElementById('role3-wrap');
+    if (r3) r3.classList.remove('hidden');
+  }
+}
+
 async function saveProfile() {
   const name = document.getElementById('ob-name').value.trim();
   const role = document.getElementById('ob-role').value;
+  const role2 = isPremium() ? (document.getElementById('ob-role2')?.value || '') : '';
+  const role3 = isPremium() ? (document.getElementById('ob-role3')?.value || '') : '';
+  const roles = [role, role2, role3].filter(r => r);
   const city = document.getElementById('ob-city').value.trim();
   const bio = document.getElementById('ob-bio').value.trim();
   const phone = document.getElementById('ob-phone')?.value.trim() || '';
@@ -1653,7 +1706,7 @@ async function saveProfile() {
     id: currentUser.id,
     full_name: name,
     username: name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now().toString().slice(-4),
-    role, city, bio, genres,
+    role, roles: roles, city, bio, genres,
     looking_for: lookingFor,
     avatar_color: color,
     phone: phone,
@@ -2170,6 +2223,11 @@ function showEdit() {
   if (currentProfile) {
     document.getElementById('ob-name').value = currentProfile.full_name || '';
     document.getElementById('ob-role').value = currentProfile.role || '';
+    if (isPremium() && currentProfile.roles) {
+      const r = currentProfile.roles;
+      if (r[1] && document.getElementById('ob-role2')) { document.getElementById('ob-role2').value = r[1]; document.getElementById('role3-wrap').classList.remove('hidden'); }
+      if (r[2] && document.getElementById('ob-role3')) document.getElementById('ob-role3').value = r[2];
+    }
     document.getElementById('ob-city').value = currentProfile.city || '';
     document.getElementById('ob-bio').value = currentProfile.bio || '';
     if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
@@ -2319,6 +2377,11 @@ const premiumContexts = {
     emoji: '🤝',
     title: 'Wykorzystaj wszystkie matche',
     subtitle: 'Darmowe konto ma limity — Premium pozwala łączyć się z nieograniczoną liczbą muzyków.'
+  },
+  roles: {
+    emoji: '🎭',
+    title: 'Dodaj więcej profesji',
+    subtitle: 'Premium pozwala wpisać do 3 ról — pokaż wszystko czym jesteś jako muzyk.'
   },
   default: {
     emoji: '🎵',
