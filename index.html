@@ -1321,6 +1321,24 @@ async function initApp() {
     return;
   }
 
+  // Obsługa weryfikacji emaila — Supabase wraca z #access_token&type=signup
+  if (hashParams.get('type') === 'signup' && hashParams.get('access_token')) {
+    try {
+      const { data, error } = await sb.auth.setSession({
+        access_token: hashParams.get('access_token'),
+        refresh_token: hashParams.get('refresh_token') || ''
+      });
+      window.history.replaceState({}, '', '/');
+      if (!error && data.session) {
+        currentUser = data.session.user;
+        await loadProfile();
+        return;
+      }
+    } catch(e) {
+      console.warn('signup hash error:', e);
+    }
+  }
+
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
@@ -2611,11 +2629,8 @@ async function submitZastepstwo() {
   loadZastepstwa();
 }
 
-// Demo ogłoszenia gdy baza pusta
-const DEMO_ZASTEPSTWA = [
-  { id: 1, role: 'Perkusista/Perkusistka', city: 'Warszawa', event_date: new Date(Date.now() + 4*60*60*1000).toISOString(), description: 'Wesele, repertuar pop/dance, ok. 5h grania. Płatne 600 zł. Próba niemożliwa — potrzebny ktoś doświadczony.', author_name: 'Tomek W.', author_role: 'Lider Zespołu', expires_at: new Date(Date.now() + 40*60*60*1000).toISOString(), demo: true },
-  { id: 2, role: 'Wokalista/Wokalistka', city: 'Kraków', event_date: new Date(Date.now() + 26*60*60*1000).toISOString(), description: 'Koncert indie/rock, ~90 minut, znamy się z repertuarem. Wynagrodzenie do ustalenia.', author_name: 'Kasia M.', author_role: 'Gitarzysta/Gitarzystka', expires_at: new Date(Date.now() + 44*60*60*1000).toISOString(), demo: true },
-];
+// Demo ogłoszenia usunięte — tylko dane z bazy
+const DEMO_ZASTEPSTWA = [];
 
 async function loadZastepstwa() {
   const list = document.getElementById('zastepstwa-list');
@@ -2632,7 +2647,7 @@ async function loadZastepstwa() {
     standByMusicians = standRes.data || [];
   } catch(e) {}
 
-  if (items.length === 0) items = DEMO_ZASTEPSTWA;
+  // Brak fallbacku do demo — pusta lista jeśli brak ogłoszeń
 
   list.innerHTML = '';
 
