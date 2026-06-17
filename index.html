@@ -1335,6 +1335,12 @@ async function initApp() {
   }
 }
 
+// Blokada Backspace — zapobiega wyjściu z appki w przeglądarce
+window.history.pushState(null, null, window.location.href);
+window.addEventListener('popstate', function() {
+  window.history.pushState(null, null, window.location.href);
+});
+
 // Uruchamiamy init zarówno po load jak i jeśli DOM już gotowy
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
@@ -1589,7 +1595,7 @@ setInterval(() => {
 
 async function loadProfile() {
   try {
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
     const query = sb.from('profiles').select('*').eq('id', currentUser.id).single();
     const { data, error } = await Promise.race([query, timeout]);
 
