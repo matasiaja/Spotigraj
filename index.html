@@ -875,8 +875,8 @@ html, body {
     <div class="field">
       <label>Płeć</label>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <button type="button" class="status-btn" id="gender-m" data-gender="male" onclick="selectGender('male')" style="flex:1">👨 Mężczyzna</button>
-        <button type="button" class="status-btn" id="gender-f" data-gender="female" onclick="selectGender('female')" style="flex:1">👩 Kobieta</button>
+        <button type="button" class="status-btn" id="gender-m" data-gender="male" onclick="selectGender('male')" style="flex:1">Mężczyzna</button>
+        <button type="button" class="status-btn" id="gender-f" data-gender="female" onclick="selectGender('female')" style="flex:1">Kobieta</button>
       </div>
     </div>
     <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
@@ -1690,8 +1690,8 @@ function selectGender(gender) {
   document.getElementById('gender-f').classList.toggle('selected', gender === 'female');
   const btn = document.getElementById('save-profile-btn');
   if (btn) {
-    if (gender === 'male') btn.textContent = 'Potwierdź zmiany i bądź zmachowany! 💪';
-    else if (gender === 'female') btn.textContent = 'Naciśnij zmianę i bądź zmachowana! 💪';
+    if (gender === 'male') btn.textContent = 'Potwierdź zmiany i bądź zmachowany!';
+    else if (gender === 'female') btn.textContent = 'Naciśnij zmianę i bądź zmachowaną!';
     else btn.textContent = 'Gotowe — szukaj muzyków!';
   }
 }
