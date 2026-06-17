@@ -1840,7 +1840,12 @@ function showApp() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  goTo('profile');
+  // Przywróć ostatnią zakładkę
+  let lastScreen = 'discover';
+  try { lastScreen = localStorage.getItem('lastScreen') || 'discover'; } catch(e) {}
+  const validScreens = ['discover', 'zastepstwa', 'messages', 'profile'];
+  if (!validScreens.includes(lastScreen)) lastScreen = 'discover';
+  goTo(lastScreen);
   loadDiscover();
   loadMyProfile();
   buildFilters();
@@ -1936,6 +1941,8 @@ function goTo(screen) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('s-' + screen).classList.add('active');
   document.getElementById('nb-' + screen).classList.add('active');
+  // Zapamiętaj ostatnią zakładkę
+  try { localStorage.setItem('lastScreen', screen); } catch(e) {}
   if (screen === 'messages') loadConversations();
   if (screen === 'profile') loadMyProfile();
   if (screen === 'zastepstwa') loadZastepstwa();
