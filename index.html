@@ -872,6 +872,13 @@ html, body {
         </div>
       </div>
     </div>
+    <div class="field">
+      <label>Płeć</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="button" class="status-btn" id="gender-m" data-gender="male" onclick="selectGender('male')" style="flex:1">👨 Mężczyzna</button>
+        <button type="button" class="status-btn" id="gender-f" data-gender="female" onclick="selectGender('female')" style="flex:1">👩 Kobieta</button>
+      </div>
+    </div>
     <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
     <div class="field">
       <label>Narodowość</label>
@@ -942,7 +949,7 @@ html, body {
       <label>Krótkie bio (opcjonalnie)</label>
       <textarea id="ob-bio" placeholder="Kilka słów o sobie i czego szukasz... (nie podawaj kontaktów — telefon i czat dostępne po matchu)"></textarea>
     </div>
-    <button class="btn btn-green" onclick="saveProfile()">Gotowe — szukaj muzyków!</button>
+    <button class="btn btn-green" id="save-profile-btn" onclick="saveProfile()">Gotowe — szukaj muzyków!</button>
     <div class="err" id="ob-err"></div>
     <button type="button" onclick="skipOnboarding()" style="width:100%;margin-top:10px;padding:13px;background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.01em">Wypełnię później →</button>
   </div>
@@ -1678,6 +1685,17 @@ function checkRolePremium(select, wrapId) {
   }
 }
 
+function selectGender(gender) {
+  document.getElementById('gender-m').classList.toggle('selected', gender === 'male');
+  document.getElementById('gender-f').classList.toggle('selected', gender === 'female');
+  const btn = document.getElementById('save-profile-btn');
+  if (btn) {
+    if (gender === 'male') btn.textContent = 'Potwierdź zmiany i bądź zmachowany! 💪';
+    else if (gender === 'female') btn.textContent = 'Naciśnij zmianę i bądź zmachowana! 💪';
+    else btn.textContent = 'Gotowe — szukaj muzyków!';
+  }
+}
+
 async function saveProfile() {
   const name = document.getElementById('ob-name').value.trim();
   const role = document.getElementById('ob-role').value;
@@ -1687,6 +1705,9 @@ async function saveProfile() {
   const city = document.getElementById('ob-city').value.trim();
   const bio = document.getElementById('ob-bio').value.trim();
   const phone = document.getElementById('ob-phone')?.value.trim() || '';
+  const genderM = document.getElementById('gender-m')?.classList.contains('selected');
+  const genderF = document.getElementById('gender-f')?.classList.contains('selected');
+  const gender = genderM ? 'male' : genderF ? 'female' : '';
   const nationality = document.getElementById('ob-nationality')?.value || '';
   const languages = [...document.querySelectorAll('#languages-container .lang-select')]
     .map(s => s.value).filter(v => v);
@@ -1736,6 +1757,7 @@ async function saveProfile() {
     status: status,
     vacation_until: vacationUntil || null,
     stand_by: standBy,
+    gender: gender || null,
     nationality: nationality || null,
     languages: languages.length > 0 ? languages : null,
   });
@@ -2275,6 +2297,7 @@ function showEdit() {
       if (r[2] && document.getElementById('ob-role3')) document.getElementById('ob-role3').value = r[2];
     }
     document.getElementById('ob-city').value = currentProfile.city || '';
+    if (currentProfile.gender) selectGender(currentProfile.gender);
     document.getElementById('ob-bio').value = currentProfile.bio || '';
     if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
     if (document.getElementById('ob-nationality')) document.getElementById('ob-nationality').value = currentProfile.nationality || '';
