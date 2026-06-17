@@ -13,11 +13,10 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%231DB954'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%231DB954'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%231DB954'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%231DB954'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%231DB954'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%231DB954'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%231DB954'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%231DB954'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%231DB954'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%231DB954'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%231DB954'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%231DB954'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
 <meta name="theme-color" content="#1DB954"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   /* Oryginalna paleta Spotigraj */
@@ -1362,7 +1361,7 @@ async function register() {
   setErr('auth-err', '');
   const { error } = await sb.auth.signUp({ email, password: pass });
   if (error) setErr('auth-err', error.message);
-  else setErr('auth-err', '✓ Wysłaliśmy link weryfikacyjny na ' + email + ' — sprawdź skrzynkę (też folder Spam)');
+  else setErr('auth-err', '✓ Konto utworzone — możesz się zalogować!');
 }
 
 function showReset() {
@@ -1478,7 +1477,21 @@ async function loadProfile() {
     const query = sb.from('profiles').select('*').eq('id', currentUser.id).single();
     const { data, error } = await Promise.race([query, timeout]);
 
-    if (error || !data) {
+    if (error) {
+      // Konto usunięte z Supabase — wyczyść sesję i wróć do logowania
+      const isGone = error.code === 'PGRST116' || (error.message && (error.message.includes('JWT') || error.message.includes('not found')));
+      if (isGone) {
+        await sb.auth.signOut();
+        currentUser = null;
+        currentProfile = null;
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('onboarding').classList.add('hidden');
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+        return;
+      }
+      showOnboarding();
+    } else if (!data) {
       showOnboarding();
     } else {
       currentProfile = data;
@@ -1704,23 +1717,20 @@ async function loadDiscover() {
 
   document.getElementById('discover-city').textContent = currentProfile.city || 'Polska';
 
-  // Get already swiped + profiles równolegle
-  const [{ data: swiped }, { data: allProfiles }] = await Promise.all([
-    sb.from('matches').select('target_id').eq('user_id', currentUser.id),
-    sb.from('profiles').select('*').limit(100)
-  ]);
-  const swipedIds = new Set((swiped || []).map(s => s.target_id));
-  swipedIds.add(currentUser.id);
+  // Get already swiped
+  const { data: swiped } = await sb.from('matches').select('target_id').eq('user_id', currentUser.id);
+  const swipedIds = (swiped || []).map(s => s.target_id);
+  swipedIds.push(currentUser.id);
 
-  let profiles = (allProfiles || []).filter(p => !swipedIds.has(p.id));
+  let query = sb.from('profiles').select('*').not('id', 'in', `(${swipedIds.map(id => `"${id}"`).join(',')})`);
 
   // Filter logic
-  if (activeFilter === 'Wokaliści') profiles = profiles.filter(p => p.role && p.role.toLowerCase().includes('wokal'));
-  else if (activeFilter === 'Gitarzyści') profiles = profiles.filter(p => p.role && p.role.toLowerCase().includes('gitarz'));
-  else if (activeFilter === 'Producenci') profiles = profiles.filter(p => p.role && p.role.toLowerCase().includes('produc'));
-  else if (['Indie','Hip-hop','Rock'].includes(activeFilter)) profiles = profiles.filter(p => (p.genres || []).includes(activeFilter.toLowerCase()));
+  if (activeFilter === 'Wokaliści') query = query.ilike('role', '%Wokal%');
+  else if (activeFilter === 'Gitarzyści') query = query.ilike('role', '%Gitarz%');
+  else if (activeFilter === 'Producenci') query = query.ilike('role', '%Produc%');
+  else if (['Indie','Hip-hop','Rock'].includes(activeFilter)) query = query.contains('genres', [activeFilter.toLowerCase()]);
 
-  profiles = profiles.slice(0, 10);
+  const { data: profiles } = await query.limit(10);
 
   container.innerHTML = '';
 
