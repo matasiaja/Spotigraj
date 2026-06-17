@@ -1361,7 +1361,7 @@ async function register() {
   setErr('auth-err', '');
   const { error } = await sb.auth.signUp({ email, password: pass });
   if (error) setErr('auth-err', error.message);
-  else setErr('auth-err', '✓ Konto utworzone — możesz się zalogować!');
+  else setErr('auth-err', '✓ Wysłaliśmy link weryfikacyjny na ' + email + ' — sprawdź skrzynkę (też folder Spam)');
 }
 
 function showReset() {
