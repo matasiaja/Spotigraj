@@ -2238,9 +2238,15 @@ const STRIPE_PRICE_ID = 'price_1Ti0DzPpHBFYMbnuJOhHDEXA';
 let stripeInstance = null;
 
 async function startCheckout() {
+  // Jeśli currentUser null — spróbuj pobrać sesję ze Supabase
   if (!currentUser) {
-    alert('Musisz być zalogowany żeby przejść na Premium');
-    return;
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+    } else {
+      alert('Musisz być zalogowany żeby przejść na Premium');
+      return;
+    }
   }
   const links = {
     monthly: 'https://buy.stripe.com/9B6dRb6IDdHNf8jezAcwg03',
