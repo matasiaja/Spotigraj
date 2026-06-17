@@ -1785,7 +1785,7 @@ async function saveProfile() {
     languages: languages.length > 0 ? languages : null,
   });
 
-  if (error) return setErr('ob-err', 'Błąd zapisu — spróbuj ponownie');
+  if (error) return setErr('ob-err', 'Błąd zapisu: ' + (error.message || JSON.stringify(error)));
   await loadProfile();
 }
 
