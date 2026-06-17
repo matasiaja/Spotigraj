@@ -988,7 +988,8 @@ html, body {
         <div class="profile-role-lg" id="prof-role"></div>
         <div class="profile-stats">
           <div class="stat"><div class="stat-n" id="stat-matches">0</div><div class="stat-l">połączeń</div></div>
-          <div class="stat"><div class="stat-n" id="stat-likes">0</div><div class="stat-l">polubień</div></div>
+          <div class="stat"><div class="stat-n" id="stat-likes">0</div><div class="stat-l">polubiło mnie</div></div>
+          <div class="stat"><div class="stat-n" id="stat-mutual">0</div><div class="stat-l">wzajemnych</div></div>
         </div>
       </div>
       <div class="profile-section">
@@ -1010,6 +1011,28 @@ html, body {
       <div class="profile-section" id="prof-languages-section" style="display:none">
         <div class="section-label">Języki</div>
         <div class="tags" id="prof-languages"></div>
+      </div>
+      <!-- SEKCJA STATYSTYK PREMIUM -->
+      <div class="profile-section" id="prof-stats-premium" style="display:none">
+        <div class="section-label">📊 Statystyki Premium</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+          <div style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+            <div style="font-size:26px;font-weight:800;color:var(--accent)" id="pstat-likes">0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">polubiło mnie</div>
+          </div>
+          <div style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+            <div style="font-size:26px;font-weight:800;color:var(--accent)" id="pstat-mutual">0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">wzajemnych matchów</div>
+          </div>
+          <div style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+            <div style="font-size:26px;font-weight:800;color:var(--accent)" id="pstat-sent">0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">wysłanych zaproszeń</div>
+          </div>
+          <div style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+            <div style="font-size:26px;font-weight:800;color:var(--accent)" id="pstat-rate">0%</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">skuteczność matchów</div>
+          </div>
+        </div>
       </div>
       <div class="profile-section" id="prof-phone-section" style="display:none">
         <div class="section-label">Telefon (widoczny po matchu)</div>
@@ -1144,7 +1167,7 @@ html, body {
         <div class="prem-feature">✓ 🚑 Publikowanie zastępstw <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Dodaj pilne ogłoszenie — znajdź kogoś na koncert w ostatniej chwili.</span></span></div>
         <div class="prem-feature">✓ 🎯 Lista Stand By <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Zespoły widzą Twój numer i mogą zadzwonić od razu.</span></span></div>
         <div class="prem-feature">✓ Nieograniczone projekty <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Twórz i dołączaj do dowolnej liczby projektów muzycznych.</span></span></div>
-        <div class="prem-feature">✓ Statystyki profilu <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Ile osób widziało Twój profil i jak rośnie Twój zasięg.</span></span></div>
+        <div class="prem-feature">✓ Statystyki profilu <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Ile osób Cię polubiło, ile wzajemnych matchów masz i jaka jest Twoja skuteczność.</span></span></div>
         <div class="prem-feature">✓ Odznaka Premium <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Zielona odznaka — sygnał że jesteś poważnym muzykiem.</span></span></div>
         <div class="prem-feature">✓ 🎭 Do 3 profesji <span class="prem-tip"><button class="prem-tip-btn" onclick="this.parentElement.classList.toggle('open')">?</button><span class="prem-tip-box">Pokaż wszystkie swoje role — gitarzysta, producent i realizator w jednym profilu.</span></span></div>
       </div>
@@ -2211,11 +2234,34 @@ async function loadMyProfile() {
     phoneEl.textContent = p.phone;
   }
 
-  // Stats
-  const { count: matchCount } = await sb.from('matches').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('action', 'like');
-  const { count: likeCount } = await sb.from('matches').select('*', { count: 'exact', head: true }).eq('target_id', currentUser.id).eq('action', 'like');
+  // Stats — 2 zapytania równolegle zamiast 4
+  const [{ data: myLikes }, { data: theirLikes }] = await Promise.all([
+    sb.from('matches').select('target_id').eq('user_id', currentUser.id).eq('action', 'like'),
+    sb.from('matches').select('user_id').eq('target_id', currentUser.id).eq('action', 'like')
+  ]);
+  const matchCount = (myLikes || []).length;
+  const likeCount = (theirLikes || []).length;
+  const mySet = new Set((myLikes || []).map(m => m.target_id));
+  const mutualCount = (theirLikes || []).filter(m => mySet.has(m.user_id)).length;
+
   document.getElementById('stat-matches').textContent = matchCount || 0;
   document.getElementById('stat-likes').textContent = likeCount || 0;
+  document.getElementById('stat-mutual').textContent = mutualCount || 0;
+
+  // Statystyki Premium
+  const statsSection = document.getElementById('prof-stats-premium');
+  if (statsSection) {
+    if (isPremium()) {
+      statsSection.style.display = 'block';
+      document.getElementById('pstat-likes').textContent = likeCount || 0;
+      document.getElementById('pstat-mutual').textContent = mutualCount || 0;
+      document.getElementById('pstat-sent').textContent = matchCount || 0;
+      const rate = matchCount > 0 ? Math.round((mutualCount / matchCount) * 100) : 0;
+      document.getElementById('pstat-rate').textContent = rate + '%';
+    } else {
+      statsSection.style.display = 'none';
+    }
+  }
 }
 
 function showEdit() {
