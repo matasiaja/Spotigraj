@@ -836,6 +836,43 @@ html, body {
       </select>
     </div>
     <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
+    <div class="field">
+      <label>Narodowość</label>
+      <select id="ob-nationality">
+        <option value="">Wybierz narodowość...</option>
+        <option>Polska</option><option>Angielska</option><option>Niemiecka</option><option>Francuska</option>
+        <option>Włoska</option><option>Hiszpańska</option><option>Ukraińska</option><option>Białoruska</option>
+        <option>Rosyjska</option><option>Czeska</option><option>Słowacka</option><option>Węgierska</option>
+        <option>Rumuńska</option><option>Bułgarska</option><option>Chorwacka</option><option>Serbska</option>
+        <option>Grecka</option><option>Turecka</option><option>Szwedzka</option><option>Norweska</option>
+        <option>Duńska</option><option>Fińska</option><option>Holenderska</option><option>Belgijska</option>
+        <option>Austriacka</option><option>Szwajcarska</option><option>Portugalska</option><option>Irlandzka</option>
+        <option>Szkocka</option><option>Amerykańska</option><option>Kanadyjska</option><option>Australijska</option>
+        <option>Brazylijaska</option><option>Argentyńska</option><option>Meksykańska</option><option>Japońska</option>
+        <option>Koreańska</option><option>Chińska</option><option>Indyjska</option><option>Izraelska</option>
+        <option>Inna</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Języki (max. 5)</label>
+      <div id="languages-container" style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+        <div class="lang-row" style="display:flex;gap:8px;align-items:center">
+          <select class="lang-select" style="flex:1;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit">
+            <option value="">Wybierz język...</option>
+            <option>Polski</option><option>Angielski</option><option>Niemiecki</option><option>Francuski</option>
+            <option>Włoski</option><option>Hiszpański</option><option>Ukraiński</option><option>Rosyjski</option>
+            <option>Czeski</option><option>Słowacki</option><option>Węgierski</option><option>Rumuński</option>
+            <option>Bułgarski</option><option>Chorwacki</option><option>Serbski</option><option>Grecki</option>
+            <option>Turecki</option><option>Szwedzki</option><option>Norweski</option><option>Duński</option>
+            <option>Fiński</option><option>Holenderski</option><option>Portugalski</option><option>Japoński</option>
+            <option>Koreański</option><option>Chiński (mandaryński)</option><option>Arabski</option><option>Hebrajski</option>
+            <option>Inny</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" onclick="addLanguage()" id="add-lang-btn" style="margin-top:8px;padding:8px 16px;background:transparent;border:1.5px dashed var(--border);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;width:100%;font-family:inherit">+ Dodaj kolejny język</button>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">Możesz dodać do 5 języków</div>
+    </div>
     <div class="field"><label>Numer telefonu (opcjonalnie — pokazywany po matchu)</label><input type="tel" id="ob-phone" placeholder="np. +48 600 123 456"></div>
 
     <div class="field">
@@ -928,6 +965,14 @@ html, body {
       <div class="profile-section">
         <div class="section-label">Szuka</div>
         <div class="tags" id="prof-looking"></div>
+      </div>
+      <div class="profile-section" id="prof-nationality-section" style="display:none">
+        <div class="section-label">Narodowość</div>
+        <div id="prof-nationality" style="font-size:14px;color:#aaa"></div>
+      </div>
+      <div class="profile-section" id="prof-languages-section" style="display:none">
+        <div class="section-label">Języki</div>
+        <div class="tags" id="prof-languages"></div>
       </div>
       <div class="profile-section" id="prof-phone-section" style="display:none">
         <div class="section-label">Telefon (widoczny po matchu)</div>
@@ -1524,12 +1569,51 @@ async function loadProfile() {
 }
 
 // ── ONBOARDING ────────────────────────────────────────────────────
+function addLanguage() {
+  const container = document.getElementById('languages-container');
+  const rows = container.querySelectorAll('.lang-row');
+  if (rows.length >= 5) {
+    document.getElementById('add-lang-btn').style.opacity = '0.4';
+    document.getElementById('add-lang-btn').disabled = true;
+    return;
+  }
+  const row = document.createElement('div');
+  row.className = 'lang-row';
+  row.style.cssText = 'display:flex;gap:8px;align-items:center';
+  row.innerHTML = `<select class="lang-select" style="flex:1;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit">
+    <option value="">Wybierz język...</option>
+    <option>Polski</option><option>Angielski</option><option>Niemiecki</option><option>Francuski</option>
+    <option>Włoski</option><option>Hiszpański</option><option>Ukraiński</option><option>Rosyjski</option>
+    <option>Czeski</option><option>Słowacki</option><option>Węgierski</option><option>Rumuński</option>
+    <option>Bułgarski</option><option>Chorwacki</option><option>Serbski</option><option>Grecki</option>
+    <option>Turecki</option><option>Szwedzki</option><option>Norweski</option><option>Duński</option>
+    <option>Fiński</option><option>Holenderski</option><option>Portugalski</option><option>Japoński</option>
+    <option>Koreański</option><option>Chiński (mandaryński)</option><option>Arabski</option><option>Hebrajski</option>
+    <option>Inny</option>
+  </select>
+  <button type="button" onclick="removeLanguage(this)" style="width:32px;height:32px;border-radius:50%;background:rgba(255,107,122,0.12);border:1px solid rgba(255,107,122,0.3);color:#ff6b7a;font-size:16px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center">×</button>`;
+  container.appendChild(row);
+  if (container.querySelectorAll('.lang-row').length >= 5) {
+    document.getElementById('add-lang-btn').style.opacity = '0.4';
+    document.getElementById('add-lang-btn').disabled = true;
+  }
+}
+
+function removeLanguage(btn) {
+  btn.closest('.lang-row').remove();
+  const addBtn = document.getElementById('add-lang-btn');
+  if (addBtn) { addBtn.style.opacity = '1'; addBtn.disabled = false; }
+}
+
 async function saveProfile() {
   const name = document.getElementById('ob-name').value.trim();
   const role = document.getElementById('ob-role').value;
   const city = document.getElementById('ob-city').value.trim();
   const bio = document.getElementById('ob-bio').value.trim();
   const phone = document.getElementById('ob-phone')?.value.trim() || '';
+  const nationality = document.getElementById('ob-nationality')?.value || '';
+  const languages = [...document.querySelectorAll('#languages-container .lang-select')]
+    .map(s => s.value).filter(v => v);
   const genres = [...document.querySelectorAll('#genres-grid .genre-chip.selected')].map(b => b.textContent);
   const lookingFor = [...document.querySelectorAll('#looking-for-grid .genre-chip.selected')].map(b => b.textContent);
   const statusBtn = document.querySelector('#status-grid .status-btn.selected');
@@ -1576,6 +1660,8 @@ async function saveProfile() {
     status: status,
     vacation_until: vacationUntil || null,
     stand_by: standBy,
+    nationality: nationality || null,
+    languages: languages.length > 0 ? languages : null,
   });
 
   if (error) return setErr('ob-err', 'Błąd zapisu — spróbuj ponownie');
@@ -2051,6 +2137,20 @@ async function loadMyProfile() {
       ? lf.map(r => `<span class="tag tag-gray">${r}</span>`).join('')
       : '<span style="color:var(--muted);font-size:12px">Nie ustawiono — edytuj profil</span>';
   }
+  const natSection = document.getElementById('prof-nationality-section');
+  const natEl = document.getElementById('prof-nationality');
+  if (natSection && natEl) {
+    if (p.nationality) { natSection.style.display = 'block'; natEl.textContent = p.nationality; }
+    else { natSection.style.display = 'none'; }
+  }
+  const langSection = document.getElementById('prof-languages-section');
+  const langEl = document.getElementById('prof-languages');
+  if (langSection && langEl) {
+    if (p.languages?.length) {
+      langSection.style.display = 'block';
+      langEl.innerHTML = p.languages.map(l => `<span class="tag tag-gray">${l}</span>`).join('');
+    } else { langSection.style.display = 'none'; }
+  }
   const phoneSection = document.getElementById('prof-phone-section');
   const phoneEl = document.getElementById('prof-phone');
   if (p.phone && phoneSection && phoneEl) {
@@ -2073,6 +2173,29 @@ function showEdit() {
     document.getElementById('ob-city').value = currentProfile.city || '';
     document.getElementById('ob-bio').value = currentProfile.bio || '';
     if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
+    if (document.getElementById('ob-nationality')) document.getElementById('ob-nationality').value = currentProfile.nationality || '';
+    // Przywróć języki
+    const langContainer = document.getElementById('languages-container');
+    if (langContainer && currentProfile.languages?.length) {
+      langContainer.innerHTML = '';
+      const addBtn = document.getElementById('add-lang-btn');
+      currentProfile.languages.slice(0,5).forEach((lang, i) => {
+        const row = document.createElement('div');
+        row.className = 'lang-row';
+        row.style.cssText = 'display:flex;gap:8px;align-items:center';
+        const removeBtn = i === 0 ? '' : `<button type="button" onclick="removeLanguage(this)" style="width:32px;height:32px;border-radius:50%;background:rgba(255,107,122,0.12);border:1px solid rgba(255,107,122,0.3);color:#ff6b7a;font-size:16px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center">×</button>`;
+        row.innerHTML = `<select class="lang-select" style="flex:1;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit">
+          <option value="">Wybierz język...</option>
+          <option>Polski</option><option>Angielski</option><option>Niemiecki</option><option>Francuski</option>
+          <option>Włoski</option><option>Hiszpański</option><option>Ukraiński</option><option>Rosyjski</option>
+          <option>Czeski</option><option>Słowacki</option><option>Węgierski</option><option>Rumuński</option>
+          <option>Inny</option>
+        </select>${removeBtn}`;
+        row.querySelector('select').value = lang;
+        langContainer.appendChild(row);
+      });
+      if (currentProfile.languages.length >= 5 && addBtn) { addBtn.style.opacity='0.4'; addBtn.disabled=true; }
+    }
     // Status
     document.querySelectorAll('#status-grid .status-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.status === (currentProfile.status || 'active'));
