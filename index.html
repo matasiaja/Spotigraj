@@ -216,9 +216,6 @@ html, body {
   transition: all .2s;
   box-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
-@media (min-width: 600px) {
-  #bug-btn { bottom: 24px; right: 24px; }
-}
 #bug-btn:hover { background: var(--navy4); color: var(--text); border-color: rgba(255,255,255,0.2); }
 #bug-btn:active { transform: scale(0.92); }
 #bug-btn { display: none; } /* shown after login */
@@ -798,7 +795,7 @@ html, body {
     <div class="onboard-sub">Powiedz nam kim jesteś jako muzyk</div>
     <div class="field"><label>Imię / pseudonim</label><input type="text" id="ob-name" placeholder="np. Matt, KasiaVocals..."></div>
     <div class="field">
-      <label>Twoja rola</label>
+      <label>Twoja rola / projekt</label>
       <select id="ob-role">
         <option value="">Wybierz rolę...</option>
         <optgroup label="Wokaliści">
