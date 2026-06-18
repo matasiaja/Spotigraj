@@ -216,6 +216,9 @@ html, body {
   transition: all .2s;
   box-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
+@media (min-width: 600px) {
+  #bug-btn { bottom: 24px; right: 24px; }
+}
 #bug-btn:hover { background: var(--navy4); color: var(--text); border-color: rgba(255,255,255,0.2); }
 #bug-btn:active { transform: scale(0.92); }
 #bug-btn { display: none; } /* shown after login */
@@ -770,10 +773,6 @@ html, body {
       <div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="twoj@email.com"></div>
       <div class="field"><label>Hasło (min. 6 znaków)</label><input type="password" id="reg-pass" placeholder="••••••••"></div>
       <div class="field"><label>Powtórz hasło</label><input type="password" id="reg-pass2" placeholder="••••••••"></div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin:12px 0 4px">
-        <input type="checkbox" id="reg-terms" style="margin-top:3px;accent-color:var(--green);width:16px;height:16px;flex-shrink:0;cursor:pointer">
-        <label for="reg-terms" style="font-size:13px;color:var(--muted);line-height:1.5;cursor:pointer">Mam co najmniej 16 lat i akceptuję <a href="/regulamin.html" target="_blank" style="color:var(--green)">Regulamin</a> oraz <a href="/polityka-prywatnosci.html" target="_blank" style="color:var(--green)">Politykę prywatności</a> Spotigraj.</label>
-      </div>
       <button class="btn btn-green" onclick="register()">Utwórz konto</button>
     </div>
     <div id="reset-form" class="hidden">
@@ -1602,9 +1601,7 @@ async function register() {
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-pass').value;
   const pass2 = document.getElementById('reg-pass2').value;
-  const terms = document.getElementById('reg-terms').checked;
   if (!email || !pass || !pass2) return setErr('auth-err', 'Wypełnij wszystkie pola');
-  if (!terms) return setErr('auth-err', 'Zaakceptuj Regulamin i Politykę prywatności, aby kontynuować.');
   if (pass.length < 6) return setErr('auth-err', 'Hasło musi mieć min. 6 znaków');
   if (pass !== pass2) return setErr('auth-err', 'Hasła nie są identyczne');
   setErr('auth-err', '');
