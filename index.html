@@ -2160,34 +2160,10 @@ async function swipe(targetId, action) {
   }
   await sb.from('matches').upsert({ user_id: currentUser.id, target_id: targetId, action });
   if (action === 'like') {
-    // Check mutual match
+    // Check mutual match — silent, no popup
     const { data } = await sb.from('matches').select('*').eq('user_id', targetId).eq('target_id', currentUser.id).eq('action', 'like').single();
-    if (data) showMatchPopup(targetId);
+    // Match pojawia się w zakładce Wiadomości bez powiadomienia
   }
-}
-
-function showMatchPopup(targetId) {
-  // Pobierz profil dopasowanej osoby żeby pokazać telefon
-  sb.from('profiles').select('full_name, phone, role').eq('id', targetId).single().then(({ data: p }) => {
-    const phoneSection = p?.phone
-      ? `<div style="background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:12px 20px;margin:12px 0;text-align:center">
-          <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
-          <div style="font-size:20px;font-weight:700;color:var(--green)">${p.phone}</div>
-          <a href="tel:${p.phone}" style="display:inline-block;margin-top:8px;padding:6px 16px;background:var(--green);color:#000;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
-        </div>`
-      : `<div style="font-size:13px;color:#666;margin:8px 0">Ta osoba nie podała numeru telefonu</div>`;
-
-    const popup = document.createElement('div');
-    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:8px;text-align:center;padding:24px';
-    popup.innerHTML = `
-      <div style="font-size:56px">🎵</div>
-      <div style="font-size:26px;font-weight:800;color:#fff">To match!</div>
-      <div style="font-size:15px;color:#aaa">${p?.full_name || 'Muzyk'} · ${p?.role || ''}</div>
-      ${phoneSection}
-      <button style="padding:13px 32px;background:var(--green);color:#000;border:none;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px" onclick="this.parentElement.remove();openChat('${targetId}')">💬 Wyślij wiadomość</button>
-      <button style="padding:10px 24px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:30px;font-size:14px;cursor:pointer" onclick="this.parentElement.remove()">Później</button>`;
-    document.body.appendChild(popup);
-  });
 }
 
 // ── CONVERSATIONS ─────────────────────────────────────────────────
