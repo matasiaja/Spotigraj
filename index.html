@@ -795,7 +795,7 @@ html, body {
     <div class="onboard-sub">Powiedz nam kim jesteś jako muzyk</div>
     <div class="field"><label>Imię / pseudonim</label><input type="text" id="ob-name" placeholder="np. Matt, KasiaVocals..."></div>
     <div class="field">
-      <label>Twoja rola / projekt</label>
+      <label>Twoja rola</label>
       <select id="ob-role">
         <option value="">Wybierz rolę...</option>
         <optgroup label="Wokaliści">
@@ -2341,7 +2341,8 @@ async function loadMyProfile() {
       badgeEl.style.display = 'none';
     }
   }
-  document.getElementById('prof-role').textContent = (p.role || '') + (p.city ? ' · ' + p.city : '');
+  const allRoles = (p.roles && p.roles.length) ? p.roles.filter(r => r) : [p.role].filter(r => r);
+  document.getElementById('prof-role').textContent = allRoles.join(' / ') + (p.city ? ' · ' + p.city : '');
   document.getElementById('prof-bio').textContent = p.bio || 'Dodaj bio w edycji profilu.';
   const genres = document.getElementById('prof-genres');
   genres.innerHTML = (p.genres || []).map(g => `<span class="tag">${g}</span>`).join('');
