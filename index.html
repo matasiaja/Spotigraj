@@ -1721,8 +1721,13 @@ async function loadProfile() {
     const { data, error } = await Promise.race([query, timeout]);
 
     if (error) {
-      // Konto usunięte z Supabase — wyczyść sesję i wróć do logowania
-      const isGone = error.code === 'PGRST116' || (error.message && (error.message.includes('JWT') || error.message.includes('not found')));
+      // PGRST116 = brak wiersza w profiles — normalne dla nowego użytkownika, pokaż onboarding
+      if (error.code === 'PGRST116') {
+        showOnboarding();
+        return;
+      }
+      // Konto usunięte z Supabase / token nieprawidłowy — wyczyść sesję i wróć do logowania
+      const isGone = error.message && (error.message.includes('JWT') || error.message.includes('not found'));
       if (isGone) {
         await sb.auth.signOut();
         currentUser = null;
