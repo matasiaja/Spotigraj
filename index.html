@@ -944,6 +944,14 @@ html, body {
         <button type="button" class="status-btn" id="gender-f" data-gender="female" onclick="selectGender('female')" style="flex:1">Kobieta</button>
       </div>
     </div>
+    <div class="field">
+      <label>Poziom zaawansowania *</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="button" class="status-btn" id="exp-amator" data-exp="amator" onclick="selectExperience('amator')" style="flex:1">Amator</button>
+        <button type="button" class="status-btn" id="exp-sredni" data-exp="sredniozaawansowany" onclick="selectExperience('sredniozaawansowany')" style="flex:1">Średniozaaw.</button>
+        <button type="button" class="status-btn" id="exp-pro" data-exp="profesjonalista" onclick="selectExperience('profesjonalista')" style="flex:1">Profesjonalista</button>
+      </div>
+    </div>
     <div class="field"><label>Miasto</label><input type="text" id="ob-city" placeholder="np. Warszawa"></div>
     <div class="field">
       <label>Narodowość</label>
@@ -1034,6 +1042,7 @@ html, body {
     </div>
     <div class="main-content">
       <div class="filter-row" id="filter-row"></div>
+      <div class="filter-row" id="exp-filter-row"></div>
       <div id="cards-container"></div>
     </div>
   </div>
@@ -1392,6 +1401,7 @@ let currentProfile = null;
 let chatWith = null;
 let chatSub = null;
 let activeFilter = 'Wszyscy';
+let activeExpFilter = 'Wszyscy poziomy';
 
 // ── INIT ──────────────────────────────────────────────────────────
 async function initApp() {
@@ -1830,6 +1840,12 @@ function selectGender(gender) {
   }
 }
 
+function selectExperience(level) {
+  document.getElementById('exp-amator').classList.toggle('selected', level === 'amator');
+  document.getElementById('exp-sredni').classList.toggle('selected', level === 'sredniozaawansowany');
+  document.getElementById('exp-pro').classList.toggle('selected', level === 'profesjonalista');
+}
+
 async function saveProfile() {
   const name = document.getElementById('ob-name').value.trim();
   const role = document.getElementById('ob-role').value;
@@ -1842,6 +1858,8 @@ async function saveProfile() {
   const genderM = document.getElementById('gender-m')?.classList.contains('selected');
   const genderF = document.getElementById('gender-f')?.classList.contains('selected');
   const gender = genderM ? 'male' : genderF ? 'female' : '';
+  const expBtn = document.querySelector('#exp-amator.selected, #exp-sredni.selected, #exp-pro.selected');
+  const experienceLevel = expBtn?.dataset.exp || '';
   const nationality = document.getElementById('ob-nationality')?.value || '';
   const languages = [...document.querySelectorAll('#languages-container .lang-select')]
     .map(s => s.value).filter(v => v);
@@ -1854,6 +1872,7 @@ async function saveProfile() {
   const standBy = standyBtn?.classList.contains('standy-on') || false;
 
   if (!name || !role || !city) return setErr('ob-err', 'Wypełnij imię, rolę i miasto');
+  if (!experienceLevel) return setErr('ob-err', 'Wybierz poziom zaawansowania');
 
   // Walidacja numeru telefonu — wymagany kierunkowy kraju (+ i 1-3 cyfry), suma 7-13 cyfr (pokrywa realne numery, odcina śmieciowe ciągi)
   if (phone) {
@@ -1892,6 +1911,7 @@ async function saveProfile() {
     vacation_until: vacationUntil || null,
     stand_by: standBy,
     gender: gender || null,
+    experience_level: experienceLevel,
     nationality: nationality || null,
     languages: languages.length > 0 ? languages : null,
   });
@@ -1922,6 +1942,7 @@ function skipOnboarding() {
   loadDiscover();
   loadMyProfile();
   buildFilters();
+  buildExpFilters();
   handleStripeReturn();
   applyPremiumTheme();
   initNotifications();
@@ -1943,6 +1964,7 @@ function showApp() {
   loadDiscover();
   loadMyProfile();
   buildFilters();
+  buildExpFilters();
   handleStripeReturn();
   applyPremiumTheme();
   initNotifications();
@@ -2080,6 +2102,25 @@ function buildFilters() {
   });
 }
 
+function buildExpFilters() {
+  const row = document.getElementById('exp-filter-row');
+  if (!row) return;
+  const filters = [
+    { label: 'Wszyscy poziomy', value: 'Wszyscy poziomy' },
+    { label: '🌱 Amator', value: 'amator' },
+    { label: '🎵 Średniozaaw.', value: 'sredniozaawansowany' },
+    { label: '🏆 Profesjonalista', value: 'profesjonalista' },
+  ];
+  row.innerHTML = '';
+  filters.forEach(f => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (f.value === activeExpFilter ? ' on' : '');
+    b.textContent = f.label;
+    b.onclick = () => { activeExpFilter = f.value; buildExpFilters(); loadDiscover(); };
+    row.appendChild(b);
+  });
+}
+
 async function loadDiscover() {
   if (!currentProfile) return;
   const container = document.getElementById('cards-container');
@@ -2102,6 +2143,8 @@ async function loadDiscover() {
   else if (activeFilter === 'Gitarzyści') profiles = profiles.filter(p => p.role && p.role.toLowerCase().includes('gitarz'));
   else if (activeFilter === 'Producenci') profiles = profiles.filter(p => p.role && p.role.toLowerCase().includes('produc'));
   else if (['Indie','Hip-hop','Rock'].includes(activeFilter)) profiles = profiles.filter(p => (p.genres || []).includes(activeFilter.toLowerCase()));
+
+  if (activeExpFilter !== 'Wszyscy poziomy') profiles = profiles.filter(p => p.experience_level === activeExpFilter);
 
   profiles = profiles.slice(0, 10);
 
@@ -2159,6 +2202,8 @@ function buildCard(p) {
   const avatarContent = p.avatar_url ? '' : initials;
 
   const badgeBadge = p.badge ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;margin-left:6px">${p.badge}</span>` : (p.is_premium ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;margin-left:6px">⭐ Premium</span>` : '');
+  const expLabel = getExperienceLabel(p.experience_level);
+  const expBadge = expLabel ? `<span class="tag tag-gray">${expLabel}</span>` : '';
 
   card.innerHTML = `
     <div class="card-head">
@@ -2166,11 +2211,11 @@ function buildCard(p) {
       <div style="flex:1;min-width:0;overflow:hidden">
         <div class="card-name">${p.full_name || 'Muzyk'}${badgeBadge}</div>
         <div class="card-role">${p.role || ''} · ${p.city || ''}</div>
-        <div style="margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}</div>
+        <div style="margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}${expBadge}</div>
       </div>
       <div class="match-pct">${match}%</div>
     </div>
-    <div class="card-bio">${p.bio || 'Muzyk / profesjonalista branży muzycznej szukający połączeń na Spotigraj.'}</div>
+    <div class="card-bio">${p.bio || getDefaultBio(p)}</div>
     <div class="tags">${genres}</div>
     ${lookingSection}
     <div class="card-actions">
@@ -2483,6 +2528,7 @@ function showEdit() {
     }
     document.getElementById('ob-city').value = currentProfile.city || '';
     if (currentProfile.gender) selectGender(currentProfile.gender);
+    if (currentProfile.experience_level) selectExperience(currentProfile.experience_level);
     document.getElementById('ob-bio').value = currentProfile.bio || '';
     if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
     if (document.getElementById('ob-nationality')) document.getElementById('ob-nationality').value = currentProfile.nationality || '';
@@ -2572,6 +2618,23 @@ function selectStatus(btn) {
 function toggleStandBy(btn) {
   const isOn = btn.classList.toggle('standy-on');
   btn.textContent = isOn ? '🎯 Jestem Stand By ✓' : '🎯 Nie jestem Stand By';
+}
+
+// Generuje domyślny opis profilu (gdy user nie wypełnił bio), z odmianą dla kobiet wg roli
+function getDefaultBio(profile) {
+  const base = 'Muzyk / profesjonalista branży muzycznej szukający połączeń na Spotigraj.';
+  if (profile.gender !== 'female') return base;
+  // Kobieta — spróbuj wyciągnąć żeńską formę roli (po "/"), np. "Trębacz/Trębaczka" -> "Trębaczka"
+  const role = profile.role || '';
+  const parts = role.split('/');
+  const roleFem = parts.length === 2 ? parts[1].trim() : null;
+  if (roleFem) return `${roleFem} / profesjonalistka branży muzycznej szukająca połączeń na Spotigraj.`;
+  return 'Profesjonalistka branży muzycznej szukająca połączeń na Spotigraj.';
+}
+
+function getExperienceLabel(level) {
+  const labels = { amator: '🌱 Amator', sredniozaawansowany: '🎵 Średniozaaw.', profesjonalista: '🏆 Profesjonalista' };
+  return labels[level] || '';
 }
 
 function getStatusLabel(status, vacationUntil) {
