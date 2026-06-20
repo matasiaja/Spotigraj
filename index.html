@@ -1403,7 +1403,7 @@ let currentProfile = null;
 let chatWith = null;
 let chatSub = null;
 let activeFilter = 'Wszyscy';
-let activeExpFilter = 'Wszyscy poziomy';
+let activeExpFilter = 'Wszyscy';
 
 // ── INIT ──────────────────────────────────────────────────────────
 async function initApp() {
@@ -1840,6 +1840,50 @@ function selectGender(gender) {
     else if (gender === 'female') btn.textContent = 'Naciśnij zmiana i bądź zmachowana!';
     else btn.textContent = 'Gotowe — szukaj muzyków!';
   }
+  applyGenderToRoleOptions(gender);
+}
+
+// Podmienia widoczny tekst I value opcji ról (np. "Trębacz/Trębaczka") na formę zgodną z płcią.
+// Oryginalny pełny string zapamiętany w dataset, na wypadek przełączenia płci z powrotem albo jej usunięcia.
+function applyGenderToRoleOptions(gender) {
+  ['ob-role', 'ob-role2', 'ob-role3'].forEach(selectId => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const previousValue = select.value;
+    // Znajdź, którą opcję user miał wybraną PRZED podmianą — dopasuj po dowolnej formie (męska/żeńska/pełna),
+    // bo previousValue mógł zostać ustawiony wprost z bazy (np. "Trębaczka") zanim opcje zostały odmienione.
+    let selectedOriginal = null;
+    select.querySelectorAll('option').forEach(opt => {
+      if (!opt.value) return; // pomiń placeholder "Wybierz rolę..."
+      const original = opt.dataset.original || opt.value;
+      opt.dataset.original = original; // zapamiętaj oryginał przy pierwszej podmianie
+      if (!previousValue) return;
+      const parts = original.split('/');
+      const matches = previousValue === original
+        || (parts.length === 2 && (previousValue === parts[0].trim() || previousValue === parts[1].trim()));
+      if (matches) selectedOriginal = original;
+    });
+    select.querySelectorAll('option').forEach(opt => {
+      if (!opt.value && !opt.dataset.original) return;
+      const original = opt.dataset.original;
+      const parts = original.split('/');
+      let displayForm = original;
+      if (parts.length === 2) {
+        if (gender === 'female') displayForm = parts[1].trim();
+        else if (gender === 'male') displayForm = parts[0].trim();
+      }
+      opt.textContent = displayForm;
+      opt.value = displayForm;
+    });
+    // Przywróć zaznaczenie po oryginale (rozpoznajemy rolę niezależnie od formy, w jakiej była zapisana)
+    if (selectedOriginal) {
+      const parts = selectedOriginal.split('/');
+      const newSelectedValue = parts.length === 2
+        ? (gender === 'female' ? parts[1].trim() : gender === 'male' ? parts[0].trim() : selectedOriginal)
+        : selectedOriginal;
+      select.value = newSelectedValue;
+    }
+  });
 }
 
 function selectExperience(level) {
@@ -2146,7 +2190,7 @@ function buildExpFilters() {
   const row = document.getElementById('exp-filter-row');
   if (!row) return;
   const filters = [
-    { label: 'Wszyscy poziomy', value: 'Wszyscy poziomy' },
+    { label: 'Wszyscy', value: 'Wszyscy' },
     { label: '🌱 Amator', value: 'amator' },
     { label: '🎵 Średniozaaw.', value: 'sredniozaawansowany' },
     { label: '🏆 Profesjonalista', value: 'profesjonalista' },
@@ -2184,7 +2228,7 @@ async function loadDiscover() {
   else if (activeFilter === 'Producenci') profiles = profiles.filter(p => p.role && p.role.toLowerCase().includes('produc'));
   else if (['Indie','Hip-hop','Rock'].includes(activeFilter)) profiles = profiles.filter(p => (p.genres || []).includes(activeFilter.toLowerCase()));
 
-  if (activeExpFilter !== 'Wszyscy poziomy') profiles = profiles.filter(p => p.experience_level === activeExpFilter);
+  if (activeExpFilter !== 'Wszyscy') profiles = profiles.filter(p => p.experience_level === activeExpFilter);
 
   profiles = profiles.slice(0, 10);
 
@@ -2560,6 +2604,9 @@ function showEdit() {
   // Pre-fill onboarding with current data and show
   if (currentProfile) {
     document.getElementById('ob-name').value = currentProfile.full_name || '';
+    // Zastosuj płeć do opcji ról PRZED ustawieniem wartości — inaczej select nie znajdzie dopasowania
+    // dla zapisanej w bazie odmienionej formy (np. "Trębaczka"), bo opcje wciąż mają pełny tekst "Trębacz/Trębaczka"
+    if (currentProfile.gender) selectGender(currentProfile.gender);
     document.getElementById('ob-role').value = currentProfile.role || '';
     if (isPremium() && currentProfile.roles) {
       const r = currentProfile.roles;
@@ -2567,7 +2614,6 @@ function showEdit() {
       if (r[2] && document.getElementById('ob-role3')) document.getElementById('ob-role3').value = r[2];
     }
     document.getElementById('ob-city').value = currentProfile.city || '';
-    if (currentProfile.gender) selectGender(currentProfile.gender);
     if (currentProfile.experience_level) selectExperience(currentProfile.experience_level);
     document.getElementById('ob-bio').value = currentProfile.bio || '';
     if (document.getElementById('ob-phone')) document.getElementById('ob-phone').value = currentProfile.phone || '';
