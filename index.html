@@ -2870,6 +2870,7 @@ async function contactStandBy(userId) {
   const { data: p } = await sb.from('profiles').select('full_name,phone,role').eq('id', userId).single();
   if (p?.phone) {
     const popup = document.createElement('div');
+    popup.id = 'standby-contact-popup';
     popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px';
     popup.innerHTML = `
       <div style="background:var(--dark2);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:28px;width:100%;max-width:360px;text-align:center">
@@ -2881,8 +2882,8 @@ async function contactStandBy(userId) {
           <div style="font-size:22px;font-weight:700;color:#f59e0b">${p.phone}</div>
           <a href="tel:${p.phone}" style="display:inline-block;margin-top:10px;padding:8px 20px;background:#f59e0b;color:#000;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
         </div>
-        <button onclick="this.closest('div[style]').remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:#000;font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
-        <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer">Zamknij</button>
+        <button onclick="document.getElementById('standby-contact-popup').remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:#000;font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
+        <button onclick="document.getElementById('standby-contact-popup').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer">Zamknij</button>
       </div>`;
     document.body.appendChild(popup);
   } else {
