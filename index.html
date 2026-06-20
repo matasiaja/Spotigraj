@@ -2001,6 +2001,10 @@ async function saveProfile() {
   });
 
   if (error) return setErr('ob-err', 'Błąd zapisu: ' + (error.message || JSON.stringify(error)));
+
+  // Zapisz imię też w user_metadata — dzięki temu jest widoczne w Supabase Dashboard, Authentication > Users
+  sb.auth.updateUser({ data: { display_name: name } }).catch(() => {});
+
   await loadProfile();
 }
 
