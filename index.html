@@ -1173,7 +1173,7 @@ html, body {
     <div id="bug-err" class="err"></div>
     <div class="bug-send-row">
       <button onclick="closeBugModal()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-      <button onclick="sendBugReport()" style="flex:2;padding:12px;background:var(--accent);border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij →</button>
+      <button id="bug-send-btn" onclick="sendBugReport()" style="flex:2;padding:12px;background:var(--accent);border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij →</button>
     </div>
   </div>
 </div>
@@ -2025,6 +2025,17 @@ function checkForMatches() {
 setInterval(checkForMatches, 60000);
 
 function goTo(screen) {
+  // Zabezpieczenie — jeśli sesja wygasła/zniknęła w tle, nie pozwól ekranowi się zamrozić.
+  // Zamiast rzucać wyjątek w środku funkcji, czyścimy stan i wracamy do logowania.
+  if (!currentUser) {
+    currentProfile = null;
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('onboarding').classList.add('hidden');
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('chat-screen').classList.remove('active');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    return;
+  }
   // Scroll do góry przy każdej zmianie ekranu
   setTimeout(() => {
     const mc = document.querySelector("#s-" + screen + " .main-content");
@@ -2173,6 +2184,7 @@ async function swipe(targetId, action) {
 
 // ── CONVERSATIONS ─────────────────────────────────────────────────
 async function loadConversations() {
+  if (!currentUser) return;
   const list = document.getElementById('convs-list');
   list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Ładowanie...</div>';
 
@@ -2874,25 +2886,49 @@ function selectBugCat(btn) {
   btn.classList.add('sel');
 }
 
-function sendBugReport() {
+async function sendBugReport() {
   const desc = document.getElementById('bug-desc').value.trim();
   if (!desc) {
     document.getElementById('bug-err').textContent = 'Opisz problem przed wysłaniem.';
     return;
   }
   const cat = document.querySelector('.bug-cat.sel')?.dataset.cat || 'Brak kategorii';
-  const user = currentUser?.email || 'niezalogowany';
   const ua = navigator.userAgent;
-  const subject = encodeURIComponent('[Spotigraj] Zgłoszenie: ' + cat);
-  const body = encodeURIComponent(
-    'Kategoria: ' + cat + '\n\n' +
-    'Opis:\n' + desc + '\n\n' +
-    '---\n' +
-    'Użytkownik: ' + user + '\n' +
-    'Przeglądarka: ' + ua
-  );
-  window.open('mailto:info@mattsmok.art?subject=' + subject + '&body=' + body);
-  closeBugModal();
+
+  const sendBtn = document.getElementById('bug-send-btn');
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Wysyłanie...'; }
+  document.getElementById('bug-err').textContent = '';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      document.getElementById('bug-err').textContent = 'Musisz być zalogowany, aby zgłosić problem.';
+      return;
+    }
+
+    const resp = await fetch(SUPABASE_URL + '/functions/v1/send-bug-report', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': SUPABASE_KEY,
+      },
+      body: JSON.stringify({ category: cat, description: desc, userAgent: ua }),
+    });
+
+    const result = await resp.json().catch(() => ({}));
+
+    if (!resp.ok || !result.success) {
+      document.getElementById('bug-err').textContent = 'Błąd wysyłki: ' + (result.error || 'nieznany błąd. Spróbuj ponownie.');
+      return;
+    }
+
+    closeBugModal();
+  } catch (e) {
+    document.getElementById('bug-err').textContent = 'Błąd połączenia. Sprawdź internet i spróbuj ponownie.';
+  } finally {
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Wyślij zgłoszenie'; }
+  }
 }
 
 // ── PREMIUM TOOLTIPS — auto-hide po 3s, zamknij poprzedni przy nowym ──
