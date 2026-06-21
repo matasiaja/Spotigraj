@@ -1142,6 +1142,37 @@ html, body {
       <div id="zastepstwa-list"></div>
     </div>
   </div>
+  <!-- APPGRAJD (changelog) -->
+  <div id="s-appgrajd" class="screen">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🔔 Appgrajd</div>
+        <div class="topbar-sub">Co nowego w Spotigraj</div>
+      </div>
+    </div>
+    <div class="main-content">
+      <!-- Panel dodawania wpisu — widoczny tylko dla foundera -->
+      <div id="appgrajd-admin" class="hidden" style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px">
+        <div style="font-size:12px;font-weight:800;color:var(--green);margin-bottom:10px">👑 Dodaj wpis (tylko Ty to widzisz)</div>
+        <div class="field" style="margin-bottom:8px">
+          <select id="appgrajd-type" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none">
+            <option value="naprawka">🛠 Naprawka</option>
+            <option value="nowa_funkcja">⚙️ Nowe funkcje</option>
+            <option value="ulepszenie">🚀 Ulepszenia</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:8px">
+          <input type="text" id="appgrajd-title" placeholder="Tytuł (np. Naprawiono błąd w Stand By)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <textarea id="appgrajd-desc" placeholder="Opis (opcjonalnie)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
+        </div>
+        <button onclick="submitAppgrajdEntry()" style="width:100%;padding:11px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:13px;font-weight:700;cursor:pointer">Opublikuj</button>
+        <div class="err" id="appgrajd-err" style="margin-top:8px"></div>
+      </div>
+      <div id="appgrajd-list"></div>
+    </div>
+  </div>
   <!-- BANER PREMIUM (tylko dla non-premium) -->
   <div id="premium-banner" class="hidden" onclick="showPremiumModal('default')" style="padding:10px 16px;background:linear-gradient(135deg,rgba(29,185,84,0.12),rgba(29,185,84,0.06));border-top:1px solid rgba(29,185,84,0.2);display:flex;align-items:center;justify-content:space-between;cursor:pointer;flex-shrink:0">
     <div>
@@ -1162,6 +1193,9 @@ html, body {
     </button>
     <button class="nav-btn active" id="nb-profile" onclick="goTo('profile')">
       <span class="nav-icon">👤</span>Profil
+    </button>
+    <button class="nav-btn" id="nb-appgrajd" onclick="goTo('appgrajd')">
+      <span class="nav-icon" style="position:relative;display:inline-block">🔔<span id="appgrajd-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Appgrajd
     </button>
   </div>
 </div>
@@ -2046,7 +2080,7 @@ function showApp() {
   // Przywróć ostatnią zakładkę
   let lastScreen = 'discover';
   try { lastScreen = localStorage.getItem('lastScreen') || 'discover'; } catch(e) {}
-  const validScreens = ['discover', 'zastepstwa', 'messages', 'profile'];
+  const validScreens = ['discover', 'zastepstwa', 'messages', 'profile', 'appgrajd'];
   if (!validScreens.includes(lastScreen)) lastScreen = 'discover';
   goTo(lastScreen);
   loadDiscover();
@@ -2059,6 +2093,7 @@ function showApp() {
   checkEmailVerification();
   updateUnreadBadge();
   subscribeUnreadBadge();
+  updateAppgrajdBadge();
 }
 
 // Globalna subskrypcja — aktualizuje badge na żywo niezależnie od aktywnego ekranu
@@ -2174,6 +2209,7 @@ function goTo(screen) {
   if (screen === 'messages') loadConversations();
   if (screen === 'profile') loadMyProfile();
   if (screen === 'zastepstwa') loadZastepstwa();
+  if (screen === 'appgrajd') loadAppgrajd();
 }
 
 // ── DISCOVER ──────────────────────────────────────────────────────
@@ -2347,6 +2383,110 @@ async function updateUnreadBadge() {
     badge.classList.remove('hidden');
   }
 }
+
+// ── APPGRAJD (changelog) ───────────────────────────────────────────
+const APPGRAJD_FOUNDER_ID = 'f32d66cc-6f00-4944-84f3-5658c4e3588f';
+const APPGRAJD_TYPE_META = {
+  naprawka:     { emoji: '🛠', label: 'Naprawka' },
+  nowa_funkcja: { emoji: '⚙️', label: 'Nowe funkcje' },
+  ulepszenie:   { emoji: '🚀', label: 'Ulepszenia' },
+};
+
+async function updateAppgrajdBadge() {
+  const badge = document.getElementById('appgrajd-badge');
+  if (!badge || !currentUser) return;
+  const { data: latest } = await sb.from('changelog')
+    .select('created_at')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!latest) { badge.classList.add('hidden'); return; }
+  const { data: readState } = await sb.from('changelog_reads')
+    .select('last_seen_at')
+    .eq('user_id', currentUser.id)
+    .maybeSingle();
+  const lastSeen = readState?.last_seen_at ? new Date(readState.last_seen_at) : null;
+  if (!lastSeen || new Date(latest.created_at) > lastSeen) {
+    badge.textContent = '';
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+async function loadAppgrajd() {
+  const list = document.getElementById('appgrajd-list');
+  const adminPanel = document.getElementById('appgrajd-admin');
+  if (currentUser && currentUser.id === APPGRAJD_FOUNDER_ID) {
+    adminPanel.classList.remove('hidden');
+  } else {
+    adminPanel.classList.add('hidden');
+  }
+
+  list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:13px">Wczytywanie…</div>';
+  const { data, error } = await sb.from('changelog')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:13px">Nie udało się wczytać.</div>';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:13px">Jeszcze nic tu nie ma — wróć później!</div>';
+  } else {
+    list.innerHTML = data.map(entry => {
+      const meta = APPGRAJD_TYPE_META[entry.type] || { emoji: '🔔', label: '' };
+      const date = new Date(entry.created_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+      const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px">${escapeHtml(entry.description)}</div>` : '';
+      return `
+        <div style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:700;color:var(--green);background:rgba(29,185,84,0.12);padding:3px 9px;border-radius:50px">${meta.emoji} ${meta.label}</span>
+            <span style="font-size:11px;color:var(--muted)">${date}</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">${escapeHtml(entry.title)}</div>
+          ${desc}
+        </div>`;
+    }).join('');
+  }
+
+  // Oznacz jako przeczytane
+  if (currentUser) {
+    await sb.from('changelog_reads').upsert({ user_id: currentUser.id, last_seen_at: new Date().toISOString() });
+    const badge = document.getElementById('appgrajd-badge');
+    if (badge) badge.classList.add('hidden');
+  }
+}
+
+async function submitAppgrajdEntry() {
+  const type = document.getElementById('appgrajd-type').value;
+  const title = document.getElementById('appgrajd-title').value.trim();
+  const description = document.getElementById('appgrajd-desc').value.trim();
+  const err = document.getElementById('appgrajd-err');
+  err.textContent = '';
+
+  if (!title) { err.textContent = 'Podaj tytuł wpisu.'; return; }
+
+  const { error } = await sb.from('changelog').insert({ type, title, description: description || null });
+  if (error) {
+    err.textContent = 'Błąd: ' + error.message;
+    return;
+  }
+  document.getElementById('appgrajd-title').value = '';
+  document.getElementById('appgrajd-desc').value = '';
+  loadAppgrajd();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+
 
 async function loadConversations() {
   if (!currentUser) return;
