@@ -1490,8 +1490,15 @@ async function initApp() {
 }
 
 // Blokada Backspace — zapobiega wyjściu z appki w przeglądarce
-window.history.pushState({ spotigrajTrap: true }, '', window.location.href);
-window.history.pushState({ spotigrajTrap: true }, '', window.location.href);
+let spotigrajTrapCounter = 0;
+function pushBackTrap() {
+  spotigrajTrapCounter++;
+  window.history.pushState({ spotigrajTrap: true }, '', window.location.pathname + '#t' + spotigrajTrapCounter);
+}
+pushBackTrap();
+pushBackTrap();
+pushBackTrap();
+pushBackTrap();
 // Blokada klawisza Backspace i strzałek poza polami tekstowymi
 document.addEventListener('keydown', function(e) {
   const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
@@ -3090,7 +3097,7 @@ window.addEventListener('popstate', function(e) {
     cancelEditProfile();
   }
   // Zawsze "łapiemy" Wstecz, żeby nigdy nie wyszło z appki
-  window.history.pushState({ spotigrajTrap: true }, '', window.location.href);
+  pushBackTrap();
 });
 
 async function submitZastepstwo() {
