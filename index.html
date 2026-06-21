@@ -2336,7 +2336,7 @@ function buildCard(p) {
       <div class="avatar" style="${avatarStyle}">${avatarContent}</div>
       <div style="flex:1;min-width:0;overflow:hidden">
         <div class="card-name">${p.full_name || 'Muzyk'}${badgeBadge}</div>
-        <div class="card-role">${p.role || ''} · ${p.city || ''}</div>
+        <div class="card-role">${getGenderedRole(p.role, p.gender) || ''} · ${p.city || ''}</div>
         <div style="margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}${expBadge}</div>
       </div>
       <div class="match-pct">${match}%</div>
@@ -2554,7 +2554,7 @@ async function loadConversations() {
     const unreadBadgeHtml = unread > 0
       ? `<span style="background:#ff3b30;color:#fff;font-size:11px;font-weight:700;line-height:1;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${unread > 9 ? '9+' : unread}</span>`
       : '';
-    row.innerHTML = `<div class="avatar" style="${avatarStyle2};width:44px;height:44px;font-size:15px">${avatarContent2}</div><div class="conv-info"><div class="conv-name">${p.full_name}</div><div class="conv-preview">${p.role} · ${p.city}</div></div>${unreadBadgeHtml}`;
+    row.innerHTML = `<div class="avatar" style="${avatarStyle2};width:44px;height:44px;font-size:15px">${avatarContent2}</div><div class="conv-info"><div class="conv-name">${p.full_name}</div><div class="conv-preview">${getGenderedRole(p.role, p.gender)} · ${p.city}</div></div>${unreadBadgeHtml}`;
     row.onclick = () => openChat(p.id);
     list.appendChild(row);
   });
@@ -2707,7 +2707,7 @@ async function loadMyProfile() {
     }
   }
   const allRoles = (p.roles && p.roles.length) ? p.roles.filter(r => r) : [p.role].filter(r => r);
-  document.getElementById('prof-role').textContent = allRoles.join(' / ') + (p.city ? ' · ' + p.city : '');
+  document.getElementById('prof-role').textContent = allRoles.map(r => getGenderedRole(r, p.gender)).join(' / ') + (p.city ? ' · ' + p.city : '');
   document.getElementById('prof-bio').textContent = p.bio || 'Dodaj bio w edycji profilu.';
   const genres = document.getElementById('prof-genres');
   genres.innerHTML = (p.genres || []).map(g => `<span class="tag">${g}</span>`).join('');
@@ -2875,16 +2875,30 @@ function toggleStandBy(btn) {
   btn.textContent = isOn ? '🎯 Jestem Stand By ✓' : '🎯 Nie jestem Stand By';
 }
 
-// Generuje domyślny opis profilu (gdy user nie wypełnił bio), z odmianą dla kobiet wg roli
-function getDefaultBio(profile) {
-  const base = 'Muzyk / profesjonalista branży muzycznej szukający połączeń na Spotigraj.';
-  if (profile.gender !== 'female') return base;
-  // Kobieta — spróbuj wyciągnąć żeńską formę roli (po "/"), np. "Trębacz/Trębaczka" -> "Trębaczka"
-  const role = profile.role || '';
+// Zwraca formę roli zgodną z płcią profilu; jeśli rola zapisana jako para "Forma_m/Forma_f" (np. "Trębacz/Trębaczka"),
+// wybiera właściwą formę. Gdy płeć nieustawiona lub rola nie jest parą — zwraca tekst bez zmian.
+function getGenderedRole(role, gender) {
+  if (!role) return role;
   const parts = role.split('/');
-  const roleFem = parts.length === 2 ? parts[1].trim() : null;
-  if (roleFem) return `${roleFem} / profesjonalistka branży muzycznej szukająca połączeń na Spotigraj.`;
-  return 'Profesjonalistka branży muzycznej szukająca połączeń na Spotigraj.';
+  if (parts.length !== 2) return role;
+  if (gender === 'female') return parts[1].trim();
+  if (gender === 'male') return parts[0].trim();
+  return role;
+}
+
+// Generuje domyślny opis profilu (gdy user nie wypełnił bio): Rola · Poziom zaawansowania (odmienione wg płci)
+const EXPERIENCE_LABELS_GENDERED = {
+  amator: { m: 'Amator', f: 'Amatorka' },
+  sredniozaawansowany: { m: 'Średniozaawansowany', f: 'Średniozaawansowana' },
+  profesjonalista: { m: 'Profesjonalista', f: 'Profesjonalistka' },
+};
+
+function getDefaultBio(profile) {
+  const isFemale = profile.gender === 'female';
+  const roleLabel = getGenderedRole(profile.role, profile.gender) || 'Muzyk';
+  const expEntry = EXPERIENCE_LABELS_GENDERED[profile.experience_level];
+  const expLabel = expEntry ? (isFemale ? expEntry.f : expEntry.m) : '';
+  return expLabel ? `${roleLabel} · ${expLabel}` : roleLabel;
 }
 
 function getExperienceLabel(level) {
@@ -3072,7 +3086,7 @@ async function submitZastepstwo() {
     description: desc,
     expires_at: expires,
     author_name: currentProfile?.full_name || 'Anonimowy',
-    author_role: currentProfile?.role || '',
+    author_role: getGenderedRole(currentProfile?.role || '', currentProfile?.gender) || '',
   });
 
   if (error) {
@@ -3098,7 +3112,7 @@ async function loadZastepstwa() {
   try {
     const [zastRes, standRes] = await Promise.all([
       sb.from('zastepstwa').select('*').gt('expires_at', new Date().toISOString()).order('event_date', { ascending: true }),
-      sb.from('profiles').select('id,full_name,role,city,genres,avatar_color,phone,status').eq('stand_by', true).neq('id', currentUser?.id)
+      sb.from('profiles').select('id,full_name,role,city,genres,avatar_color,phone,status,gender').eq('stand_by', true).neq('id', currentUser?.id)
     ]);
     items = zastRes.data || [];
     standByMusicians = standRes.data || [];
@@ -3128,7 +3142,7 @@ async function loadZastepstwa() {
         <div style="width:42px;height:42px;border-radius:50%;background:${m.avatar_color||'#534AB7'}20;color:${m.avatar_color||'#534AB7'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${initials}</div>
         <div style="flex:1;min-width:0">
           <div style="font-weight:700;font-size:14px;color:var(--text)">${m.full_name || 'Muzyk'}</div>
-          <div style="font-size:12px;color:var(--muted)">${m.role || ''} · ${m.city || ''}</div>
+          <div style="font-size:12px;color:var(--muted)">${getGenderedRole(m.role, m.gender) || ''} · ${m.city || ''}</div>
           <span class="status-badge ${statusClass}" style="margin-top:4px;display:inline-flex">${statusLabel}</span>
         </div>
         ${currentProfile?.is_premium
@@ -3185,7 +3199,7 @@ async function contactStandBy(userId) {
     return;
   }
   // Pobierz telefon muzyka Stand By
-  const { data: p } = await sb.from('profiles').select('full_name,phone,role').eq('id', userId).single();
+  const { data: p } = await sb.from('profiles').select('full_name,phone,role,gender').eq('id', userId).single();
   if (p?.phone) {
     const popup = document.createElement('div');
     popup.id = 'standby-contact-popup';
@@ -3194,7 +3208,7 @@ async function contactStandBy(userId) {
       <div style="background:var(--dark2);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:28px;width:100%;max-width:360px;text-align:center">
         <div style="font-size:40px;margin-bottom:12px">🎯</div>
         <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">${p.full_name}</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${p.role} · Stand By</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${getGenderedRole(p.role, p.gender)} · Stand By</div>
         <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:16px;margin-bottom:20px">
           <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
           <div style="font-size:22px;font-weight:700;color:#f59e0b">${p.phone}</div>
