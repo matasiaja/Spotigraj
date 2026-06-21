@@ -2339,10 +2339,10 @@ function buildCard(p) {
       <div style="flex:1;min-width:0;overflow:hidden">
         <div class="card-name">${p.full_name || 'Muzyk'}${badgeBadge}</div>
         <div class="card-role">${getGenderedRole(p.role, p.gender) || ''} · ${p.city || ''}</div>
-        <div style="margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}${expBadge}</div>
       </div>
       <div class="match-pct">${match}%</div>
     </div>
+    <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="status-badge ${statusClass}">${statusLabel}</span>${standByBadge}${expBadge}</div>
     <div class="card-bio">${p.bio || getDefaultBio(p)}</div>
     <div class="tags">${genres}</div>
     ${lookingSection}
