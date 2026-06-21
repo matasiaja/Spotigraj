@@ -2890,6 +2890,10 @@ function selectStatus(btn) {
 }
 
 function toggleStandBy(btn) {
+  if (!isPremium()) {
+    showPremiumModal('stanby');
+    return;
+  }
   const isOn = btn.classList.toggle('standy-on');
   btn.textContent = isOn ? '🎯 Jestem Stand By ✓' : '🎯 Nie jestem Stand By';
 }
@@ -3258,6 +3262,10 @@ async function contactZastepstwo(userId, isDemo) {
     return;
   }
   if (!userId) return;
+  if (!isPremium()) {
+    showPremiumModal('zastepstwo');
+    return;
+  }
   openChat(userId);
 }
 function setErr(id, msg) {
