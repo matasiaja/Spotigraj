@@ -1165,7 +1165,8 @@ html, body {
           <input type="text" id="appgrajd-title" placeholder="Tytuł (np. Naprawiono błąd w Stand By)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none">
         </div>
         <div class="field" style="margin-bottom:10px">
-          <textarea id="appgrajd-desc" placeholder="Opis (opcjonalnie)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
+          <textarea id="appgrajd-desc" placeholder="Opis (opcjonalnie) — link: [tekst](profile/messages/discover/zastepstwa)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Format linku: [tekst](profile) → kliknięcie przenosi na ekran profilu. Dostępne: discover, zastepstwa, messages, profile, appgrajd</div>
         </div>
         <button onclick="submitAppgrajdEntry()" style="width:100%;padding:11px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:13px;font-weight:700;cursor:pointer">Opublikuj</button>
         <div class="err" id="appgrajd-err" style="margin-top:8px"></div>
@@ -2440,7 +2441,7 @@ async function loadAppgrajd() {
     list.innerHTML = data.map(entry => {
       const meta = APPGRAJD_TYPE_META[entry.type] || { emoji: '🔔', label: '' };
       const date = new Date(entry.created_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
-      const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px">${escapeHtml(entry.description)}</div>` : '';
+      const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px">${renderAppgrajdText(entry.description)}</div>` : '';
       return `
         <div style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
@@ -2484,6 +2485,29 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// Parsuje format [tekst](ekran) na bezpieczny link przenoszący w appce.
+// Reszta tekstu jest escapowana — bezpiecznie, mimo że tylko founder wpisuje treść.
+const APPGRAJD_VALID_SCREENS = ['discover', 'zastepstwa', 'messages', 'profile', 'appgrajd'];
+function renderAppgrajdText(str) {
+  const linkPattern = /\[([^\]]+)\]\(([a-z]+)\)/g;
+  let result = '';
+  let lastIndex = 0;
+  let match;
+  while ((match = linkPattern.exec(str)) !== null) {
+    result += escapeHtml(str.slice(lastIndex, match.index));
+    const linkText = match[1];
+    const screen = match[2];
+    if (APPGRAJD_VALID_SCREENS.includes(screen)) {
+      result += `<a href="javascript:void(0)" onclick="goTo('${screen}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
+    } else {
+      result += escapeHtml(match[0]);
+    }
+    lastIndex = linkPattern.lastIndex;
+  }
+  result += escapeHtml(str.slice(lastIndex));
+  return result;
 }
 
 
