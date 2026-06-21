@@ -2882,8 +2882,7 @@ function getGenderedRole(role, gender) {
   const parts = role.split('/');
   if (parts.length !== 2) return role;
   if (gender === 'female') return parts[1].trim();
-  if (gender === 'male') return parts[0].trim();
-  return role;
+  return parts[0].trim();
 }
 
 // Generuje domyślny opis profilu (gdy user nie wypełnił bio): Rola · Poziom zaawansowania (odmienione wg płci)
