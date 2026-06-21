@@ -1747,6 +1747,7 @@ async function clearMatches() {
 function showAbout() {
   document.getElementById('modal-about').classList.remove('hidden');
   document.getElementById('modal-about').style.display = 'flex';
+  window.history.pushState({ overlay: 'about' }, '');
 }
 function closeAbout() {
   document.getElementById('modal-about').classList.add('hidden');
@@ -2562,6 +2563,7 @@ async function loadConversations() {
 
 // ── CHAT ──────────────────────────────────────────────────────────
 async function openChat(userId) {
+  window.history.pushState({ overlay: 'chat' }, '');
   chatWith = userId;
   document.getElementById('app').classList.add('hidden');
   const chatEl = document.getElementById('chat-screen');
@@ -2835,6 +2837,13 @@ function showEdit() {
   }
   document.getElementById('app').classList.add('hidden');
   document.getElementById('onboarding').classList.remove('hidden');
+  window.history.pushState({ overlay: 'edit-profile' }, '');
+}
+
+function cancelEditProfile() {
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  goTo('profile');
 }
 
 function showChangePassword() {
@@ -2843,6 +2852,7 @@ function showChangePassword() {
   document.getElementById('cp-pass').value = '';
   document.getElementById('cp-pass2').value = '';
   document.getElementById('cp-err').textContent = '';
+  window.history.pushState({ overlay: 'change-password' }, '');
 }
 
 function hideChangePassword() {
@@ -2938,6 +2948,7 @@ function showAddZastepstwo() {
   }
   document.getElementById('modal-zastepstwo').classList.remove('hidden');
   document.getElementById('modal-zastepstwo').style.display = 'flex';
+  window.history.pushState({ overlay: 'zastepstwo' }, '');
 }
 
 function closeAddZastepstwo() {
@@ -3060,14 +3071,24 @@ function closePremiumModal() {
   document.getElementById('modal-premium').style.display = 'none';
 }
 
-// Obsługa popstate — backspace zamyka modal zamiast wychodzić z appki
 window.addEventListener('popstate', function(e) {
-  if (document.getElementById('modal-premium') && !document.getElementById('modal-premium').classList.contains('hidden')) {
+  if (!document.getElementById('modal-bug').classList.contains('hidden')) {
+    closeBugModal();
+  } else if (!document.getElementById('modal-zastepstwo').classList.contains('hidden')) {
+    closeAddZastepstwo();
+  } else if (!document.getElementById('modal-about').classList.contains('hidden')) {
+    closeAbout();
+  } else if (!document.getElementById('modal-premium').classList.contains('hidden')) {
     closePremiumModal();
-    window.history.pushState(null, null, window.location.href);
-  } else {
-    window.history.pushState(null, null, window.location.href);
+  } else if (document.getElementById('change-password-screen') && !document.getElementById('change-password-screen').classList.contains('hidden')) {
+    hideChangePassword();
+  } else if (document.getElementById('chat-screen').classList.contains('active')) {
+    closeChat();
+  } else if (currentProfile && !document.getElementById('onboarding').classList.contains('hidden')) {
+    cancelEditProfile();
   }
+  // Zawsze "łapiemy" Wstecz, żeby nigdy nie wyszło z appki
+  window.history.pushState(null, null, window.location.href);
 });
 
 async function submitZastepstwo() {
@@ -3255,6 +3276,7 @@ function openBugModal() {
   document.getElementById('bug-err').textContent = '';
   // reset kategorii
   document.querySelectorAll('.bug-cat').forEach((b, i) => b.classList.toggle('sel', i === 0));
+  window.history.pushState({ overlay: 'bug' }, '');
 }
 
 function closeBugModal() {
