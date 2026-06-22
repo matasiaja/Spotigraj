@@ -2587,7 +2587,7 @@ async function loadAppgrajd() {
     list.innerHTML = data.map(entry => {
       const meta = APPGRAJD_TYPE_META[entry.type] || { emoji: '🔔', label: '' };
       const date = new Date(entry.created_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
-      const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px">${renderAppgrajdText(entry.description)}</div>` : '';
+      const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px;white-space:pre-line">${renderAppgrajdText(entry.description)}</div>` : '';
       const deleteBtn = isFounder
         ? `<button onclick="showAppgrajdDeleteModal('${entry.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;font-family:inherit" title="Usuń wpis">🗑️</button>`
         : '';
