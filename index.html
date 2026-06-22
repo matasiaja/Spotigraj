@@ -643,6 +643,12 @@ html, body {
   font-family: inherit;
 }
 .edit-btn:hover { background: var(--accent-glow); }
+.appgrajd-img {
+  max-width: 100%; border-radius: var(--radius-xs);
+  cursor: pointer; margin-top: 8px; display: block;
+  transition: opacity .15s;
+}
+.appgrajd-img:hover { opacity: .82; }
 .info-icon-btn {
   width: 22px; height: 22px; flex-shrink: 0;
   border-radius: 50%; border: 1.5px solid var(--muted);
@@ -1297,6 +1303,12 @@ html, body {
 
 <!-- TOAST -->
 <div id="toast" class="hidden" style="position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--navy3);border:1px solid var(--border);border-radius:50px;padding:10px 22px;font-size:13px;font-weight:700;color:var(--text);z-index:600;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow)"></div>
+
+<!-- LIGHTBOX OBRAZKÓW APPGRAJD -->
+<div id="lightbox-appgrajd" class="hidden" onclick="closeImgLightbox()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px">
+  <button onclick="event.stopPropagation();closeImgLightbox()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:inherit">✕</button>
+  <img id="lightbox-img" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:var(--radius-sm);object-fit:contain;display:block">
+</div>
 
 <!-- MODAL DODAJ ZASTĘPSTWO (tylko Premium) -->
 <!-- MODAL O APLIKACJI -->
@@ -2820,7 +2832,7 @@ function renderAppgrajdText(str) {
   let lastIndex = 0;
   let match;
   while ((match = linkPattern.exec(str)) !== null) {
-    result += escapeHtml(str.slice(lastIndex, match.index));
+    result += renderAppgrajdChunk(str.slice(lastIndex, match.index));
     const linkText = match[1];
     const screen = match[2];
     if (APPGRAJD_VALID_SCREENS.includes(screen)) {
@@ -2830,8 +2842,44 @@ function renderAppgrajdText(str) {
     }
     lastIndex = linkPattern.lastIndex;
   }
+  result += renderAppgrajdChunk(str.slice(lastIndex));
+  return result;
+}
+
+// Przetwarza segment tekstu między linkami: przepuszcza <img> z https:// src
+// jako klikalny obrazek z lightboxem, resztę escapuje.
+function renderAppgrajdChunk(str) {
+  const imgPattern = /<img\s[^>]*>/gi;
+  let result = '';
+  let lastIndex = 0;
+  let match;
+  while ((match = imgPattern.exec(str)) !== null) {
+    result += escapeHtml(str.slice(lastIndex, match.index));
+    const srcMatch = /\bsrc=["']([^"']+)["']/i.exec(match[0]);
+    if (srcMatch && /^https?:\/\//.test(srcMatch[1])) {
+      const safeSrc = escapeHtml(srcMatch[1]).replace(/"/g, '&quot;');
+      result += `<img src="${safeSrc}" class="appgrajd-img" onclick="openImgLightbox(this.src)" alt="" loading="lazy">`;
+    }
+    lastIndex = imgPattern.lastIndex;
+  }
   result += escapeHtml(str.slice(lastIndex));
   return result;
+}
+
+function openImgLightbox(src) {
+  const lb = document.getElementById('lightbox-appgrajd');
+  document.getElementById('lightbox-img').src = src;
+  lb.classList.remove('hidden');
+  lb.style.display = 'flex';
+  const onKey = (e) => { if (e.key === 'Escape') { closeImgLightbox(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+}
+
+function closeImgLightbox() {
+  const lb = document.getElementById('lightbox-appgrajd');
+  lb.classList.add('hidden');
+  lb.style.display = 'none';
+  document.getElementById('lightbox-img').src = '';
 }
 
 
