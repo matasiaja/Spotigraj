@@ -2531,6 +2531,7 @@ async function updateUnreadBadge() {
 const APPGRAJD_FOUNDER_ID = 'f32d66cc-6f00-4944-84f3-5658c4e3588f';
 let _appgrajdEntries = [];
 let _appgrajdDeleteId = null;
+let _appgrajdEditId = null;
 const APPGRAJD_TYPE_META = {
   naprawka:     { emoji: '🛠', label: 'Napprawka' },
   nowa_funkcja: { emoji: '⚙️', label: 'Nowe funkcje' },
@@ -2585,21 +2586,31 @@ async function loadAppgrajd() {
     _appgrajdEntries = data;
     const isFounder = currentUser && currentUser.id === APPGRAJD_FOUNDER_ID;
     list.innerHTML = data.map(entry => {
-      const meta = APPGRAJD_TYPE_META[entry.type] || { emoji: '🔔', label: '' };
-      const date = new Date(entry.created_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
-      const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px;white-space:pre-line">${renderAppgrajdText(entry.description)}</div>` : '';
-      const deleteBtn = isFounder
-        ? `<button onclick="showAppgrajdDeleteModal('${entry.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;font-family:inherit" title="Usuń wpis">🗑️</button>`
-        : '';
+      const editFormHtml = isFounder ? `
+        <div data-edit="${entry.id}" style="display:none">
+          <div style="margin-bottom:8px">
+            <select id="appgrajd-edit-type-${entry.id}" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;font-family:inherit">
+              <option value="naprawka">🛠 Napprawka</option>
+              <option value="nowa_funkcja">⚙️ Nowe funkcje</option>
+              <option value="ulepszenie">🚀 Ulepszenia</option>
+            </select>
+          </div>
+          <div style="margin-bottom:8px">
+            <input id="appgrajd-edit-title-${entry.id}" type="text" placeholder="Tytuł" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;font-family:inherit">
+          </div>
+          <div style="margin-bottom:10px">
+            <textarea id="appgrajd-edit-desc-${entry.id}" placeholder="Opis (opcjonalnie)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="closeAppgrajdEdit()" style="flex:1;padding:10px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
+            <button onclick="saveAppgrajdEdit('${entry.id}')" style="flex:2;padding:10px;background:var(--green);border:none;border-radius:50px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Zapisz</button>
+          </div>
+          <div id="appgrajd-edit-err-${entry.id}" style="margin-top:8px;font-size:12px;color:#ff3b30;min-height:16px"></div>
+        </div>` : '';
       return `
         <div data-changelog-id="${entry.id}" style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span style="font-size:11px;font-weight:700;color:var(--green);background:rgba(29,185,84,0.12);padding:3px 9px;border-radius:50px">${meta.emoji} ${meta.label}</span>
-            <span style="font-size:11px;color:var(--muted)">${date}</span>
-            <span style="margin-left:auto">${deleteBtn}</span>
-          </div>
-          <div style="font-size:14px;font-weight:700;color:var(--text)">${escapeHtml(entry.title)}</div>
-          ${desc}
+          <div data-view="${entry.id}">${renderAppgrajdViewSection(entry, isFounder)}</div>
+          ${editFormHtml}
         </div>`;
     }).join('');
   }
@@ -2629,6 +2640,72 @@ async function submitAppgrajdEntry() {
   document.getElementById('appgrajd-title').value = '';
   document.getElementById('appgrajd-desc').value = '';
   loadAppgrajd();
+}
+
+function renderAppgrajdViewSection(entry, isFounder) {
+  const meta = APPGRAJD_TYPE_META[entry.type] || { emoji: '🔔', label: '' };
+  const date = new Date(entry.created_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+  const desc = entry.description ? `<div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-top:5px;white-space:pre-line">${renderAppgrajdText(entry.description)}</div>` : '';
+  const founderBtns = isFounder ? `
+    <button onclick="openAppgrajdEdit('${entry.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;font-family:inherit" title="Edytuj wpis">✏️</button>
+    <button onclick="showAppgrajdDeleteModal('${entry.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;font-family:inherit" title="Usuń wpis">🗑️</button>` : '';
+  return `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:11px;font-weight:700;color:var(--green);background:rgba(29,185,84,0.12);padding:3px 9px;border-radius:50px">${meta.emoji} ${meta.label}</span>
+      <span style="font-size:11px;color:var(--muted)">${date}</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:2px">${founderBtns}</span>
+    </div>
+    <div style="font-size:14px;font-weight:700;color:var(--text)">${escapeHtml(entry.title)}</div>
+    ${desc}`;
+}
+
+function openAppgrajdEdit(id) {
+  if (_appgrajdEditId && _appgrajdEditId !== id) closeAppgrajdEdit();
+  const entry = _appgrajdEntries.find(e => String(e.id) === String(id));
+  if (!entry) return;
+  _appgrajdEditId = id;
+  document.getElementById(`appgrajd-edit-type-${id}`).value = entry.type;
+  document.getElementById(`appgrajd-edit-title-${id}`).value = entry.title;
+  document.getElementById(`appgrajd-edit-desc-${id}`).value = entry.description || '';
+  document.getElementById(`appgrajd-edit-err-${id}`).textContent = '';
+  document.querySelector(`[data-view="${id}"]`).style.display = 'none';
+  document.querySelector(`[data-edit="${id}"]`).style.display = 'block';
+}
+
+function closeAppgrajdEdit() {
+  if (!_appgrajdEditId) return;
+  const id = _appgrajdEditId;
+  document.querySelector(`[data-view="${id}"]`).style.display = '';
+  document.querySelector(`[data-edit="${id}"]`).style.display = 'none';
+  _appgrajdEditId = null;
+}
+
+async function saveAppgrajdEdit(id) {
+  const type = document.getElementById(`appgrajd-edit-type-${id}`).value;
+  const title = document.getElementById(`appgrajd-edit-title-${id}`).value.trim();
+  const description = document.getElementById(`appgrajd-edit-desc-${id}`).value.trim();
+  const err = document.getElementById(`appgrajd-edit-err-${id}`);
+  err.textContent = '';
+  if (!title) { err.textContent = 'Tytuł nie może być pusty.'; return; }
+
+  const btns = document.querySelectorAll(`[data-edit="${id}"] button`);
+  btns.forEach(b => b.disabled = true);
+
+  const { error } = await sb.from('changelog').update({ type, title, description: description || null }).eq('id', id);
+  if (error) {
+    err.textContent = 'Błąd: ' + error.message;
+    btns.forEach(b => b.disabled = false);
+    return;
+  }
+
+  const idx = _appgrajdEntries.findIndex(e => String(e.id) === String(id));
+  if (idx !== -1) _appgrajdEntries[idx] = { ..._appgrajdEntries[idx], type, title, description: description || null };
+
+  const viewEl = document.querySelector(`[data-view="${id}"]`);
+  if (viewEl && idx !== -1) viewEl.innerHTML = renderAppgrajdViewSection(_appgrajdEntries[idx], true);
+
+  closeAppgrajdEdit();
+  showToast('Wpis zaktualizowany');
 }
 
 function showAppgrajdDeleteModal(id) {
