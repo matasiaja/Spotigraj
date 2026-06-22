@@ -643,6 +643,26 @@ html, body {
   font-family: inherit;
 }
 .edit-btn:hover { background: var(--accent-glow); }
+.info-icon-btn {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border-radius: 50%; border: 1.5px solid var(--muted);
+  background: transparent; color: var(--muted);
+  font-size: 11px; font-weight: 800; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  padding: 0; font-family: inherit; transition: border-color .15s, color .15s;
+}
+.info-icon-btn:hover { border-color: var(--muted2); color: var(--muted2); }
+.info-tip-wrap { position: relative; flex-shrink: 0; }
+.info-tip-box {
+  position: absolute; bottom: calc(100% + 8px); right: 0;
+  width: 220px; background: var(--navy2); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); padding: 10px 12px;
+  font-size: 12px; color: var(--muted2); line-height: 1.6; font-weight: 400;
+  pointer-events: none; opacity: 0; transition: opacity .15s;
+  z-index: 50; box-shadow: var(--shadow); text-align: left;
+}
+.info-tip-wrap:hover .info-tip-box,
+.info-tip-wrap.tip-open .info-tip-box { opacity: 1; pointer-events: auto; }
 .status-btn {
   padding: 11px 14px;
   border: 1.5px solid var(--border);
@@ -1154,7 +1174,13 @@ html, body {
       </div>
       <button class="edit-btn" onclick="showEdit()">✏️ Edytuj profil</button>
       <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" onclick="showChangePassword()">🔑 Zmień hasło</button>
-      <button class="edit-btn" style="margin-top:10px;border-color:#ff6b7a;color:#ff6b7a" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+        <button class="edit-btn" style="margin-top:0;flex:1;border-color:#ff6b7a;color:#ff6b7a" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
+        <div class="info-tip-wrap">
+          <button class="info-icon-btn" onclick="toggleInfoTip(event)" aria-label="Informacja">?</button>
+          <div class="info-tip-box" role="tooltip">Czyści wszystkie Twoje obecne matche. Możesz użyć tej funkcji raz na 30 dni (Premium: bez limitu).</div>
+        </div>
+      </div>
       <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" onclick="showAbout()">ℹ️ O aplikacji</button>
       <button class="logout-btn" onclick="logout()">Wyloguj się</button>
     </div>
@@ -1758,6 +1784,21 @@ async function updatePassword() {
   else {
     setErr('auth-err', '✓ Hasło zmienione! Logowanie za chwilę...');
     setTimeout(() => { window.location.href = window.location.origin; }, 1500);
+  }
+}
+
+let _infoTipTimeout = null;
+function toggleInfoTip(e) {
+  e.stopPropagation();
+  const wrap = e.currentTarget.closest('.info-tip-wrap');
+  const isOpen = wrap.classList.contains('tip-open');
+  document.querySelectorAll('.info-tip-wrap.tip-open').forEach(el => el.classList.remove('tip-open'));
+  if (_infoTipTimeout) { clearTimeout(_infoTipTimeout); _infoTipTimeout = null; }
+  if (!isOpen) {
+    wrap.classList.add('tip-open');
+    _infoTipTimeout = setTimeout(() => wrap.classList.remove('tip-open'), 4000);
+    const close = () => { wrap.classList.remove('tip-open'); document.removeEventListener('click', close); };
+    document.addEventListener('click', close);
   }
 }
 
