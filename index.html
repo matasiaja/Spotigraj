@@ -453,6 +453,35 @@ html, body {
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-icon { font-size: 48px; margin-bottom: 14px; }
 
+/* ── SWIPE STACK (Discover) ──────────────── */
+#cards-container { position: relative; min-height: 520px; }
+.profile-card.swipe-card {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+  will-change: transform;
+}
+.profile-card.swipe-card:active { cursor: grabbing; }
+.swipe-indicator {
+  position: absolute;
+  top: 20px;
+  padding: 7px 16px;
+  border-radius: 10px;
+  border: 3px solid;
+  font-weight: 900;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity .1s;
+}
+.swipe-indicator.like { left: 20px; color: var(--accent); border-color: var(--accent); transform: rotate(-12deg); }
+.swipe-indicator.skip { right: 20px; color: #ff6b7a; border-color: #ff6b7a; transform: rotate(12deg); }
+
 /* ── MESSAGES ──────────────────────────────── */
 .conv-row {
   display: flex;
@@ -1440,6 +1469,7 @@ let currentProfile = null;
 let chatWith = null;
 let chatSub = null;
 let activeFilter = 'Wszyscy';
+let discoverQueue = [];
 let activeExpFilter = 'Wszyscy';
 
 // ── INIT ──────────────────────────────────────────────────────────
@@ -2291,7 +2321,96 @@ async function loadDiscover() {
     return;
   }
 
-  profiles.forEach(p => container.appendChild(buildCard(p)));
+  discoverQueue = profiles;
+  renderTopCard();
+}
+
+function renderTopCard() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  if (!discoverQueue.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎵</div><p style="font-size:15px;font-weight:600;margin-bottom:8px">Brak nowych muzyków</p><p style="font-size:13px">Zmień filtry lub wróć później gdy dołączą nowi artyści</p></div>`;
+    return;
+  }
+
+  const p = discoverQueue[0];
+  const card = buildCard(p);
+  card.classList.add('swipe-card');
+  card.insertAdjacentHTML('beforeend', '<div class="swipe-indicator like">Lubię to</div><div class="swipe-indicator skip">Pomiń</div>');
+  container.appendChild(card);
+  attachSwipeHandlers(card, p.id);
+}
+
+// Obsługa przeciągania karty (mysz + dotyk, przez Pointer Events — jedno API dla obu)
+function attachSwipeHandlers(card, targetId) {
+  let startX = 0, startY = 0, currentX = 0, dragging = false, lockedHorizontal = null;
+  const threshold = 100;
+  const likeEl = card.querySelector('.swipe-indicator.like');
+  const skipEl = card.querySelector('.swipe-indicator.skip');
+
+  function onDown(e) {
+    if (e.target.closest('button')) return; // przyciski mają własną logikę
+    dragging = true;
+    lockedHorizontal = null;
+    startX = e.clientX;
+    startY = e.clientY;
+    currentX = 0;
+    card.style.transition = 'none';
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (lockedHorizontal === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      lockedHorizontal = Math.abs(dx) > Math.abs(dy);
+    }
+    if (lockedHorizontal === false) return; // to scroll w pionie, nie nasza sprawa
+    currentX = dx;
+    const rotate = currentX / 14;
+    card.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
+    const progress = Math.min(Math.abs(currentX) / threshold, 1);
+    likeEl.style.opacity = currentX > 0 ? progress : 0;
+    skipEl.style.opacity = currentX < 0 ? progress : 0;
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = 'transform .3s ease';
+    if (currentX > threshold) {
+      flyOutCard(card, 1, () => swipe(targetId, 'like'));
+    } else if (currentX < -threshold) {
+      flyOutCard(card, -1, () => swipe(targetId, 'skip'));
+    } else {
+      card.style.transform = '';
+      likeEl.style.opacity = 0;
+      skipEl.style.opacity = 0;
+    }
+  }
+
+  card.addEventListener('pointerdown', onDown);
+  card.addEventListener('pointermove', onMove);
+  card.addEventListener('pointerup', onUp);
+  card.addEventListener('pointercancel', onUp);
+}
+
+function flyOutCard(card, dir, callback) {
+  card.style.transition = 'transform .35s ease, opacity .35s ease';
+  card.style.transform = `translateX(${dir * 600}px) rotate(${dir * 30}deg)`;
+  card.style.opacity = '0';
+  setTimeout(callback, 280);
+}
+
+// Kliknięcie przycisku Pomiń/Wyślij zaproszenie — ta sama animacja co przy przeciąganiu
+function buttonSwipe(targetId, action) {
+  const card = document.getElementById('card-' + targetId);
+  if (card) {
+    flyOutCard(card, action === 'like' ? 1 : -1, () => swipe(targetId, action));
+  } else {
+    swipe(targetId, action);
+  }
 }
 
 function calcMatch(p) {
@@ -2355,20 +2474,15 @@ function buildCard(p) {
     <div class="tags">${genres}</div>
     ${lookingSection}
     <div class="card-actions">
-      <button class="btn-skip" onclick="swipe('${p.id}','skip')">Pomiń</button>
-      <button class="btn-like" ${isUnavailable ? 'style="background:#555;cursor:default"' : ''} onclick="${isUnavailable ? '' : `swipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
+      <button class="btn-skip" onclick="buttonSwipe('${p.id}','skip')">Pomiń</button>
+      <button class="btn-like" ${isUnavailable ? 'style="background:#555;cursor:default"' : ''} onclick="${isUnavailable ? '' : `buttonSwipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
     </div>`;
   return card;
 }
 
 async function swipe(targetId, action) {
-  const card = document.getElementById('card-' + targetId);
-  if (card) {
-    card.style.opacity = '0.3';
-    card.style.transform = 'scale(0.95)';
-    card.style.transition = 'all .25s';
-    setTimeout(() => card.remove(), 280);
-  }
+  discoverQueue = discoverQueue.filter(p => p.id !== targetId);
+  renderTopCard();
   await sb.from('matches').upsert({ user_id: currentUser.id, target_id: targetId, action });
   if (action === 'like') {
     // Check mutual match — silent, no popup
