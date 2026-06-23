@@ -1506,7 +1506,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 <!-- CHAT -->
 <div id="chat-screen">
   <div class="chat-top">
-    <button class="back-btn" onclick="closeChat()">←</button>
+    <button class="back-btn" onclick="history.back()">←</button>
     <div class="avatar" id="chat-avatar" style="width:38px;height:38px;font-size:14px"></div>
     <div style="font-weight:600;font-size:15px" id="chat-name"></div>
   </div>
@@ -1647,6 +1647,7 @@ async function initApp() {
 }
 
 // Blokada Backspace — zapobiega wyjściu z appki w przeglądarce
+const _startHash = window.location.hash; // URL przed pushBackTrap — używany przy F5 restore
 let spotigrajTrapCounter = 0;
 function pushBackTrap() {
   spotigrajTrapCounter++;
@@ -2288,12 +2289,22 @@ function showApp() {
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('bug-btn').style.display = 'flex';
-  // Przywróć ostatnią zakładkę
-  let lastScreen = 'discover';
-  try { lastScreen = localStorage.getItem('lastScreen') || 'discover'; } catch(e) {}
-  const validScreens = ['discover', 'zastepstwa', 'messages', 'profile', 'appgrajd'];
-  if (!validScreens.includes(lastScreen)) lastScreen = 'discover';
-  goTo(lastScreen);
+  // Przywróć stan z URL hash (F5/reload) — _startHash zapisany przed pushBackTrap
+  const _screenMap = { '#discover':'discover','#messages':'messages','#profile':'profile','#zastepstwa':'zastepstwa','#appgrajd':'appgrajd' };
+  const chatMatch = _startHash.match(/^#messages\/chat\/(.+)$/);
+  if (chatMatch) {
+    window.history.replaceState({ screen: 'messages' }, '', '/#messages');
+    _applyScreen('messages');
+    openChat(chatMatch[1]);
+  } else {
+    let startScreen = _screenMap[_startHash];
+    if (!startScreen) {
+      try { startScreen = localStorage.getItem('lastScreen') || 'discover'; } catch(e) { startScreen = 'discover'; }
+      if (!Object.values(_screenMap).includes(startScreen)) startScreen = 'discover';
+    }
+    window.history.replaceState({ screen: startScreen }, '', '/#' + startScreen);
+    _applyScreen(startScreen);
+  }
   loadDiscover();
   loadMyProfile();
   buildFilters();
@@ -2469,9 +2480,25 @@ function checkForMatches() {
 // Sprawdzaj co 60 sekund
 setInterval(checkForMatches, 60000);
 
+// Aktualizuje UI bez dotykania historii — wywoływana przez goTo() i popstate
+function _applyScreen(screen) {
+  setTimeout(() => {
+    const mc = document.querySelector('#s-' + screen + ' .main-content');
+    if (mc) mc.scrollTop = 0;
+  }, 0);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + screen).classList.add('active');
+  document.getElementById('nb-' + screen).classList.add('active');
+  try { localStorage.setItem('lastScreen', screen); } catch(e) {}
+  if (screen === 'messages') loadConversations();
+  if (screen === 'profile') loadMyProfile();
+  if (screen === 'zastepstwa') loadZastepstwa();
+  if (screen === 'appgrajd') loadAppgrajd();
+}
+
 function goTo(screen) {
   // Zabezpieczenie — jeśli sesja wygasła/zniknęła w tle, nie pozwól ekranowi się zamrozić.
-  // Zamiast rzucać wyjątek w środku funkcji, czyścimy stan i wracamy do logowania.
   if (!currentUser) {
     currentProfile = null;
     document.getElementById('loading-screen').style.display = 'none';
@@ -2481,21 +2508,11 @@ function goTo(screen) {
     document.getElementById('auth-screen').classList.remove('hidden');
     return;
   }
-  // Scroll do góry przy każdej zmianie ekranu
-  setTimeout(() => {
-    const mc = document.querySelector("#s-" + screen + " .main-content");
-    if (mc) mc.scrollTop = 0;
-  }, 0);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('s-' + screen).classList.add('active');
-  document.getElementById('nb-' + screen).classList.add('active');
-  // Zapamiętaj ostatnią zakładkę
-  try { localStorage.setItem('lastScreen', screen); } catch(e) {}
-  if (screen === 'messages') loadConversations();
-  if (screen === 'profile') loadMyProfile();
-  if (screen === 'zastepstwa') loadZastepstwa();
-  if (screen === 'appgrajd') loadAppgrajd();
+  // Dodaj wpis do historii tylko gdy hash faktycznie się zmienia
+  if (window.location.hash !== '#' + screen) {
+    window.history.pushState({ screen }, '', '/#' + screen);
+  }
+  _applyScreen(screen);
 }
 
 // ── DISCOVER ──────────────────────────────────────────────────────
@@ -3118,13 +3135,18 @@ async function loadConversations() {
 
 // ── CHAT ──────────────────────────────────────────────────────────
 async function openChat(userId) {
-  window.history.pushState({ overlay: 'chat' }, '');
+  window.history.pushState({ overlay: 'chat', chatWith: userId }, '', '/#messages/chat/' + userId);
   chatWith = userId;
   document.getElementById('app').classList.add('hidden');
   const chatEl = document.getElementById('chat-screen');
   chatEl.classList.add('active');
 
   const { data: p } = await sb.from('profiles').select('*').eq('id', userId).single();
+  if (!p) {
+    window.history.replaceState({ screen: 'messages' }, '', '/#messages');
+    closeChat();
+    return;
+  }
   if (p) {
     document.getElementById('chat-name').textContent = p.full_name;
     const av = document.getElementById('chat-avatar');
@@ -3639,24 +3661,24 @@ function closePremiumModal() {
 }
 
 window.addEventListener('popstate', function(e) {
-  if (!document.getElementById('modal-bug').classList.contains('hidden')) {
-    closeBugModal();
-  } else if (!document.getElementById('modal-zastepstwo').classList.contains('hidden')) {
-    closeAddZastepstwo();
-  } else if (!document.getElementById('modal-about').classList.contains('hidden')) {
-    closeAbout();
-  } else if (!document.getElementById('modal-premium').classList.contains('hidden')) {
-    closePremiumModal();
-  } else if (document.getElementById('change-password-screen') && !document.getElementById('change-password-screen').classList.contains('hidden')) {
-    hideChangePassword();
-  } else if (!document.getElementById('notif-history-screen').classList.contains('hidden')) {
-    closeNotifHistory();
-  } else if (document.getElementById('chat-screen').classList.contains('active')) {
-    closeChat();
-  } else if (currentProfile && !document.getElementById('onboarding').classList.contains('hidden')) {
-    cancelEditProfile();
-  }
-  // Zawsze "łapiemy" Wstecz, żeby nigdy nie wyszło z appki
+  // 1. Modalne/overlay — identyfikowane przez DOM (nie mają własnych URL hash)
+  if (!document.getElementById('modal-bug').classList.contains('hidden')) { closeBugModal(); return; }
+  if (!document.getElementById('modal-zastepstwo').classList.contains('hidden')) { closeAddZastepstwo(); return; }
+  if (!document.getElementById('modal-about').classList.contains('hidden')) { closeAbout(); return; }
+  if (!document.getElementById('modal-premium').classList.contains('hidden')) { closePremiumModal(); return; }
+  if (!document.getElementById('change-password-screen').classList.contains('hidden')) { hideChangePassword(); return; }
+  if (!document.getElementById('notif-history-screen').classList.contains('hidden')) { closeNotifHistory(); return; }
+  if (currentProfile && !document.getElementById('onboarding').classList.contains('hidden')) { cancelEditProfile(); return; }
+
+  // 2. Czat otwarty — zamknij (Back cofnął do /#messages lub trap)
+  if (document.getElementById('chat-screen').classList.contains('active')) { closeChat(); return; }
+
+  // 3. Prawdziwa nawigacja — czytaj aktualny hash i przełącz ekran
+  const hash = window.location.hash;
+  const navMap = { '#discover':'discover','#messages':'messages','#profile':'profile','#zastepstwa':'zastepstwa','#appgrajd':'appgrajd' };
+  if (navMap[hash]) { _applyScreen(navMap[hash]); return; }
+
+  // 4. Hash pułapki (#tN) lub nieznany — nie wychodź z appki
   pushBackTrap();
 });
 
