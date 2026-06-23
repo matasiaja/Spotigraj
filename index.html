@@ -1653,10 +1653,7 @@ function pushBackTrap() {
   spotigrajTrapCounter++;
   window.history.pushState({ spotigrajTrap: true }, '', window.location.pathname + '#t' + spotigrajTrapCounter);
 }
-pushBackTrap();
-pushBackTrap();
-pushBackTrap();
-pushBackTrap();
+// Brak wstępnych pułapek — naturalne wyjście z appki po Back z Discover
 // Blokada klawisza Backspace i strzałek poza polami tekstowymi
 document.addEventListener('keydown', function(e) {
   const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
@@ -2298,10 +2295,8 @@ function showApp() {
     openChat(chatMatch[1]);
   } else {
     let startScreen = _screenMap[_startHash];
-    if (!startScreen) {
-      try { startScreen = localStorage.getItem('lastScreen') || 'discover'; } catch(e) { startScreen = 'discover'; }
-      if (!Object.values(_screenMap).includes(startScreen)) startScreen = 'discover';
-    }
+    // Pusty hash = świeże wejście (ikona/adres bez hasha) → zawsze Discover
+    if (!startScreen) startScreen = 'discover';
     window.history.replaceState({ screen: startScreen }, '', '/#' + startScreen);
     _applyScreen(startScreen);
   }
