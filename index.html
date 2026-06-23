@@ -2666,7 +2666,7 @@ async function updateUnreadBadge() {
     badge.classList.add('hidden');
     badge.textContent = '';
   } else {
-    badge.textContent = count > 9 ? '9+' : String(count);
+    badge.textContent = count > 99 ? '99+' : String(count);
     badge.classList.remove('hidden');
   }
 }
@@ -3014,7 +3014,7 @@ async function loadConversations() {
     const avatarContent2 = p.avatar_url ? '' : (p.full_name||'M').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const unread = unreadCounts[p.id] || 0;
     const unreadDotHtml = unread > 0
-      ? `<span style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ff3b30;border:2px solid var(--navy2);z-index:2;pointer-events:none"></span>`
+      ? `<span style="position:absolute;bottom:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#ff3b30;border:2px solid var(--navy2);z-index:2;pointer-events:none;color:#fff;font-size:10px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;padding:0 3px">${unread > 99 ? '99+' : unread}</span>`
       : '';
     const premBadge2 = p.is_premium ? '<span class="prem-av-badge">★</span>' : '';
     const nameStyle = unread > 0 ? ' style="font-weight:800"' : '';
