@@ -2485,6 +2485,7 @@ function attachSwipeHandlers(card, targetId) {
     startY = e.clientY;
     currentX = 0;
     card.style.transition = 'none';
+    card.setPointerCapture(e.pointerId); // gwarantuje dostarczenie pointermove/pointerup nawet gdy kursor wyjdzie poza kartę
   }
 
   function onMove(e) {
