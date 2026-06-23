@@ -3127,7 +3127,16 @@ async function openChat(userId) {
   const { data: p } = await sb.from('profiles').select('*').eq('id', userId).single();
   if (p) {
     document.getElementById('chat-name').textContent = p.full_name;
-    renderAvatar(document.getElementById('chat-avatar'), p, 38, 14);
+    const av = document.getElementById('chat-avatar');
+    renderAvatar(av, p, 38, 14);
+    const existingPremBadge = av.querySelector('.prem-av-badge');
+    if (existingPremBadge) existingPremBadge.remove();
+    if (p.is_premium) {
+      const pb = document.createElement('span');
+      pb.className = 'prem-av-badge';
+      pb.textContent = '★';
+      av.appendChild(pb);
+    }
   }
 
   await loadMessages();
