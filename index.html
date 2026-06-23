@@ -425,7 +425,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   z-index: 1;
   pointer-events: none;
 }
-.card-name { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; word-break: break-word; }
+.card-name { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 4px; }
 .card-role { font-size: 12px; color: var(--muted2); margin-top: 2px; word-break: break-word; }
 .match-pct {
   margin-left: auto;
@@ -2604,7 +2604,7 @@ function buildCard(p) {
     : `background:${p.avatar_color||'#534AB7'}20;color:${p.avatar_color||'#534AB7'}`;
   const avatarContent = p.avatar_url ? '' : initials;
 
-  const badgeBadge = p.badge ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;margin-left:6px">${p.badge}</span>` : (p.is_premium ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;margin-left:6px">⭐ Premium</span>` : '');
+  const badgeBadge = p.badge ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;flex-shrink:0">${p.badge}</span>` : (p.is_premium ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;flex-shrink:0">⭐ Premium</span>` : '');
   const expLabel = getExperienceLabel(p.experience_level);
   const expBadge = expLabel ? `<span class="tag tag-gray">${expLabel}</span>` : '';
 
@@ -2612,7 +2612,7 @@ function buildCard(p) {
     <div class="card-head">
       <div class="avatar" style="${avatarStyle}">${avatarContent}${p.is_premium ? '<span class="prem-av-badge">⭐</span>' : ''}</div>
       <div style="flex:1;min-width:0;overflow:hidden">
-        <div class="card-name">${p.full_name || 'Muzyk'}${badgeBadge}</div>
+        <div class="card-name"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${p.full_name || 'Muzyk'}</span>${badgeBadge}</div>
         <div class="card-role">${getGenderedRole(p.role, p.gender) || ''} · ${p.city || ''}</div>
       </div>
       <div class="match-pct">${match}%</div>
