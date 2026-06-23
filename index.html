@@ -297,6 +297,10 @@ html, body {
 }
 .topbar-title { font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
 .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.topbar-icon-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--muted2); display: flex; align-items: center; justify-content: center; transition: color .15s; }
+.topbar-icon-btn:hover { color: var(--text); }
+body.premium-mode .topbar-icon-btn { color: rgba(243,176,0,0.6); }
+body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 .main-content { flex: 1; overflow-y: auto; padding: 16px 16px calc(92px + env(safe-area-inset-bottom, 0px)); }
 
 /* ── BOTTOM NAV ────────────────────────────── */
@@ -1105,7 +1109,12 @@ html, body {
         <div class="topbar-title">Spotigraj</div>
         <div class="topbar-sub" id="discover-city">Polska</div>
       </div>
-      <span style="font-size:20px;cursor:pointer" onclick="goTo('profile')">⚙️</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="topbar-icon-btn" onclick="shareApp()" aria-label="Udostępnij apkę">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+        </button>
+        <span style="font-size:20px;cursor:pointer" onclick="goTo('profile')">⚙️</span>
+      </div>
     </div>
     <div class="main-content">
       <div class="filter-row" id="filter-row"></div>
@@ -1311,6 +1320,19 @@ html, body {
 
 <!-- TOAST -->
 <div id="toast" class="hidden" style="position:fixed;bottom:calc(96px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);background:var(--navy3);border:1px solid var(--border);border-radius:50px;padding:10px 22px;font-size:13px;font-weight:700;color:var(--text);z-index:600;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow)"></div>
+
+<!-- SHARE FALLBACK MODAL -->
+<div id="modal-share-fallback" class="hidden" onclick="if(event.target===this)closeShareFallback()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:360px">
+    <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">Udostępnij Spotigraj</div>
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Skopiuj link i wyślij znajomym:</div>
+    <input id="share-link-input" readonly value="https://spotigraj.app" onclick="this.select()" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;cursor:text">
+    <div style="display:flex;gap:10px">
+      <button onclick="closeShareFallback()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
+      <button onclick="copyShareLink()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Kopiuj link</button>
+    </div>
+  </div>
+</div>
 
 <!-- LIGHTBOX OBRAZKÓW APPGRAJD -->
 <div id="lightbox-appgrajd" class="hidden" onclick="closeImgLightbox()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px">
@@ -1805,6 +1827,33 @@ async function updatePassword() {
     setErr('auth-err', '✓ Hasło zmienione! Logowanie za chwilę...');
     setTimeout(() => { window.location.href = window.location.origin; }, 1500);
   }
+}
+
+async function shareApp() {
+  const shareData = {
+    title: 'Spotigraj',
+    text: 'Sprawdź Spotigraj — pierwsza polska appka dla muzyków!',
+    url: 'https://spotigraj.app'
+  };
+  if (navigator.share) {
+    try { await navigator.share(shareData); } catch(e) { /* user cancelled */ }
+  } else {
+    const m = document.getElementById('modal-share-fallback');
+    m.classList.remove('hidden'); m.style.display = 'flex';
+  }
+}
+async function copyShareLink() {
+  try {
+    await navigator.clipboard.writeText('https://spotigraj.app');
+    closeShareFallback();
+    showToast('Link skopiowany!');
+  } catch(e) {
+    document.getElementById('share-link-input').select();
+  }
+}
+function closeShareFallback() {
+  const m = document.getElementById('modal-share-fallback');
+  m.classList.add('hidden'); m.style.display = 'none';
 }
 
 let _infoTipTimeout = null;
