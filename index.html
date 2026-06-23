@@ -2302,8 +2302,13 @@ let _unreadCounts = {}; // cache: sender_id → liczba nieprzeczytanych
 function subscribeUnreadBadge() {
   if (unreadSub) unreadSub.unsubscribe();
   unreadSub = sb.channel('unread-badge-' + currentUser.id)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=eq.' + currentUser.id }, () => {
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=eq.' + currentUser.id }, payload => {
       refreshUnreadCounts();
+      if (chatWith !== payload.new.sender_id) {
+        const senderRow = document.querySelector('.conv-row[data-uid="' + payload.new.sender_id + '"]');
+        const senderName = senderRow?.querySelector('.conv-name')?.textContent?.trim() || 'Ktoś';
+        sendNotification('💬 Nowa wiadomość od ' + senderName, (payload.new.content || '').slice(0, 80));
+      }
     })
     .subscribe();
 }
