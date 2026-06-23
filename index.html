@@ -3013,11 +3013,12 @@ async function loadConversations() {
       : `background:${p.avatar_color||'#534AB7'}20;color:${p.avatar_color||'#534AB7'}`;
     const avatarContent2 = p.avatar_url ? '' : (p.full_name||'M').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const unread = unreadCounts[p.id] || 0;
-    const unreadBadgeHtml = unread > 0
-      ? `<span style="background:#ff3b30;color:#fff;font-size:11px;font-weight:700;line-height:1;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${unread > 9 ? '9+' : unread}</span>`
+    const unreadDotHtml = unread > 0
+      ? `<span style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ff3b30;border:2px solid var(--navy2);z-index:2;pointer-events:none"></span>`
       : '';
     const premBadge2 = p.is_premium ? '<span class="prem-av-badge">★</span>' : '';
-    row.innerHTML = `<div class="avatar" style="${avatarStyle2};width:44px;height:44px;font-size:15px">${avatarContent2}${premBadge2}</div><div class="conv-info"><div class="conv-name">${p.full_name}</div><div class="conv-preview">${getGenderedRole(p.role, p.gender)} · ${p.city}</div></div>${unreadBadgeHtml}`;
+    const nameStyle = unread > 0 ? ' style="font-weight:800"' : '';
+    row.innerHTML = `<div class="avatar" style="${avatarStyle2};width:44px;height:44px;font-size:15px">${avatarContent2}${premBadge2}${unreadDotHtml}</div><div class="conv-info"><div class="conv-name"${nameStyle}>${p.full_name}</div><div class="conv-preview">${getGenderedRole(p.role, p.gender)} · ${p.city}</div></div>`;
     row.onclick = () => openChat(p.id);
     list.appendChild(row);
   });
@@ -3093,6 +3094,7 @@ function closeChat() {
   document.getElementById('chat-screen').classList.remove('active');
   document.getElementById('app').classList.remove('hidden');
   chatWith = null;
+  if (document.getElementById('s-messages').classList.contains('active')) loadConversations();
 }
 
 // ── MY PROFILE ────────────────────────────────────────────────────
