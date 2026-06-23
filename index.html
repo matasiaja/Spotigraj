@@ -1236,6 +1236,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
         </div>
       </div>
       <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" onclick="showAbout()">ℹ️ O aplikacji</button>
+      <button class="edit-btn" style="margin-top:10px;border-color:var(--muted);color:var(--muted)" id="notif-history-btn" onclick="showNotifHistory()">🔔 Historia powiadomień</button>
       <button class="logout-btn" onclick="logout()">Wyloguj się</button>
     </div>
   </div>
@@ -1304,7 +1305,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       <span class="nav-icon" style="position:relative;display:inline-block">💬<span id="unread-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Wiadomości
     </button>
     <button class="nav-btn active" id="nb-profile" onclick="goTo('profile')">
-      <span class="nav-icon">👤</span>Profil
+      <span class="nav-icon" style="position:relative;display:inline-block">👤<span id="notif-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Profil
     </button>
     <button class="nav-btn" id="nb-appgrajd" onclick="goTo('appgrajd')">
       <span class="nav-icon" style="position:relative;display:inline-block">🔔<span id="appgrajd-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Appgrajd
@@ -1490,6 +1491,16 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       <a href="#" onclick="hideChangePassword();return false;" style="color:var(--muted);font-size:13px;text-decoration:none">← Wróć do profilu</a>
     </div>
   </div>
+</div>
+
+<!-- HISTORIA POWIADOMIEŃ -->
+<div id="notif-history-screen" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--dark);z-index:200;display:flex;flex-direction:column;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%)">
+  <div style="display:flex;align-items:center;gap:12px;padding:16px 16px calc(16px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--border);flex-shrink:0">
+    <button onclick="closeNotifHistory()" style="background:none;border:none;color:var(--muted2);font-size:22px;cursor:pointer;padding:0;line-height:1">←</button>
+    <div style="font-size:17px;font-weight:800;color:var(--text);flex:1">🔔 Historia powiadomień</div>
+    <button onclick="clearNotifHistory()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;font-family:inherit">Wyczyść</button>
+  </div>
+  <div id="notif-history-list" style="flex:1;overflow-y:auto;padding:0 16px"></div>
 </div>
 
 <!-- CHAT -->
@@ -2294,6 +2305,7 @@ function showApp() {
   refreshUnreadCounts();
   subscribeUnreadBadge();
   updateAppgrajdBadge();
+  updateNotifBadge();
 }
 
 // Globalna subskrypcja — aktualizuje badge na żywo niezależnie od aktywnego ekranu
@@ -2350,7 +2362,75 @@ async function initNotifications() {
   }
 }
 
+// ── HISTORIA POWIADOMIEŃ ──────────────────────────────────────────
+function _notifKey() { return 'notifHistory_' + (currentUser?.id || 'anon'); }
+
+function addToNotifHistory(title, body) {
+  if (!currentUser) return;
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(_notifKey()) || '[]'); } catch(e) {}
+  hist.unshift({ id: Date.now(), title, body, ts: Date.now(), read: false });
+  if (hist.length > 50) hist = hist.slice(0, 50);
+  try { localStorage.setItem(_notifKey(), JSON.stringify(hist)); } catch(e) {}
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notif-badge');
+  if (!badge || !currentUser) return;
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(_notifKey()) || '[]'); } catch(e) {}
+  const unread = hist.filter(n => !n.read).length;
+  if (!unread) { badge.classList.add('hidden'); badge.textContent = ''; }
+  else { badge.textContent = unread > 9 ? '9+' : String(unread); badge.classList.remove('hidden'); }
+}
+
+function _timeAgo(ts) {
+  const m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1) return 'przed chwilą';
+  if (m < 60) return m + ' min temu';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' godz. temu';
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'wczoraj' : d + ' dni temu';
+}
+
+function showNotifHistory() {
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(_notifKey()) || '[]'); } catch(e) {}
+  hist = hist.map(n => ({ ...n, read: true }));
+  try { localStorage.setItem(_notifKey(), JSON.stringify(hist)); } catch(e) {}
+  updateNotifBadge();
+
+  const list = document.getElementById('notif-history-list');
+  list.innerHTML = hist.length ? hist.map(n => `
+    <div style="padding:14px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px">${escapeHtml(n.title)}</div>
+      ${n.body ? `<div style="font-size:12px;color:var(--muted2);margin-bottom:4px;line-height:1.4">${escapeHtml(n.body)}</div>` : ''}
+      <div style="font-size:11px;color:var(--muted)">${_timeAgo(n.ts)}</div>
+    </div>`).join('')
+    : '<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:40px;margin-bottom:12px">🔔</div><div style="font-size:15px;font-weight:600;color:var(--muted2);margin-bottom:6px">Brak powiadomień</div><div style="font-size:13px">Tu pojawią się alerty o matchach i wiadomościach</div></div>';
+
+  const screen = document.getElementById('notif-history-screen');
+  screen.classList.remove('hidden');
+  screen.style.display = 'flex';
+  window.history.pushState({ overlay: 'notif-history' }, '');
+}
+
+function closeNotifHistory() {
+  const screen = document.getElementById('notif-history-screen');
+  screen.classList.add('hidden');
+  screen.style.display = 'none';
+}
+
+function clearNotifHistory() {
+  try { localStorage.removeItem(_notifKey()); } catch(e) {}
+  updateNotifBadge();
+  showNotifHistory();
+}
+
 function sendNotification(title, body, icon = '🎵') {
+  addToNotifHistory(title, body);
   if (Notification.permission !== 'granted') return;
   new Notification(title, {
     body,
@@ -3560,6 +3640,8 @@ window.addEventListener('popstate', function(e) {
     closePremiumModal();
   } else if (document.getElementById('change-password-screen') && !document.getElementById('change-password-screen').classList.contains('hidden')) {
     hideChangePassword();
+  } else if (!document.getElementById('notif-history-screen').classList.contains('hidden')) {
+    closeNotifHistory();
   } else if (document.getElementById('chat-screen').classList.contains('active')) {
     closeChat();
   } else if (currentProfile && !document.getElementById('onboarding').classList.contains('hidden')) {
