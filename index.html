@@ -3041,12 +3041,8 @@ async function openChat(userId) {
 
   const { data: p } = await sb.from('profiles').select('*').eq('id', userId).single();
   if (p) {
-    const initials = (p.full_name || 'M').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
     document.getElementById('chat-name').textContent = p.full_name;
-    const av = document.getElementById('chat-avatar');
-    av.textContent = initials;
-    av.style.background = (p.avatar_color || '#534AB7') + '20';
-    av.style.color = p.avatar_color || '#534AB7';
+    renderAvatar(document.getElementById('chat-avatar'), p, 38, 14);
   }
 
   await loadMessages();
