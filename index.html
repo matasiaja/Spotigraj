@@ -1392,6 +1392,14 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   </div>
 </div>
 
+<div id="modal-extpage" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.97);z-index:450;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--dark2)">
+    <span style="font-size:13px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Spotigraj</span>
+    <button onclick="closeExternalPage()" style="background:none;border:none;color:var(--muted);font-size:26px;line-height:1;cursor:pointer;padding:2px 8px;font-family:inherit">×</button>
+  </div>
+  <iframe id="modal-extpage-iframe" src="" style="flex:1;width:100%;border:none;background:#fff"></iframe>
+</div>
+
 <div id="modal-zastepstwo" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:420px">
     <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px">🚨 Dodaj ogłoszenie zastępstwa</div>
@@ -1958,6 +1966,20 @@ function showAbout() {
 function closeAbout() {
   document.getElementById('modal-about').classList.add('hidden');
   document.getElementById('modal-about').style.display = 'none';
+}
+
+const EXTERNAL_PAGE_WHITELIST = ['warunki-testow-premium.html', 'formularz-premium-test.html'];
+function openExternalPage(filename) {
+  if (!EXTERNAL_PAGE_WHITELIST.includes(filename)) return;
+  document.getElementById('modal-extpage-iframe').src = filename;
+  document.getElementById('modal-extpage').classList.remove('hidden');
+  document.getElementById('modal-extpage').style.display = 'flex';
+  window.history.pushState({ overlay: 'extpage' }, '');
+}
+function closeExternalPage() {
+  document.getElementById('modal-extpage').classList.add('hidden');
+  document.getElementById('modal-extpage').style.display = 'none';
+  document.getElementById('modal-extpage-iframe').src = '';
 }
 
 async function logout() {
@@ -3029,7 +3051,7 @@ function escapeHtml(str) {
 // Reszta tekstu jest escapowana — bezpiecznie, mimo że tylko founder wpisuje treść.
 const APPGRAJD_VALID_SCREENS = ['discover', 'zastepstwa', 'messages', 'profile', 'appgrajd'];
 function renderAppgrajdText(str) {
-  const linkPattern = /\[([^\]]+)\]\(([a-z]+)\)/g;
+  const linkPattern = /\[([^\]]+)\]\(([a-z]+|external:[a-zA-Z0-9._-]+)\)/g;
   let result = '';
   let lastIndex = 0;
   let match;
@@ -3037,7 +3059,14 @@ function renderAppgrajdText(str) {
     result += renderAppgrajdChunk(str.slice(lastIndex, match.index));
     const linkText = match[1];
     const screen = match[2];
-    if (APPGRAJD_VALID_SCREENS.includes(screen)) {
+    if (screen.startsWith('external:')) {
+      const filename = screen.slice('external:'.length);
+      if (EXTERNAL_PAGE_WHITELIST.includes(filename)) {
+        result += `<a href="javascript:void(0)" onclick="openExternalPage('${filename}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
+      } else {
+        result += escapeHtml(match[0]);
+      }
+    } else if (APPGRAJD_VALID_SCREENS.includes(screen)) {
       result += `<a href="javascript:void(0)" onclick="goTo('${screen}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
     } else {
       result += escapeHtml(match[0]);
@@ -3657,6 +3686,7 @@ function closePremiumModal() {
 
 window.addEventListener('popstate', function(e) {
   // 1. Modalne/overlay — identyfikowane przez DOM (nie mają własnych URL hash)
+  if (!document.getElementById('modal-extpage').classList.contains('hidden')) { closeExternalPage(); return; }
   if (!document.getElementById('modal-bug').classList.contains('hidden')) { closeBugModal(); return; }
   if (!document.getElementById('modal-zastepstwo').classList.contains('hidden')) { closeAddZastepstwo(); return; }
   if (!document.getElementById('modal-about').classList.contains('hidden')) { closeAbout(); return; }
