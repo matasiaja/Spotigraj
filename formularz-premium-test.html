@@ -43,6 +43,19 @@
     border-radius: 16px;
     padding: 24px;
   }
+  .notice {
+    background: rgba(243,176,0,0.1);
+    border: 1px solid rgba(243,176,0,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .notice strong {
+    color: var(--gold);
+  }
   label {
     display: block;
     font-size: 0.9rem;
@@ -117,16 +130,17 @@
     <h1>🎁 Zgłoś się do testów Premium</h1>
     <p class="subtitle">Wypełnij formularz — odpiszemy mailem z kodem aktywacyjnym.</p>
 
+    <div class="notice">
+      ⚠️ Podaj <strong>ten sam adres e-mail</strong>, którego używasz do logowania w Spotigraj — kod aktywujemy właśnie na to konto. Musisz mieć już <strong>aktywne konto</strong> w appce.
+    </div>
+
     <div class="card">
       <form id="signupForm">
         <label for="name">Imię <span class="required">*</span></label>
         <input type="text" id="name" required maxlength="150">
 
-        <label for="email">E-mail <span class="required">*</span></label>
+        <label for="email">E-mail (taki jak w Spotigraj) <span class="required">*</span></label>
         <input type="email" id="email" required maxlength="200">
-
-        <label for="profileLink">Link do Twojego profilu w Spotigraj</label>
-        <input type="text" id="profileLink" maxlength="500" placeholder="np. link który możesz skopiować z profilu w appce">
 
         <label for="reason">Dlaczego chcesz testować Premium?</label>
         <textarea id="reason" maxlength="2000"></textarea>
@@ -158,7 +172,6 @@ form.addEventListener("submit", async (e) => {
 
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
-  const profileLink = document.getElementById("profileLink").value.trim();
   const reason = document.getElementById("reason").value.trim();
 
   if (!name || !email) {
@@ -177,7 +190,7 @@ form.addEventListener("submit", async (e) => {
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": "Bearer " + SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({ name, email, profileLink, reason }),
+      body: JSON.stringify({ name, email, reason }),
     });
 
     const data = await resp.json();
