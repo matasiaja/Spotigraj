@@ -2809,6 +2809,9 @@ const APPGRAJD_FOUNDER_ID = 'f32d66cc-6f00-4944-84f3-5658c4e3588f';
 let _appgrajdEntries = [];
 let _appgrajdDeleteId = null;
 let _appgrajdEditId = null;
+let _premiumTesterChecked = false;
+let _isPremiumTester = false;
+let _pfSelectedCat = '';
 const APPGRAJD_TYPE_META = {
   naprawka:     { emoji: '🛠', label: 'Napprawka' },
   nowa_funkcja: { emoji: '⚙️', label: 'Nowe funkcje' },
@@ -2844,6 +2847,23 @@ async function loadAppgrajd() {
     adminPanel.classList.remove('hidden');
   } else {
     adminPanel.classList.add('hidden');
+  }
+
+  const isTester = await checkPremiumTester();
+  if (isTester && !document.getElementById('appgrajd-premium-feedback')) {
+    list.insertAdjacentHTML('beforebegin', `
+      <div id="appgrajd-premium-feedback" style="background:var(--navy3);border:1px solid rgba(243,176,0,0.35);border-radius:var(--radius-sm);padding:16px;margin-bottom:18px">
+        <div style="font-size:12px;font-weight:800;color:#f3b000;margin-bottom:12px;letter-spacing:0.5px">🎁 Feedback testera Premium</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <button onclick="selectPremiumFeedbackCat(this,'blad')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🐛 Błąd</button>
+          <button onclick="selectPremiumFeedbackCat(this,'pomysl')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💡 Pomysł / czego brakuje</button>
+          <button onclick="selectPremiumFeedbackCat(this,'podoba_sie')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⭐ Co mi się podoba</button>
+          <button onclick="selectPremiumFeedbackCat(this,'inna_uwaga')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💬 Inna uwaga</button>
+        </div>
+        <textarea id="pf-desc" placeholder="Napisz co chcesz nam przekazać..." style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:72px;font-family:inherit;box-sizing:border-box"></textarea>
+        <button onclick="submitPremiumFeedback()" style="width:100%;margin-top:10px;padding:11px;background:#f3b000;border:none;border-radius:30px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij feedback</button>
+        <div id="pf-msg" style="margin-top:8px;font-size:13px;text-align:center;min-height:18px"></div>
+      </div>`);
   }
 
   list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:13px">Wczytywanie…</div>';
@@ -2897,6 +2917,66 @@ async function loadAppgrajd() {
     await sb.from('changelog_reads').upsert({ user_id: currentUser.id, last_seen_at: new Date().toISOString() });
     const badge = document.getElementById('appgrajd-badge');
     if (badge) badge.classList.add('hidden');
+  }
+}
+
+async function checkPremiumTester() {
+  if (_premiumTesterChecked) return _isPremiumTester;
+  _premiumTesterChecked = true;
+  if (!currentUser?.email) return false;
+  const { data } = await sb.from('premium_test_signups').select('id').eq('email', currentUser.email).maybeSingle();
+  _isPremiumTester = !!data;
+  return _isPremiumTester;
+}
+
+function selectPremiumFeedbackCat(btn, cat) {
+  _pfSelectedCat = cat;
+  document.querySelectorAll('.pf-cat').forEach(b => {
+    b.style.background = 'transparent';
+    b.style.color = 'var(--muted2)';
+    b.style.borderColor = 'rgba(243,176,0,0.3)';
+  });
+  btn.style.background = '#f3b000';
+  btn.style.color = '#000';
+  btn.style.borderColor = '#f3b000';
+}
+
+async function submitPremiumFeedback() {
+  const desc = document.getElementById('pf-desc').value.trim();
+  const msg = document.getElementById('pf-msg');
+  msg.style.color = '#ff3b30';
+  msg.textContent = '';
+  if (!_pfSelectedCat) { msg.textContent = 'Wybierz kategorię.'; return; }
+  if (!desc) { msg.textContent = 'Wpisz opis.'; return; }
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { msg.textContent = 'Brak sesji — zaloguj się ponownie.'; return; }
+    const resp = await fetch(SUPABASE_URL + '/functions/v1/send-premium-feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': SUPABASE_KEY,
+      },
+      body: JSON.stringify({ category: _pfSelectedCat, description: desc }),
+    });
+    const result = await resp.json().catch(() => ({}));
+    if (!resp.ok || !result.success) {
+      msg.textContent = 'Błąd wysyłki: ' + (result.error || 'spróbuj ponownie.');
+      return;
+    }
+    _pfSelectedCat = '';
+    document.getElementById('pf-desc').value = '';
+    document.querySelectorAll('.pf-cat').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.color = 'var(--muted2)';
+      b.style.borderColor = 'rgba(243,176,0,0.3)';
+    });
+    msg.style.color = '#f3b000';
+    msg.textContent = 'Dzięki za feedback! 🙌';
+  } catch(e) {
+    msg.style.color = '#ff3b30';
+    msg.textContent = 'Błąd połączenia. Sprawdź internet.';
   }
 }
 
