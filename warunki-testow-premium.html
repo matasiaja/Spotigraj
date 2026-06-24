@@ -62,6 +62,34 @@
     padding: 14px 24px;
     border-radius: 12px;
     text-align: center;
+    border: none;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .cta:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .agree-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 24px;
+    text-align: left;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+  }
+  .agree-row input[type="checkbox"] {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--gold);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .agree-row label {
+    cursor: pointer;
   }
   .cta-wrap {
     text-align: center;
@@ -93,11 +121,30 @@
       </ol>
     </div>
 
+    <div class="agree-row">
+      <input type="checkbox" id="agreeCheckbox">
+      <label for="agreeCheckbox">Przeczytałem/am i akceptuję powyższe warunki testowania Premium.</label>
+    </div>
+
     <div class="cta-wrap">
-      <a class="cta" href="formularz-premium-test.html">Zgłoś się →</a>
+      <button class="cta" id="ctaBtn" disabled>Zgłoś się →</button>
     </div>
 
     <a class="back-link" href="index.html">← Wróć do Spotigraj</a>
   </div>
+
+<script>
+const checkbox = document.getElementById("agreeCheckbox");
+const ctaBtn = document.getElementById("ctaBtn");
+
+checkbox.addEventListener("change", () => {
+  ctaBtn.disabled = !checkbox.checked;
+});
+
+ctaBtn.addEventListener("click", () => {
+  if (!checkbox.checked) return;
+  window.location.href = "formularz-premium-test.html";
+});
+</script>
 </body>
 </html>
