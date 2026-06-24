@@ -1461,7 +1461,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
     </div>
   </div>
   <!-- BANER PREMIUM (tylko dla non-premium) -->
-  <div id="premium-banner" class="hidden" onclick="showPremiumModal('default')" style="padding:10px 16px;background:linear-gradient(135deg,rgba(29,185,84,0.12),rgba(29,185,84,0.06));border-top:1px solid rgba(29,185,84,0.2);display:flex;align-items:center;justify-content:space-between;cursor:pointer;flex-shrink:0">
+  <div id="premium-banner" class="hidden" onclick="showPremiumModal('default')" style="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(85px + env(safe-area-inset-bottom, 0px));width:calc(100% - 32px);max-width:calc(480px - 32px);padding:10px 16px;background:linear-gradient(135deg,rgba(29,185,84,0.12),rgba(29,185,84,0.06));border:1px solid rgba(29,185,84,0.2);border-radius:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;z-index:99">
     <div>
       <div style="font-size:12px;font-weight:800;color:var(--green)">✨ Wypróbuj Premium — pierwsze 7 dni gratis</div>
       <div style="font-size:11px;color:var(--muted)">Kod <strong style="color:var(--green)">SPOTIGRAJ500</strong> = 3 miesiące za darmo</div>
