@@ -276,7 +276,12 @@ html, body {
 
 /* Desktop — ładna ramka jak telefon */
 @media (min-width: 520px) {
-  body { background: #070b13; }
+  body {
+    background:
+      radial-gradient(ellipse 900px 700px at 12% 8%, rgba(147,51,234,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 900px 700px at 88% 92%, rgba(124,58,237,0.08) 0%, transparent 55%),
+      #070b13;
+  }
   #app, #chat-screen {
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
