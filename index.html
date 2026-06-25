@@ -2510,18 +2510,26 @@ function showApp() {
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('bug-btn').style.display = 'flex';
+  // Fundament historii — DWA wpisy na dole stosu (ten sam #discover), żeby pierwszy Back
+  // na Discover faktycznie odpalił popstate (JS potrzebuje co najmniej jednego wpisu pod sobą,
+  // żeby zdarzenie popstate się wywołało przy cofaniu). Te wpisy nie są nigdy odtwarzane później —
+  // to jednorazowy bufor na start sesji appki.
+  window.history.replaceState({ screen: 'discover', _foundation: true }, '', '/#discover');
+  window.history.pushState({ screen: 'discover', _foundation: true }, '', '/#discover');
   // Przywróć stan z URL hash (F5/reload) — _startHash zapisany przed pushBackTrap
   const _screenMap = { '#discover':'discover','#messages':'messages','#profile':'profile','#zastepstwa':'zastepstwa','#appgrajd':'appgrajd','#settings':'settings' };
   const chatMatch = _startHash.match(/^#messages\/chat\/(.+)$/);
   if (chatMatch) {
-    window.history.replaceState({ screen: 'messages' }, '', '/#messages');
+    window.history.pushState({ screen: 'messages' }, '', '/#messages');
     _applyScreen('messages');
     openChat(chatMatch[1]);
   } else {
     let startScreen = _screenMap[_startHash];
     // Pusty hash = świeże wejście (ikona/adres bez hasha) → zawsze Discover
     if (!startScreen) startScreen = 'discover';
-    window.history.replaceState({ screen: startScreen }, '', '/#' + startScreen);
+    if (startScreen !== 'discover') {
+      window.history.pushState({ screen: startScreen }, '', '/#' + startScreen);
+    }
     _applyScreen(startScreen);
   }
   loadDiscover();
@@ -4056,6 +4064,7 @@ window.addEventListener('popstate', function(e) {
   // 2. Czat otwarty — zamknij i wróć do Wiadomości (czat jest dzieckiem Wiadomości)
   if (document.getElementById('chat-screen').classList.contains('active')) {
     closeChat();
+    window.history.replaceState({ screen: 'messages' }, '', '/#messages');
     _applyScreen('messages');
     return;
   }
