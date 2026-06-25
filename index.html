@@ -2729,9 +2729,10 @@ function goTo(screen) {
     document.getElementById('auth-screen').classList.remove('hidden');
     return;
   }
-  // Dodaj wpis do historii tylko gdy hash faktycznie się zmienia
+  // Nawigacja między głównymi zakładkami NIE buduje historii — zawsze zastępuje bieżący wpis,
+  // żeby Back z każdego głównego ekranu prowadził do jego rodzica (Discover), a nie przez realną ścieżkę kliknięć.
   if (window.location.hash !== '#' + screen) {
-    window.history.pushState({ screen }, '', '/#' + screen);
+    window.history.replaceState({ screen }, '', '/#' + screen);
   }
   _applyScreen(screen);
 }
@@ -4052,16 +4053,35 @@ window.addEventListener('popstate', function(e) {
   if (!document.getElementById('notif-history-screen').classList.contains('hidden')) { closeNotifHistory(); return; }
   if (currentProfile && !document.getElementById('onboarding').classList.contains('hidden')) { cancelEditProfile(); return; }
 
-  // 2. Czat otwarty — zamknij (Back cofnął do /#messages lub trap)
-  if (document.getElementById('chat-screen').classList.contains('active')) { closeChat(); return; }
+  // 2. Czat otwarty — zamknij i wróć do Wiadomości (czat jest dzieckiem Wiadomości)
+  if (document.getElementById('chat-screen').classList.contains('active')) {
+    closeChat();
+    _applyScreen('messages');
+    return;
+  }
 
-  // 3. Prawdziwa nawigacja — czytaj aktualny hash i przełącz ekran
-  const hash = window.location.hash;
-  const navMap = { '#discover':'discover','#messages':'messages','#profile':'profile','#zastepstwa':'zastepstwa','#appgrajd':'appgrajd','#settings':'settings' };
-  if (navMap[hash]) { _applyScreen(navMap[hash]); return; }
+  // 3. Hierarchia rodzic→dziecko, niezależna od realnej ścieżki kliknięć.
+  //    Discover jest korzeniem: Back z Discover wychodzi z appki (każdy klik, bez pułapki).
+  //    Wszystkie inne główne ekrany wracają zawsze do Discover.
+  const screenParent = {
+    discover: null,
+    profile: 'discover',
+    messages: 'discover',
+    zastepstwa: 'discover',
+    appgrajd: 'discover',
+    settings: 'discover'
+  };
+  const activeScreenEl = document.querySelector('.screen.active');
+  const activeScreen = activeScreenEl ? activeScreenEl.id.replace('s-', '') : 'discover';
 
-  // 4. Hash pułapki (#tN) lub nieznany — nie wychodź z appki
-  pushBackTrap();
+  if (activeScreen === 'discover') {
+    // Na korzeniu — nie chwytamy Back w pułapkę, appka się zamyka naturalnie.
+    return;
+  }
+
+  const parent = screenParent[activeScreen] || 'discover';
+  window.history.replaceState({ screen: parent }, '', '/#' + parent);
+  _applyScreen(parent);
 });
 
 async function submitZastepstwo() {
