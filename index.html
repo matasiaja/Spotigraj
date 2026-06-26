@@ -18,6 +18,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script>
+(function(){var t=localStorage.getItem('spotigraj_theme')||'dark';if(t==='light')document.documentElement.setAttribute('data-theme','light');else document.documentElement.removeAttribute('data-theme');})();
+</script>
 <style>
 
 :root {
@@ -48,6 +51,49 @@
   --dark: var(--navy);
   --dark2: var(--navy2);
   --dark3: var(--navy3);
+
+  /* ── KOLORY FUNKCJONALNE (stałe w obu motywach) ── */
+  --gold: #f3b000;           /* Premium badge, zawsze złoty */
+  --error: #ff6b7a;          /* Błędy walidacji, skip, danger */
+  --error-badge: #ff3b30;    /* Badże powiadomień, przyciski usunięcia */
+  --warn: #f59e0b;           /* Stand By, amber ostrzeżenia */
+  --on-accent: #000000;      /* Tekst na złotych/kolorowych przyciskach */
+  --on-dark: #ffffff;        /* Tekst na ciemnych/zielonych przyciskach */
+  --status-busy-color: #ca8a04;
+  --status-unavail-color: #dc2626;
+  --status-vacation-color: #2563eb;
+
+  /* ── POWIERZCHNIE Z BLUR (topbar, nav) ── */
+  --surface-blur: rgba(11,15,26,0.92);
+  --surface-blur-deep: rgba(11,15,26,0.96);
+
+  /* ── OVERLAYE MODALI ── */
+  --overlay-bg: rgba(0,0,0,0.88);
+  --overlay-bg-deep: rgba(0,0,0,0.92);
+
+  /* ── TŁO DESKTOP ── */
+  --bg-desktop: #070b13;
+}
+
+/* ── JASNY MOTYW ───────────────────────────────────────── */
+[data-theme="light"] {
+  --navy: #ffffff;
+  --navy2: #f5f5f7;
+  --navy3: #ebebef;
+  --navy4: #dcdce4;
+  --text: #0a0a0a;
+  --muted: #555555;
+  --muted2: #777777;
+  --border: rgba(0,0,0,0.10);
+  --shadow: 0 4px 24px rgba(0,0,0,0.12);
+  --bg-desktop: #e4e4f0;
+  --surface-blur: rgba(248,248,252,0.92);
+  --surface-blur-deep: rgba(248,248,252,0.96);
+  --overlay-bg: rgba(0,0,0,0.50);
+  --overlay-bg-deep: rgba(0,0,0,0.65);
+  --dark: var(--navy);
+  --dark2: var(--navy2);
+  --dark3: var(--navy3);
 }
 
 /* ── ZŁOTY MOTYW PREMIUM ───────────────────────────────── */
@@ -62,7 +108,7 @@ body.premium-mode {
   --green-dark: #d49a00;
 }
 body.premium-mode .auth-logo {
-  background: linear-gradient(135deg, #f3b000, #fff176);
+  background: linear-gradient(135deg, var(--gold), #fff176);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -73,10 +119,12 @@ body.premium-mode #app {
 body.premium-mode .bottom-nav {
   border-top-color: rgba(243,176,0,0.2);
 }
-body.premium-mode .nav-btn.active { color: #f3b000; }
-body.premium-mode .nav-btn.active::before { background: #f3b000; }
+body.premium-mode .nav-btn.active { color: var(--gold); }
+body.premium-mode .nav-btn.active::before { background: var(--gold); }
 body.premium-mode .topbar { border-bottom-color: rgba(243,176,0,0.15); }
-body.premium-mode #prof-av { box-shadow: 0 0 0 3px #f3b000, 0 4px 20px rgba(243,176,0,0.3); }
+body.premium-mode #prof-av { box-shadow: 0 0 0 3px var(--gold), 0 4px 20px rgba(243,176,0,0.3); }
+body.premium-mode .topbar-icon-btn { color: rgba(243,176,0,0.6); }
+body.premium-mode .topbar-icon-btn:hover { color: var(--gold); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -109,7 +157,7 @@ html, body {
 .auth-logo {
   font-size: 32px;
   font-weight: 900;
-  background: linear-gradient(135deg, #1DB954, #17a349);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -149,7 +197,7 @@ html, body {
   transition: all .25s;
   letter-spacing: 0.01em;
 }
-.auth-tab.active { background: var(--accent); color: #fff; box-shadow: var(--shadow-accent); }
+.auth-tab.active { background: var(--accent); color: var(--on-dark); box-shadow: var(--shadow-accent); }
 
 /* ── FIELDS ────────────────────────────────── */
 .field { margin-bottom: 14px; }
@@ -188,16 +236,16 @@ html, body {
 }
 .btn-green {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-dark);
   box-shadow: var(--shadow-accent);
 }
 .btn-green:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(0,201,184,0.3); }
 .btn-green:active { transform: translateY(0); }
 .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
 .btn-outline:hover { background: var(--accent-glow); }
-.err { color: #ff6b7a; font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
-.field-invalid { border-color: #ff6b7a !important; box-shadow: 0 0 0 1px rgba(255,107,122,0.4); }
-.genres-grid.field-invalid { border: 1.5px solid #ff6b7a; border-radius: 14px; padding: 8px; box-shadow: 0 0 0 1px rgba(255,107,122,0.4); }
+.err { color: var(--error); font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
+.field-invalid { border-color: var(--error) !important; box-shadow: 0 0 0 1px rgba(255,107,122,0.4); }
+.genres-grid.field-invalid { border: 1.5px solid var(--error); border-radius: 14px; padding: 8px; box-shadow: 0 0 0 1px rgba(255,107,122,0.4); }
 
 /* ── BUG REPORT BUTTON ─────────────────────── */
 #bug-btn {
@@ -226,7 +274,7 @@ html, body {
 /* ── BUG MODAL ─────────────────────────────── */
 #modal-bug {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.88);
+  background: var(--overlay-bg);
   z-index: 500;
   display: flex; align-items: flex-end; justify-content: center;
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -280,7 +328,7 @@ html, body {
     background:
       radial-gradient(ellipse 900px 700px at 12% 8%, rgba(147,51,234,0.10) 0%, transparent 55%),
       radial-gradient(ellipse 900px 700px at 88% 92%, rgba(124,58,237,0.08) 0%, transparent 55%),
-      #070b13;
+      var(--bg-desktop);
   }
   #app, #chat-screen {
     border-left: 1px solid var(--border);
@@ -297,7 +345,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  background: rgba(11,15,26,0.92);
+  background: var(--surface-blur);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -305,8 +353,7 @@ html, body {
 .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
 .topbar-icon-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--muted2); display: flex; align-items: center; justify-content: center; transition: color .15s; }
 .topbar-icon-btn:hover { color: var(--text); }
-body.premium-mode .topbar-icon-btn { color: rgba(243,176,0,0.6); }
-body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
+/* premium-mode topbar icon styles moved to premium-mode block above */
 .main-content { flex: 1; overflow-y: auto; padding: 16px 16px calc(190px + env(safe-area-inset-bottom, 0px)); }
 
 /* ── BOTTOM NAV ────────────────────────────── */
@@ -318,7 +365,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: calc(480px - 32px);
-  background: rgba(11,15,26,0.96);
+  background: var(--surface-blur-deep);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 24px;
@@ -430,13 +477,13 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #f3b000;
+  background: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   line-height: 1;
-  color: #000;
+  color: var(--on-accent);
   border: 2px solid var(--navy2);
   z-index: 1;
   pointer-events: none;
@@ -481,14 +528,14 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   transition: all .2s;
   font-family: inherit;
 }
-.btn-skip:hover { border-color: #ff6b7a; color: #ff6b7a; }
+.btn-skip:hover { border-color: var(--error); color: var(--error); }
 .btn-like {
   flex: 2;
   padding: 11px;
   background: var(--accent);
   border: none;
   border-radius: 50px;
-  color: #fff;
+  color: var(--on-dark);
   cursor: pointer;
   font-size: 13px;
   font-weight: 800;
@@ -527,7 +574,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   transition: opacity .1s;
 }
 .swipe-indicator.like { left: 20px; color: var(--accent); border-color: var(--accent); transform: rotate(-12deg); }
-.swipe-indicator.skip { right: 20px; color: #ff6b7a; border-color: #ff6b7a; transform: rotate(12deg); }
+.swipe-indicator.skip { right: 20px; color: var(--error); border-color: var(--error); transform: rotate(12deg); }
 
 /* ── MESSAGES ──────────────────────────────── */
 .conv-row {
@@ -557,7 +604,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  background: rgba(11,15,26,0.92);
+  background: var(--surface-blur);
   backdrop-filter: blur(12px);
 }
 .back-btn { background: none; border: none; color: var(--accent); font-size: 22px; cursor: pointer; padding: 0; }
@@ -565,7 +612,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 .msg { max-width: 75%; padding: 11px 15px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
 .msg-out {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-dark);
   align-self: flex-end;
   border-bottom-right-radius: 5px;
   font-weight: 500;
@@ -584,7 +631,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   padding: 12px 16px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
-  background: rgba(11,15,26,0.96);
+  background: var(--surface-blur-deep);
   backdrop-filter: blur(16px);
 }
 .chat-input {
@@ -628,7 +675,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   animation: fadeIn .3s ease;
 }
 .zast-card.urgent { border-color: rgba(255,80,80,0.45); box-shadow: 0 0 16px rgba(255,80,80,0.08); }
-.zast-badge { display: inline-block; background: rgba(255,80,80,0.12); color: #ff6b7a; font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 50px; margin-bottom: 10px; }
+.zast-badge { display: inline-block; background: rgba(255,80,80,0.12); color: var(--error); font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 50px; margin-bottom: 10px; }
 .zast-role { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .zast-meta { font-size: 12px; color: var(--muted2); margin-bottom: 8px; }
 .zast-desc { font-size: 13px; color: var(--muted2); line-height: 1.6; margin-bottom: 12px; }
@@ -636,10 +683,10 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 .zast-time { font-size: 11px; color: var(--muted); }
 .btn-zast-contact {
   padding: 8px 18px;
-  background: #ff6b7a;
+  background: var(--error);
   border: none;
   border-radius: 50px;
-  color: #fff;
+  color: var(--on-dark);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -729,13 +776,13 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   font-family: inherit;
 }
 .status-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
-.status-btn.standy-on { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.1); }
+.status-btn.standy-on { border-color: var(--warn); color: var(--warn); background: rgba(245,158,11,0.1); }
 .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 50px; white-space: nowrap; }
 .status-active { background: rgba(0,201,184,0.12); color: var(--accent); }
-.status-busy { background: rgba(234,179,8,0.12); color: #ca8a04; }
-.status-unavailable { background: rgba(239,68,68,0.12); color: #dc2626; }
-.status-vacation { background: rgba(59,130,246,0.12); color: #2563eb; }
-.standy-badge { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.status-busy { background: rgba(234,179,8,0.12); color: var(--status-busy-color); }
+.status-unavailable { background: rgba(239,68,68,0.12); color: var(--status-unavail-color); }
+.status-vacation { background: rgba(59,130,246,0.12); color: var(--status-vacation-color); }
+.standy-badge { background: rgba(245,158,11,0.12); color: var(--warn); }
 .logout-btn {
   width: 100%;
   padding: 13px;
@@ -749,7 +796,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   transition: all .2s;
   font-family: inherit;
 }
-.logout-btn:hover { border-color: #ff6b7a; color: #ff6b7a; }
+.logout-btn:hover { border-color: var(--error); color: var(--error); }
 
 /* ── USTAWIENIA ────────────────────────────── */
 .settings-group {
@@ -772,7 +819,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 .settings-row-label .sub { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 400; }
 .settings-row.clickable { cursor: pointer; transition: background .15s; }
 .settings-row.clickable:hover { background: var(--navy4); }
-.settings-row.danger .settings-row-label { color: #ff6b7a; }
+.settings-row.danger .settings-row-label { color: var(--error); }
 .settings-chevron { color: var(--muted); font-size: 16px; flex-shrink: 0; }
 .toggle-switch {
   position: relative;
@@ -910,7 +957,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 </style>
 </head>
 <body>
-<div id="loading-screen" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999">
+<div id="loading-screen" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999">
   <svg viewBox="0 0 210 105" xmlns="http://www.w3.org/2000/svg" style="height:60px;width:auto;margin-bottom:24px">
     <rect x="0" y="60" width="22" height="40" rx="3" fill="#1DB954"/>
     <rect x="28" y="44" width="22" height="56" rx="3" fill="#1DB954"/>
@@ -924,7 +971,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
     <circle cx="129" cy="8" r="2.6" fill="#000"/>
     <path d="M115 15 Q123 21 131 15" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
   </svg>
-  <div style="font-size:13px;color:#555">Łączenie...</div>
+  <div style="font-size:13px;color:var(--muted)">Łączenie...</div>
 </div>
 
 <!-- AUTH -->
@@ -1245,12 +1292,12 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       <div class="profile-header">
         <div style="position:relative;display:inline-block;margin-bottom:12px">
           <div class="profile-av-lg" id="prof-av" style="cursor:pointer" onclick="document.getElementById('avatar-upload-input').click()" title="Kliknij żeby zmienić zdjęcie"></div>
-          <div id="prof-prem-badge" style="display:none;position:absolute;top:-3px;right:-3px;width:22px;height:22px;border-radius:50%;background:#f3b000;align-items:center;justify-content:center;font-size:13px;line-height:1;color:#000;border:2.5px solid var(--navy);z-index:1;pointer-events:none">★</div>
+          <div id="prof-prem-badge" style="display:none;position:absolute;top:-3px;right:-3px;width:22px;height:22px;border-radius:50%;background:var(--gold);align-items:center;justify-content:center;font-size:13px;line-height:1;color:var(--on-accent);border:2.5px solid var(--navy);z-index:1;pointer-events:none">★</div>
           <div onclick="document.getElementById('avatar-upload-input').click()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.4)">📷</div>
           <input type="file" id="avatar-upload-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
         </div>
         <div class="profile-name-lg" id="prof-name"></div>
-        <div id="prof-badge" style="display:none;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;margin:6px auto 0;width:fit-content"></div>
+        <div id="prof-badge" style="display:none;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:50px;background:linear-gradient(135deg,var(--gold),#fff176);color:var(--on-accent);margin:6px auto 0;width:fit-content"></div>
         <div class="profile-role-lg" id="prof-role"></div>
         <div class="profile-stats">
           <div class="stat"><div class="stat-n" id="stat-matches">0</div><div class="stat-l">połączeń</div></div>
@@ -1260,7 +1307,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       </div>
       <div class="profile-section">
         <div class="section-label">O mnie</div>
-        <div id="prof-bio" style="font-size:14px;color:#aaa;line-height:1.6"></div>
+        <div id="prof-bio" style="font-size:14px;color:var(--muted2);line-height:1.6"></div>
       </div>
       <div class="profile-section">
         <div class="section-label">Gatunki</div>
@@ -1272,7 +1319,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       </div>
       <div class="profile-section" id="prof-nationality-section" style="display:none">
         <div class="section-label">Narodowość</div>
-        <div id="prof-nationality" style="font-size:14px;color:#aaa"></div>
+        <div id="prof-nationality" style="font-size:14px;color:var(--muted2)"></div>
       </div>
       <div class="profile-section" id="prof-languages-section" style="display:none">
         <div class="section-label">Języki</div>
@@ -1302,11 +1349,11 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       </div>
       <div class="profile-section" id="prof-phone-section" style="display:none">
         <div class="section-label">Telefon (widoczny po matchu)</div>
-        <div id="prof-phone" style="font-size:14px;color:#aaa"></div>
+        <div id="prof-phone" style="font-size:14px;color:var(--muted2)"></div>
       </div>
       <button class="edit-btn" onclick="showEdit()">✏️ Edytuj profil</button>
       <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-        <button class="edit-btn" style="margin-top:0;flex:1;border-color:#ff6b7a;color:#ff6b7a" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
+        <button class="edit-btn" style="margin-top:0;flex:1;border-color:var(--error);color:var(--error)" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
         <div class="info-tip-wrap">
           <button class="info-icon-btn" onclick="toggleInfoTip(event)" aria-label="Informacja">?</button>
           <div class="info-tip-box" role="tooltip">Czyści wszystkie Twoje obecne matche. Możesz użyć tej funkcji raz na 30 dni (Premium: bez limitu).</div>
@@ -1327,10 +1374,10 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       <div class="section-label">Wygląd</div>
       <div class="settings-group">
         <div class="theme-pick">
-          <button class="theme-pick-btn" disabled title="Wkrótce dostępne">
-            <span class="ico">☀️</span>Jasny <span style="font-size:10px;color:var(--muted)">(wkrótce)</span>
+          <button class="theme-pick-btn" id="theme-btn-light" onclick="setTheme('light')">
+            <span class="ico">☀️</span>Jasny
           </button>
-          <button class="theme-pick-btn selected" disabled>
+          <button class="theme-pick-btn selected" id="theme-btn-dark" onclick="setTheme('dark')">
             <span class="ico">🌙</span>Ciemny
           </button>
         </div>
@@ -1422,7 +1469,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
         <div class="topbar-title">🚨 Zastępstwa</div>
         <div class="topbar-sub">Pilne ogłoszenia · ostatnie 48h</div>
       </div>
-      <button id="btn-add-zastepstwo" onclick="showAddZastepstwo()" style="background:var(--green);color:#000;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Dodaj</button>
+      <button id="btn-add-zastepstwo" onclick="showAddZastepstwo()" style="background:var(--green);color:var(--on-accent);border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Dodaj</button>
     </div>
     <div class="main-content">
       <div id="zastepstwa-list"></div>
@@ -1454,7 +1501,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
           <textarea id="appgrajd-desc" placeholder="Opis (opcjonalnie) — link: [tekst](profile/messages/discover/zastepstwa)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
           <div style="font-size:11px;color:var(--muted);margin-top:4px">Format linku: [tekst](profile) → kliknięcie przenosi na ekran profilu. Dostępne: discover, zastepstwa, messages, profile, appgrajd</div>
         </div>
-        <button onclick="submitAppgrajdEntry()" style="width:100%;padding:11px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:13px;font-weight:700;cursor:pointer">Opublikuj</button>
+        <button onclick="submitAppgrajdEntry()" style="width:100%;padding:11px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-size:13px;font-weight:700;cursor:pointer">Opublikuj</button>
         <div class="err" id="appgrajd-err" style="margin-top:8px"></div>
       </div>
       <div id="appgrajd-list"></div>
@@ -1466,7 +1513,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       <div style="font-size:12px;font-weight:800;color:var(--green)">✨ Wypróbuj Premium — pierwsze 7 dni gratis</div>
       <div style="font-size:11px;color:var(--muted)">Kod <strong style="color:var(--green)">SPOTIGRAJ500</strong> = 3 miesiące za darmo</div>
     </div>
-    <div style="font-size:11px;font-weight:700;color:#000;background:var(--green);padding:6px 14px;border-radius:50px">Więcej →</div>
+    <div style="font-size:11px;font-weight:700;color:var(--on-accent);background:var(--green);padding:6px 14px;border-radius:50px">Więcej →</div>
   </div>
   <div class="bottom-nav">
     <button class="nav-btn" id="nb-discover" onclick="goTo('discover')">
@@ -1476,13 +1523,13 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       <span class="nav-icon">🚨</span>Zastępstwa
     </button>
     <button class="nav-btn" id="nb-messages" onclick="goTo('messages')">
-      <span class="nav-icon" style="position:relative;display:inline-block">💬<span id="unread-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Wiadomości
+      <span class="nav-icon" style="position:relative;display:inline-block">💬<span id="unread-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Wiadomości
     </button>
     <button class="nav-btn active" id="nb-profile" onclick="goTo('profile')">
-      <span class="nav-icon" style="position:relative;display:inline-block">👤<span id="notif-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Profil
+      <span class="nav-icon" style="position:relative;display:inline-block">👤<span id="notif-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Profil
     </button>
     <button class="nav-btn" id="nb-appgrajd" onclick="goTo('appgrajd')">
-      <span class="nav-icon" style="position:relative;display:inline-block">🔔<span id="appgrajd-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Appgrajd
+      <span class="nav-icon" style="position:relative;display:inline-block">🔔<span id="appgrajd-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Appgrajd
     </button>
   </div>
 </div>
@@ -1505,22 +1552,22 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
     <div id="bug-err" class="err"></div>
     <div class="bug-send-row">
       <button onclick="closeBugModal()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-      <button id="bug-send-btn" onclick="sendBugReport()" style="flex:2;padding:12px;background:var(--accent);border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij →</button>
+      <button id="bug-send-btn" onclick="sendBugReport()" style="flex:2;padding:12px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij →</button>
     </div>
   </div>
 </div>
 
 <!-- MODAL USUWANIA WPISU APPGRAJD (tylko Founder) -->
-<div id="modal-appgrajd-delete" class="hidden" onclick="if(event.target===this)closeAppgrajdDeleteModal()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
+<div id="modal-appgrajd-delete" class="hidden" onclick="if(event.target===this)closeAppgrajdDeleteModal()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:360px">
     <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:12px">Usunąć wpis?</div>
     <div id="appgrajd-delete-msg" style="font-size:13px;color:var(--muted2);margin-bottom:6px;line-height:1.5"></div>
-    <div style="font-size:12px;color:#ff3b30;margin-bottom:22px">Tej operacji nie można odwrócić.</div>
+    <div style="font-size:12px;color:var(--error-badge);margin-bottom:22px">Tej operacji nie można odwrócić.</div>
     <div style="display:flex;gap:10px">
       <button onclick="closeAppgrajdDeleteModal()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-      <button id="appgrajd-delete-confirm-btn" onclick="confirmAppgrajdDelete()" style="flex:1;padding:12px;background:#ff3b30;border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Usuń</button>
+      <button id="appgrajd-delete-confirm-btn" onclick="confirmAppgrajdDelete()" style="flex:1;padding:12px;background:var(--error-badge);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Usuń</button>
     </div>
-    <div id="appgrajd-delete-err" style="margin-top:10px;font-size:12px;color:#ff3b30;text-align:center;min-height:16px"></div>
+    <div id="appgrajd-delete-err" style="margin-top:10px;font-size:12px;color:var(--error-badge);text-align:center;min-height:16px"></div>
   </div>
 </div>
 
@@ -1528,27 +1575,27 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 <div id="toast" class="hidden" style="position:fixed;bottom:calc(96px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);background:var(--navy3);border:1px solid var(--border);border-radius:50px;padding:10px 22px;font-size:13px;font-weight:700;color:var(--text);z-index:600;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow)"></div>
 
 <!-- SHARE FALLBACK MODAL -->
-<div id="modal-share-fallback" class="hidden" onclick="if(event.target===this)closeShareFallback()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
+<div id="modal-share-fallback" class="hidden" onclick="if(event.target===this)closeShareFallback()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:360px">
     <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">Udostępnij Spotigraj</div>
     <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Skopiuj link i wyślij znajomym:</div>
     <input id="share-link-input" readonly value="https://spotigraj.app" onclick="this.select()" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;cursor:text">
     <div style="display:flex;gap:10px">
       <button onclick="closeShareFallback()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
-      <button onclick="copyShareLink()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Kopiuj link</button>
+      <button onclick="copyShareLink()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Kopiuj link</button>
     </div>
   </div>
 </div>
 
 <!-- LIGHTBOX OBRAZKÓW APPGRAJD -->
-<div id="lightbox-appgrajd" class="hidden" onclick="closeImgLightbox()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px">
-  <button onclick="event.stopPropagation();closeImgLightbox()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:inherit">✕</button>
+<div id="lightbox-appgrajd" class="hidden" onclick="closeImgLightbox()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px">
+  <button onclick="event.stopPropagation();closeImgLightbox()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:36px;height:36px;color:var(--on-dark);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:inherit">✕</button>
   <img id="lightbox-img" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:var(--radius-sm);object-fit:contain;display:block">
 </div>
 
 <!-- MODAL DODAJ ZASTĘPSTWO (tylko Premium) -->
 <!-- MODAL O APLIKACJI -->
-<div id="modal-about" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px">
+<div id="modal-about" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:380px;text-align:center">
     <div style="font-size:48px;margin-bottom:12px">🎵</div>
     <div style="font-size:22px;font-weight:900;color:var(--green);letter-spacing:2px;margin-bottom:4px">SPOTIGRAJ</div>
@@ -1562,7 +1609,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
       Wersja beta · <a href="https://spotigraj.app" style="color:var(--green);text-decoration:none">spotigraj.app</a><br>
       Kontakt: <a href="mailto:info@mattsmok.art" style="color:var(--green);text-decoration:none">info@mattsmok.art</a>
     </div>
-    <button onclick="closeAbout()" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:50px;color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
+    <button onclick="closeAbout()" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
   </div>
 </div>
 
@@ -1574,7 +1621,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
   <iframe id="modal-extpage-iframe" src="" style="flex:1;width:100%;border:none;background:#fff"></iframe>
 </div>
 
-<div id="modal-zastepstwo" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
+<div id="modal-zastepstwo" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:420px">
     <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px">🚨 Dodaj ogłoszenie zastępstwa</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Ogłoszenie wygasa po 48 godzinach</div>
@@ -1589,7 +1636,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
     <div class="field"><label>Opis (gatunek, wymagania, wynagrodzenie)</label><textarea id="zast-desc" placeholder="np. Wesele, repertuar pop/dance, znajomość mikrofonu, płatne 500 zł" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea></div>
     <div style="display:flex;gap:10px;margin-top:4px">
       <button onclick="closeAddZastepstwo()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);border-radius:30px;color:var(--muted);font-size:14px;cursor:pointer">Anuluj</button>
-      <button onclick="submitZastepstwo()" style="flex:2;padding:11px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:14px;font-weight:700;cursor:pointer">Opublikuj ogłoszenie</button>
+      <button onclick="submitZastepstwo()" style="flex:2;padding:11px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-size:14px;font-weight:700;cursor:pointer">Opublikuj ogłoszenie</button>
     </div>
     <div class="err" id="zast-err" style="margin-top:10px"></div>
   </div>
@@ -1599,20 +1646,20 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 <style>
   .prem-feature { display:flex; align-items:center; gap:6px; padding:5px 0; position:relative; }
   .prem-tip { position:relative; display:inline-flex; }
-  .prem-tip-btn { width:16px; height:16px; border-radius:50%; background:rgba(0,0,0,0.2); color:#000; font-size:10px; font-weight:800; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1; }
-  .prem-tip-box { display:none; position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 6px); background:#000; color:#fff; font-size:11px; line-height:1.5; padding:8px 10px; border-radius:8px; width:200px; text-align:center; z-index:9999; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
-  .prem-tip-box::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#000; }
+  .prem-tip-btn { width:16px; height:16px; border-radius:50%; background:rgba(0,0,0,0.2); color:var(--on-accent); font-size:10px; font-weight:800; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1; }
+  .prem-tip-box { display:none; position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 6px); background:var(--navy); color:var(--on-dark); font-size:11px; line-height:1.5; padding:8px 10px; border-radius:8px; width:200px; text-align:center; z-index:9999; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+  .prem-tip-box::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--navy); }
   .prem-tip:hover .prem-tip-box, .prem-tip.open .prem-tip-box { display:block; }
   .prem-plan-toggle { display:flex; background:rgba(0,0,0,0.15); border-radius:50px; padding:3px; gap:3px; margin-bottom:14px; }
   .prem-plan-btn { flex:1; padding:7px 10px; border:none; border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; background:transparent; color:rgba(0,0,0,0.6); transition:all .2s; font-family:inherit; }
-  .prem-plan-btn.active { background:#fff; color:#000; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-  .prem-badge-save { display:inline-block; background:#000; color:var(--green); font-size:10px; font-weight:800; padding:2px 8px; border-radius:50px; margin-left:4px; letter-spacing:0.03em; }
+  .prem-plan-btn.active { background:var(--on-dark); color:var(--on-accent); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+  .prem-badge-save { display:inline-block; background:var(--on-accent); color:var(--green); font-size:10px; font-weight:800; padding:2px 8px; border-radius:50px; margin-left:4px; letter-spacing:0.03em; }
   .prem-social { display:flex; align-items:center; gap:8px; background:rgba(29,185,84,0.08); border:1px solid rgba(29,185,84,0.2); border-radius:10px; padding:10px 14px; margin-bottom:16px; text-align:left; }
   .prem-testimonial { background:var(--dark3); border-radius:10px; padding:12px 14px; margin-bottom:16px; text-align:left; }
   #modal-premium-inner { overflow-y:auto; max-height:92vh; }
 </style>
 
-<div id="modal-premium" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px">
+<div id="modal-premium" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px">
   <div id="modal-premium-inner" style="background:var(--dark2);border:1px solid rgba(29,185,84,0.3);border-radius:var(--radius);padding:24px;width:100%;max-width:380px;text-align:center">
 
     <!-- Nagłówek kontekstowy -->
@@ -1629,9 +1676,9 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
         <button class="prem-plan-btn" onclick="setPremPlan('yearly',this)">Rocznie <span class="prem-badge-save">−35%</span></button>
       </div>
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:rgba(0,0,0,0.5);margin-bottom:2px">PREMIUM</div>
-      <div style="font-size:36px;font-weight:900;color:#000;line-height:1" id="prem-price">19 zł</div>
+      <div style="font-size:36px;font-weight:900;color:var(--on-accent);line-height:1" id="prem-price">19 zł</div>
       <div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:14px" id="prem-period">miesięcznie · anuluj kiedy chcesz</div>
-      <div style="font-size:12px;color:#000;text-align:left">
+      <div style="font-size:12px;color:var(--on-accent);text-align:left">
         <div class="prem-feature">✓ Nieograniczone matche <span class="prem-tip"><button class="prem-tip-btn" onclick="showPremTip(this)">?</button><span class="prem-tip-box">Polub dowolną liczbę muzyków — bez dziennych limitów.</span></span></div>
         <div class="prem-feature">✓ Priorytet w wynikach <span class="prem-tip"><button class="prem-tip-btn" onclick="showPremTip(this)">?</button><span class="prem-tip-box">Twój profil pojawia się wyżej — więcej muzyków Cię zobaczy.</span></span></div>
         <div class="prem-feature">✓ Zaawansowane filtry <span class="prem-tip"><button class="prem-tip-btn" onclick="showPremTip(this)">?</button><span class="prem-tip-box">Filtruj po gatunku, mieście, roli i statusie dostępności.</span></span></div>
@@ -1652,7 +1699,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
     <!-- testimonial dodamy gdy będą prawdziwe opinie -->
 
     <!-- CTA -->
-    <button onclick="startCheckout()" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:50px;color:#000;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em">
+    <button onclick="startCheckout()" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em">
       Zacznij 7 dni za darmo →
     </button>
     <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Bez zobowiązań · anuluj przed końcem trialu</div>
@@ -1692,7 +1739,7 @@ body.premium-mode .topbar-icon-btn:hover { color: #f3b000; }
 <!-- USUWANIE KONTA -->
 <div id="delete-account-screen" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--dark);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
   <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:400px">
-    <div style="font-size:20px;font-weight:800;color:#ff6b7a;margin-bottom:6px">🗑️ Usuń konto</div>
+    <div style="font-size:20px;font-weight:800;color:var(--error);margin-bottom:6px">🗑️ Usuń konto</div>
     <div style="font-size:13px;color:var(--muted2);margin-bottom:20px;line-height:1.6">
       Usunięcie konta jest nieodwracalne — utracisz profil, matche, wiadomości i historię. Ta funkcja jest obecnie obsługiwana ręcznie: napisz do nas, a usuniemy Twoje konto i dane w ciągu 48h.
     </div>
@@ -2272,7 +2319,7 @@ function addLanguage() {
     <option>Koreański</option><option>Chiński (mandaryński)</option><option>Arabski</option><option>Hebrajski</option>
     <option>Inny</option>
   </select>
-  <button type="button" onclick="removeLanguage(this)" style="width:32px;height:32px;border-radius:50%;background:rgba(255,107,122,0.12);border:1px solid rgba(255,107,122,0.3);color:#ff6b7a;font-size:16px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center">×</button>`;
+  <button type="button" onclick="removeLanguage(this)" style="width:32px;height:32px;border-radius:50%;background:rgba(255,107,122,0.12);border:1px solid rgba(255,107,122,0.3);color:var(--error);font-size:16px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center">×</button>`;
   container.appendChild(row);
   if (container.querySelectorAll('.lang-row').length >= 5) {
     document.getElementById('add-lang-btn').style.opacity = '0.4';
@@ -2537,6 +2584,7 @@ function showApp() {
   buildFilters();
   buildExpFilters();
   handleStripeReturn();
+  applyTheme(currentProfile?.theme_preference || localStorage.getItem('spotigraj_theme') || 'dark');
   applyPremiumTheme();
   initNotifications();
   checkEmailVerification();
@@ -2571,12 +2619,12 @@ function checkEmailVerification() {
   if (existing) return;
   const banner = document.createElement('div');
   banner.id = 'email-verify-banner';
-  banner.style.cssText = 'position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:500;background:#f59e0b;color:#000;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600';
+  banner.style.cssText = 'position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:500;background:var(--warn);color:var(--on-accent);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600';
   banner.innerHTML = `
     <span>📧 Potwierdź email żeby odblokować wszystkie funkcje</span>
     <div style="display:flex;gap:8px;flex-shrink:0">
-      <button onclick="resendVerification()" style="padding:5px 12px;background:#000;color:#fff;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij ponownie</button>
-      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#000;line-height:1">×</button>
+      <button onclick="resendVerification()" style="padding:5px 12px;background:var(--on-accent);color:var(--on-dark);border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij ponownie</button>
+      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--on-accent);line-height:1">×</button>
     </div>
   `;
   document.body.prepend(banner);
@@ -2949,7 +2997,7 @@ function buildCard(p) {
   const avatarContent = p.avatar_url ? '' : initials;
 
   const badgeText = p.badge ? p.badge.replace(/^👑\s*/, '').trim() : '';
-  const badgeBadge = badgeText ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;flex-shrink:0">${badgeText}</span>` : (p.is_premium ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,#f3b000,#fff176);color:#000;flex-shrink:0">⭐ Premium</span>` : '');
+  const badgeBadge = badgeText ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,var(--gold),#fff176);color:var(--on-accent);flex-shrink:0">${badgeText}</span>` : (p.is_premium ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:linear-gradient(135deg,var(--gold),#fff176);color:var(--on-accent);flex-shrink:0">⭐ Premium</span>` : '');
   const expLabel = getExperienceLabel(p.experience_level);
   const expBadge = expLabel ? `<span class="tag tag-gray">${expLabel}</span>` : '';
 
@@ -2969,7 +3017,7 @@ function buildCard(p) {
     ${lookingSection}
     <div class="card-actions">
       <button class="btn-skip" onclick="buttonSwipe('${p.id}','skip')">Pomiń</button>
-      <button class="btn-like" ${isUnavailable ? 'style="background:#555;cursor:default"' : ''} onclick="${isUnavailable ? '' : `buttonSwipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
+      <button class="btn-like" ${isUnavailable ? 'style="background:var(--muted);cursor:default"' : ''} onclick="${isUnavailable ? '' : `buttonSwipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
     </div>`;
   return card;
 }
@@ -3066,7 +3114,7 @@ async function loadAppgrajd() {
   if (isTester && !document.getElementById('appgrajd-premium-feedback')) {
     list.insertAdjacentHTML('beforebegin', `
       <div id="appgrajd-premium-feedback" style="background:var(--navy3);border:1px solid rgba(243,176,0,0.35);border-radius:var(--radius-sm);padding:16px;margin-bottom:18px">
-        <div style="font-size:12px;font-weight:800;color:#f3b000;margin-bottom:12px;letter-spacing:0.5px">🎁 Feedback testera Premium</div>
+        <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:12px;letter-spacing:0.5px">🎁 Feedback testera Premium</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
           <button onclick="selectPremiumFeedbackCat(this,'blad')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🐛 Błąd</button>
           <button onclick="selectPremiumFeedbackCat(this,'pomysl')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💡 Pomysł / czego brakuje</button>
@@ -3074,7 +3122,7 @@ async function loadAppgrajd() {
           <button onclick="selectPremiumFeedbackCat(this,'inna_uwaga')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💬 Inna uwaga</button>
         </div>
         <textarea id="pf-desc" placeholder="Napisz co chcesz nam przekazać..." style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:72px;font-family:inherit;box-sizing:border-box"></textarea>
-        <button onclick="submitPremiumFeedback()" style="width:100%;margin-top:10px;padding:11px;background:#f3b000;border:none;border-radius:30px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij feedback</button>
+        <button onclick="submitPremiumFeedback()" style="width:100%;margin-top:10px;padding:11px;background:var(--gold);border:none;border-radius:30px;color:var(--on-accent);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij feedback</button>
         <div id="pf-msg" style="margin-top:8px;font-size:13px;text-align:center;min-height:18px"></div>
       </div>`);
   }
@@ -3113,9 +3161,9 @@ async function loadAppgrajd() {
           </div>
           <div style="display:flex;gap:8px">
             <button onclick="closeAppgrajdEdit()" style="flex:1;padding:10px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-            <button onclick="saveAppgrajdEdit('${entry.id}')" style="flex:2;padding:10px;background:var(--green);border:none;border-radius:50px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Zapisz</button>
+            <button onclick="saveAppgrajdEdit('${entry.id}')" style="flex:2;padding:10px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Zapisz</button>
           </div>
-          <div id="appgrajd-edit-err-${entry.id}" style="margin-top:8px;font-size:12px;color:#ff3b30;min-height:16px"></div>
+          <div id="appgrajd-edit-err-${entry.id}" style="margin-top:8px;font-size:12px;color:var(--error-badge);min-height:16px"></div>
         </div>` : '';
       return `
         <div data-changelog-id="${entry.id}" style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
@@ -3149,15 +3197,15 @@ function selectPremiumFeedbackCat(btn, cat) {
     b.style.color = 'var(--muted2)';
     b.style.borderColor = 'rgba(243,176,0,0.3)';
   });
-  btn.style.background = '#f3b000';
-  btn.style.color = '#000';
-  btn.style.borderColor = '#f3b000';
+  btn.style.background = 'var(--gold)';
+  btn.style.color = 'var(--on-accent)';
+  btn.style.borderColor = 'var(--gold)';
 }
 
 async function submitPremiumFeedback() {
   const desc = document.getElementById('pf-desc').value.trim();
   const msg = document.getElementById('pf-msg');
-  msg.style.color = '#ff3b30';
+  msg.style.color = 'var(--error-badge)';
   msg.textContent = '';
   if (!_pfSelectedCat) { msg.textContent = 'Wybierz kategorię.'; return; }
   if (!desc) { msg.textContent = 'Wpisz opis.'; return; }
@@ -3185,10 +3233,10 @@ async function submitPremiumFeedback() {
       b.style.color = 'var(--muted2)';
       b.style.borderColor = 'rgba(243,176,0,0.3)';
     });
-    msg.style.color = '#f3b000';
+    msg.style.color = 'var(--gold)';
     msg.textContent = 'Dzięki za feedback! 🙌';
   } catch(e) {
-    msg.style.color = '#ff3b30';
+    msg.style.color = 'var(--error-badge)';
     msg.textContent = 'Błąd połączenia. Sprawdź internet.';
   }
 }
@@ -3327,7 +3375,7 @@ let _toastTimeout = null;
 function showToast(message, isError = false) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
-  toast.style.color = isError ? '#ff3b30' : 'var(--text)';
+  toast.style.color = isError ? 'var(--error-badge)' : 'var(--text)';
   toast.style.borderColor = isError ? 'rgba(255,59,48,0.3)' : 'var(--border)';
   toast.classList.remove('hidden');
   if (_toastTimeout) clearTimeout(_toastTimeout);
@@ -3441,7 +3489,7 @@ async function loadConversations() {
       : `background:${p.avatar_color||'#534AB7'}20;color:${p.avatar_color||'#534AB7'}`;
     const avatarContent2 = p.avatar_url ? '' : (p.full_name||'M').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const unread = _unreadCounts[p.id] || 0;
-    const unreadDotHtml = `<span class="conv-unread-dot" style="position:absolute;bottom:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#ff3b30;border:2px solid var(--navy2);z-index:2;pointer-events:none;color:#fff;font-size:10px;font-weight:700;line-height:1;display:${unread > 0 ? 'flex' : 'none'};align-items:center;justify-content:center;padding:0 3px">${unread > 0 ? (unread > 99 ? '99+' : unread) : ''}</span>`;
+    const unreadDotHtml = `<span class="conv-unread-dot" style="position:absolute;bottom:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:var(--error-badge);border:2px solid var(--navy2);z-index:2;pointer-events:none;color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;display:${unread > 0 ? 'flex' : 'none'};align-items:center;justify-content:center;padding:0 3px">${unread > 0 ? (unread > 99 ? '99+' : unread) : ''}</span>`;
     const premBadge2 = p.is_premium ? '<span class="prem-av-badge">★</span>' : '';
     const nameStyle = unread > 0 ? ' style="font-weight:800"' : '';
     row.innerHTML = `<div class="avatar" style="${avatarStyle2};width:44px;height:44px;font-size:15px">${avatarContent2}${premBadge2}${unreadDotHtml}</div><div class="conv-info"><div class="conv-name"${nameStyle}>${p.full_name}</div><div class="conv-preview">${getGenderedRole(p.role, p.gender)} · ${p.city}</div></div>`;
@@ -3700,7 +3748,7 @@ function showEdit() {
         const row = document.createElement('div');
         row.className = 'lang-row';
         row.style.cssText = 'display:flex;gap:8px;align-items:center';
-        const removeBtn = i === 0 ? '' : `<button type="button" onclick="removeLanguage(this)" style="width:32px;height:32px;border-radius:50%;background:rgba(255,107,122,0.12);border:1px solid rgba(255,107,122,0.3);color:#ff6b7a;font-size:16px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center">×</button>`;
+        const removeBtn = i === 0 ? '' : `<button type="button" onclick="removeLanguage(this)" style="width:32px;height:32px;border-radius:50%;background:rgba(255,107,122,0.12);border:1px solid rgba(255,107,122,0.3);color:var(--error);font-size:16px;cursor:pointer;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center">×</button>`;
         row.innerHTML = `<select class="lang-select" style="flex:1;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit">
           <option value="">Wybierz język...</option>
           <option>Polski</option><option>Angielski</option><option>Niemiecki</option><option>Francuski</option>
@@ -3786,13 +3834,18 @@ function loadSettings() {
   const badgeEl = document.getElementById('settings-prem-badge');
   if (currentProfile.is_premium) {
     statusEl.textContent = 'Premium aktywny';
-    statusEl.style.color = '#f3b000';
+    statusEl.style.color = 'var(--gold)';
     badgeEl.textContent = '⭐';
   } else {
     statusEl.textContent = 'Premium nieaktywny';
     statusEl.style.color = 'var(--text)';
     badgeEl.textContent = '☆';
   }
+
+  const activeTheme = currentProfile.theme_preference || localStorage.getItem('spotigraj_theme') || 'dark';
+  document.querySelectorAll('.theme-pick-btn').forEach(b => b.classList.remove('selected'));
+  const activeThemeBtn = document.getElementById('theme-btn-' + activeTheme);
+  if (activeThemeBtn) activeThemeBtn.classList.add('selected');
 }
 
 function setToggleState(id, on) {
@@ -3907,6 +3960,27 @@ function getStatusClass(status) {
   return classes[status] || 'status-active';
 }
 const isPremium = () => currentProfile?.is_premium || false;
+
+function applyTheme(theme) {
+  const t = theme === 'light' ? 'light' : 'dark';
+  if (t === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  localStorage.setItem('spotigraj_theme', t);
+}
+
+async function setTheme(theme) {
+  applyTheme(theme);
+  document.querySelectorAll('.theme-pick-btn').forEach(b => b.classList.remove('selected'));
+  const activeBtn = document.getElementById('theme-btn-' + theme);
+  if (activeBtn) activeBtn.classList.add('selected');
+  if (currentProfile?.id) {
+    await sb.from('profiles').update({ theme_preference: theme }).eq('id', currentProfile.id);
+    currentProfile.theme_preference = theme;
+  }
+}
 
 function applyPremiumTheme() {
   if (isPremium()) {
@@ -4033,9 +4107,9 @@ async function handleStripeReturn() {
       popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;text-align:center;padding:24px';
       popup.innerHTML = `
         <div style="font-size:56px">🎉</div>
-        <div style="font-size:24px;font-weight:800;color:#fff">Witaj w Premium!</div>
-        <div style="font-size:15px;color:#aaa">Masz teraz nieograniczony dostęp<br>do wszystkich funkcji Spotigraj.</div>
-        <button onclick="this.parentElement.remove()" style="padding:14px 36px;background:var(--green);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:700;cursor:pointer">Zacznij korzystać →</button>`;
+        <div style="font-size:24px;font-weight:800;color:var(--on-dark)">Witaj w Premium!</div>
+        <div style="font-size:15px;color:var(--muted2)">Masz teraz nieograniczony dostęp<br>do wszystkich funkcji Spotigraj.</div>
+        <button onclick="this.parentElement.remove()" style="padding:14px 36px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-size:15px;font-weight:700;cursor:pointer">Zacznij korzystać →</button>`;
       document.body.appendChild(popup);
     }, 500);
   } else if (params.get('premium') === 'cancel') {
@@ -4147,7 +4221,7 @@ async function loadZastepstwa() {
   // ── SEKCJA STAND BY ─────────────────────────────────────────────
   const standBySection = document.createElement('div');
   standBySection.style.cssText = 'margin-bottom:20px';
-  standBySection.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#f59e0b;margin-bottom:12px">🎯 Gotowi na zastępstwo (Stand By)</div>`;
+  standBySection.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--warn);margin-bottom:12px">🎯 Gotowi na zastępstwo (Stand By)</div>`;
 
   if (standByMusicians.length === 0) {
     standBySection.innerHTML += `<div style="font-size:13px;color:var(--muted);padding:12px 0">Brak muzyków Stand By w bazie. Edytuj profil żeby się tu pojawić.</div>`;
@@ -4168,8 +4242,8 @@ async function loadZastepstwa() {
           <span class="status-badge ${statusClass}" style="margin-top:4px;display:inline-flex">${statusLabel}</span>
         </div>
         ${currentProfile?.is_premium
-          ? `<button onclick="contactStandBy('${m.id}')" style="padding:8px 14px;background:#f59e0b;border:none;border-radius:20px;color:#000;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Kontakt</button>`
-          : `<button onclick="showPremiumModal()" style="padding:8px 14px;background:rgba(243,176,0,0.15);border:1px solid rgba(243,176,0,0.4);border-radius:20px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Premium</button>`
+          ? `<button onclick="contactStandBy('${m.id}')" style="padding:8px 14px;background:var(--warn);border:none;border-radius:20px;color:var(--on-accent);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Kontakt</button>`
+          : `<button onclick="showPremiumModal()" style="padding:8px 14px;background:rgba(243,176,0,0.15);border:1px solid rgba(243,176,0,0.4);border-radius:20px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Premium</button>`
         }`;
       grid.appendChild(card);
     });
@@ -4184,7 +4258,7 @@ async function loadZastepstwa() {
 
   // ── SEKCJA OGŁOSZEŃ ─────────────────────────────────────────────
   const oglLabel = document.createElement('div');
-  oglLabel.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ff6b6b;margin-bottom:12px';
+  oglLabel.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--error);margin-bottom:12px';
   oglLabel.textContent = '🚨 Pilne ogłoszenia zastępstw';
   list.appendChild(oglLabel);
 
@@ -4225,18 +4299,18 @@ async function contactStandBy(userId) {
   if (p?.phone) {
     const popup = document.createElement('div');
     popup.id = 'standby-contact-popup';
-    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px';
+    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px';
     popup.innerHTML = `
       <div style="background:var(--dark2);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:28px;width:100%;max-width:360px;text-align:center">
         <div style="font-size:40px;margin-bottom:12px">🎯</div>
         <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">${p.full_name}</div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${getGenderedRole(p.role, p.gender)} · Stand By</div>
         <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:16px;margin-bottom:20px">
-          <div style="font-size:12px;color:#aaa;margin-bottom:4px">📞 Numer telefonu</div>
-          <div style="font-size:22px;font-weight:700;color:#f59e0b">${p.phone}</div>
-          <a href="tel:${p.phone}" style="display:inline-block;margin-top:10px;padding:8px 20px;background:#f59e0b;color:#000;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
+          <div style="font-size:12px;color:var(--muted2);margin-bottom:4px">📞 Numer telefonu</div>
+          <div style="font-size:22px;font-weight:700;color:var(--warn)">${p.phone}</div>
+          <a href="tel:${p.phone}" style="display:inline-block;margin-top:10px;padding:8px 20px;background:var(--warn);color:var(--on-accent);border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
         </div>
-        <button onclick="document.getElementById('standby-contact-popup').remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:#000;font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
+        <button onclick="document.getElementById('standby-contact-popup').remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
         <button onclick="document.getElementById('standby-contact-popup').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer">Zamknij</button>
       </div>`;
     document.body.appendChild(popup);
