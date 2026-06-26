@@ -455,6 +455,12 @@ html, body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.25);
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes sectionHighlight {
+  0%   { background: rgba(29,185,84,0.15); border-radius: var(--radius-sm); }
+  70%  { background: rgba(29,185,84,0.08); border-radius: var(--radius-sm); }
+  100% { background: transparent; }
+}
+.section-flash { animation: sectionHighlight 1.8s ease forwards; }
 .card-head { display: flex; align-items: flex-start; gap: 13px; margin-bottom: 14px; }
 .card-head > div:not(.avatar):not(.match-pct) { flex: 1; min-width: 0; overflow: hidden; }
 .avatar {
@@ -1371,8 +1377,8 @@ html, body {
     </div>
     <div class="main-content">
 
-      <div class="section-label">Wygląd</div>
-      <div class="settings-group">
+      <div class="section-label" id="settings-appearance-label">Wygląd</div>
+      <div class="settings-group" id="settings-appearance">
         <div class="theme-pick">
           <button class="theme-pick-btn" id="theme-btn-light" onclick="setTheme('light')">
             <span class="ico">☀️</span>Jasny
@@ -2756,11 +2762,22 @@ function checkForMatches() {
 setInterval(checkForMatches, 60000);
 
 // Aktualizuje UI bez dotykania historii — wywoływana przez goTo() i popstate
-function _applyScreen(screen) {
+function _applyScreen(screen, anchor) {
   setTimeout(() => {
     const mc = document.querySelector('#s-' + screen + ' .main-content');
-    if (mc) mc.scrollTop = 0;
-  }, 0);
+    if (mc) {
+      if (anchor) {
+        const el = document.getElementById(anchor);
+        if (el) {
+          el.scrollIntoView({ block: 'start' });
+          el.classList.add('section-flash');
+          el.addEventListener('animationend', () => el.classList.remove('section-flash'), { once: true });
+        }
+      } else {
+        mc.scrollTop = 0;
+      }
+    }
+  }, 50);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('s-' + screen).classList.add('active');
@@ -2774,7 +2791,7 @@ function _applyScreen(screen) {
   if (screen === 'settings') loadSettings();
 }
 
-function goTo(screen) {
+function goTo(screen, anchor) {
   // Zabezpieczenie — jeśli sesja wygasła/zniknęła w tle, nie pozwól ekranowi się zamrozić.
   if (!currentUser) {
     currentProfile = null;
@@ -2790,7 +2807,7 @@ function goTo(screen) {
   if (window.location.hash !== '#' + screen) {
     window.history.replaceState({ screen }, '', '/#' + screen);
   }
-  _applyScreen(screen);
+  _applyScreen(screen, anchor);
 }
 
 // ── DISCOVER ──────────────────────────────────────────────────────
