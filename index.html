@@ -3407,25 +3407,40 @@ function escapeHtml(str) {
 
 // Parsuje format [tekst](ekran) na bezpieczny link przenoszący w appce.
 // Reszta tekstu jest escapowana — bezpiecznie, mimo że tylko founder wpisuje treść.
-const APPGRAJD_VALID_SCREENS = ['discover', 'zastepstwa', 'messages', 'profile', 'appgrajd'];
+const APPGRAJD_VALID_SCREENS = ['discover', 'zastepstwa', 'messages', 'profile', 'appgrajd', 'settings'];
 function renderAppgrajdText(str) {
-  const linkPattern = /\[([^\]]+)\]\(([a-z]+|external:[a-zA-Z0-9._-]+)\)/g;
+  // Grupa 2: prosta nazwa ekranu lub external:plik.html
+  // Grupa 3+4: goTo('ekran') lub goTo('ekran', 'anchor')
+  const linkPattern = /\[([^\]]+)\]\((?:([a-z]+|external:[a-zA-Z0-9._-]+)|goTo\('([a-z-]+)'(?:,\s*'([a-zA-Z0-9_-]+)')?\))\)/g;
   let result = '';
   let lastIndex = 0;
   let match;
   while ((match = linkPattern.exec(str)) !== null) {
     result += renderAppgrajdChunk(str.slice(lastIndex, match.index));
     const linkText = match[1];
-    const screen = match[2];
-    if (screen.startsWith('external:')) {
-      const filename = screen.slice('external:'.length);
-      if (EXTERNAL_PAGE_WHITELIST.includes(filename)) {
-        result += `<a href="javascript:void(0)" onclick="openExternalPage('${filename}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
+    if (match[2] !== undefined) {
+      const target = match[2];
+      if (target.startsWith('external:')) {
+        const filename = target.slice('external:'.length);
+        if (EXTERNAL_PAGE_WHITELIST.includes(filename)) {
+          result += `<a href="javascript:void(0)" onclick="openExternalPage('${filename}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
+        } else {
+          result += escapeHtml(match[0]);
+        }
+      } else if (APPGRAJD_VALID_SCREENS.includes(target)) {
+        result += `<a href="javascript:void(0)" onclick="goTo('${target}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
       } else {
         result += escapeHtml(match[0]);
       }
-    } else if (APPGRAJD_VALID_SCREENS.includes(screen)) {
-      result += `<a href="javascript:void(0)" onclick="goTo('${screen}')" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
+    } else if (match[3] !== undefined) {
+      const screen = match[3];
+      const anchor = match[4];
+      if (APPGRAJD_VALID_SCREENS.includes(screen)) {
+        const call = anchor ? `goTo('${screen}', '${anchor}')` : `goTo('${screen}')`;
+        result += `<a href="javascript:void(0)" onclick="${call}" style="color:var(--green);font-weight:700;text-decoration:underline">${escapeHtml(linkText)}</a>`;
+      } else {
+        result += escapeHtml(match[0]);
+      }
     } else {
       result += escapeHtml(match[0]);
     }
