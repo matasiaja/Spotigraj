@@ -1901,9 +1901,19 @@ function urlBase64ToUint8Array(base64String) {
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
+function isPushServiceUnavailable(e) {
+  const msg = (e?.message || '').toLowerCase();
+  const name = e?.name || '';
+  return name === 'AbortError'
+    || name === 'NotSupportedError'
+    || msg.includes('registration failed')
+    || msg.includes('push service')
+    || msg.includes('no push service');
+}
+
 async function registerPushSubscription(silent = false) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    if (!silent) showToast('Twoja przeglądarka nie obsługuje powiadomień push', true);
+    if (!silent) showToast('Push niedostępny w tej przeglądarce — wiadomości zobaczysz po wejściu w apkę', 'warn', 5000);
     return;
   }
   if (Notification.permission !== 'granted') return;
@@ -1930,7 +1940,13 @@ async function registerPushSubscription(silent = false) {
       });
     }
   } catch (e) {
-    if (!silent) showToast('Nie udało się zarejestrować powiadomień push: ' + e.message, true);
+    if (!silent) {
+      if (isPushServiceUnavailable(e)) {
+        showToast('Push niedostępny na tym urządzeniu — wiadomości zobaczysz po wejściu w apkę', 'warn', 5000);
+      } else {
+        showToast('Nie udało się włączyć powiadomień push: ' + e.message, true);
+      }
+    }
     return;
   }
 
@@ -3518,14 +3534,22 @@ async function confirmAppgrajdDelete() {
 }
 
 let _toastTimeout = null;
-function showToast(message, isError = false) {
+function showToast(message, type = false, duration = 3000) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
-  toast.style.color = isError ? 'var(--error-badge)' : 'var(--text)';
-  toast.style.borderColor = isError ? 'rgba(255,59,48,0.3)' : 'var(--border)';
+  if (type === 'warn') {
+    toast.style.color = 'var(--warn)';
+    toast.style.borderColor = 'rgba(245,158,11,0.3)';
+  } else if (type === true) {
+    toast.style.color = 'var(--error-badge)';
+    toast.style.borderColor = 'rgba(255,59,48,0.3)';
+  } else {
+    toast.style.color = 'var(--text)';
+    toast.style.borderColor = 'var(--border)';
+  }
   toast.classList.remove('hidden');
   if (_toastTimeout) clearTimeout(_toastTimeout);
-  _toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
+  _toastTimeout = setTimeout(() => toast.classList.add('hidden'), duration);
 }
 
 function escapeHtml(str) {
