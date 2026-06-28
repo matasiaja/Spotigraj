@@ -1559,10 +1559,10 @@ html, body {
       <span class="nav-icon">🚨</span>Zastępstwa
     </button>
     <button class="nav-btn" id="nb-messages" onclick="goTo('messages')">
-      <span class="nav-icon" style="position:relative;display:inline-block">💬<span id="unread-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Wiadomości
+      <span class="nav-icon" style="position:relative;display:inline-block">💬<span id="unread-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span><span id="match-dot" class="hidden" style="position:absolute;top:-6px;left:-8px;width:8px;height:8px;border-radius:50%;background:var(--error-badge);border:2px solid var(--navy)"></span></span>Wiadomości
     </button>
     <button class="nav-btn active" id="nb-profile" onclick="goTo('profile')">
-      <span class="nav-icon" style="position:relative;display:inline-block">👤<span id="notif-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Profil
+      <span class="nav-icon">👤</span>Profil
     </button>
     <button class="nav-btn" id="nb-appgrajd" onclick="goTo('appgrajd')">
       <span class="nav-icon" style="position:relative;display:inline-block">🔔<span id="appgrajd-badge" class="hidden" style="position:absolute;top:-6px;right:-10px;background:var(--error-badge);color:var(--on-dark);font-size:10px;font-weight:700;line-height:1;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span></span>Appgrajd
@@ -2719,11 +2719,13 @@ function showApp() {
   refreshUnreadCounts();
   subscribeUnreadBadge();
   updateAppgrajdBadge();
-  updateNotifBadge();
+  updateMatchDot();
+  subscribeMatchDot();
 }
 
 // Globalna subskrypcja — aktualizuje badge na żywo niezależnie od aktywnego ekranu
 let unreadSub = null;
+let matchDotSub = null;
 let _unreadCounts = {}; // cache: sender_id → liczba nieprzeczytanych
 function subscribeUnreadBadge() {
   if (unreadSub) unreadSub.unsubscribe();
@@ -2737,6 +2739,45 @@ function subscribeUnreadBadge() {
       }
     })
     .subscribe();
+}
+
+function subscribeMatchDot() {
+  if (matchDotSub) matchDotSub.unsubscribe();
+  matchDotSub = sb.channel('match-dot-' + currentUser.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'matches',
+        filter: 'target_id=eq.' + currentUser.id }, payload => {
+      if (payload.new.action === 'like') updateMatchDot();
+    })
+    .subscribe();
+}
+
+async function updateMatchDot() {
+  const dot = document.getElementById('match-dot');
+  if (!dot || !currentUser) return;
+
+  const stored = localStorage.getItem('lastMsgVisit_' + currentUser.id);
+  const since = stored ? new Date(parseInt(stored)).toISOString() : new Date(0).toISOString();
+
+  // Lajki skierowane DO mnie, nowsze niż ostatnia wizyta na Wiadomościach
+  const { data: inbound } = await sb.from('matches')
+    .select('user_id')
+    .eq('target_id', currentUser.id)
+    .eq('action', 'like')
+    .gte('created_at', since);
+
+  if (!inbound?.length) { dot.classList.add('hidden'); return; }
+
+  // Sprawdź czy którykolwiek jest wzajemny (ja też ich polubiam)
+  const theirIds = inbound.map(m => m.user_id);
+  const { data: mutual } = await sb.from('matches')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('action', 'like')
+    .in('target_id', theirIds)
+    .limit(1);
+
+  if (mutual?.length) dot.classList.remove('hidden');
+  else dot.classList.add('hidden');
 }
 
 function checkEmailVerification() {
@@ -2914,7 +2955,11 @@ function _applyScreen(screen, anchor) {
   const navBtn = document.getElementById('nb-' + screen);
   if (navBtn) navBtn.classList.add('active');
   try { localStorage.setItem('lastScreen', screen); } catch(e) {}
-  if (screen === 'messages') loadConversations();
+  if (screen === 'messages') {
+    try { localStorage.setItem('lastMsgVisit_' + (currentUser?.id || ''), String(Date.now())); } catch(e) {}
+    updateMatchDot();
+    loadConversations();
+  }
   if (screen === 'profile') loadMyProfile();
   if (screen === 'zastepstwa') loadZastepstwa();
   if (screen === 'appgrajd') loadAppgrajd();
