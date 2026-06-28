@@ -54,14 +54,27 @@ self.addEventListener('push', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const senderId = e.notification.data?.sender_id;
-  const url = senderId ? '/#messages/chat/' + senderId : '/#messages';
+  const data = e.notification.data || {};
+
+  // Ustal cel nawigacji na podstawie typu powiadomienia
+  let url, message;
+  if (data.type === 'match' && data.otherUserId) {
+    url = '/#messages/chat/' + data.otherUserId;
+    message = { type: 'OPEN_CHAT', senderId: data.otherUserId };
+  } else if (data.sender_id) {
+    url = '/#messages/chat/' + data.sender_id;
+    message = { type: 'OPEN_CHAT', senderId: data.sender_id };
+  } else {
+    url = '/#messages';
+    message = null;
+  }
+
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
       for (const client of windowClients) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.focus();
-          client.postMessage({ type: 'OPEN_CHAT', senderId });
+          if (message) client.postMessage(message);
           return;
         }
       }
