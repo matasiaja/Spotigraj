@@ -47,6 +47,25 @@ self.addEventListener('push', e => {
       body: data.body || 'Masz nową aktywność!',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
+      data: data.data || {},
+    })
+  );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const senderId = e.notification.data?.sender_id;
+  const url = senderId ? '/#messages/chat/' + senderId : '/#messages';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.focus();
+          client.postMessage({ type: 'OPEN_CHAT', senderId });
+          return;
+        }
+      }
+      return clients.openWindow(url);
     })
   );
 });

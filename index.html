@@ -1892,6 +1892,56 @@ let activeFilter = 'Wszyscy';
 let discoverQueue = [];
 let activeExpFilter = 'Wszyscy';
 
+const VAPID_PUBLIC_KEY = 'BInweu7qHaVPHr1cn-rQSMAwys0N3aRAyWDjGCNWNLtXLnN4mt_MeBdUQWhO5JzhRDW812yODcUT1Yiurl9_IxA';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function registerPushSubscription() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
+    const key = sub.getKey('p256dh');
+    const auth = sub.getKey('auth');
+    const endpoint = sub.endpoint;
+    const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
+    const authStr = btoa(String.fromCharCode(...new Uint8Array(auth)));
+    // upsert — nie duplikuje jeśli endpoint już istnieje
+    await sb.from('push_subscriptions').upsert(
+      { user_id: currentUser.id, endpoint, p256dh, auth: authStr },
+      { onConflict: 'endpoint' }
+    );
+  } catch (e) {
+    console.warn('Push subscribe error:', e);
+  }
+}
+
+async function unregisterPushSubscription() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      await sb.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      await sub.unsubscribe();
+    }
+  } catch (e) {
+    console.warn('Push unsubscribe error:', e);
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────
 async function initApp() {
   buildGenresGrid();
@@ -2679,8 +2729,11 @@ async function resendVerification() {
 async function initNotifications() {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'default') {
-    // Poproś o zgodę po 3 sekundach
-    setTimeout(() => Notification.requestPermission(), 3000);
+    setTimeout(() => Notification.requestPermission().then(p => {
+      if (p === 'granted' && currentProfile?.notif_push !== false) registerPushSubscription();
+    }), 3000);
+  } else if (Notification.permission === 'granted' && currentProfile?.notif_push !== false) {
+    await registerPushSubscription();
   }
 }
 
@@ -3940,6 +3993,14 @@ async function toggleNotifSetting(column, btn) {
   if (error) { console.error(error); return; }
   currentProfile[column] = newValue;
   setToggleState(btn.id, newValue);
+  if (column === 'notif_push') {
+    if (newValue) {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') await registerPushSubscription();
+    } else {
+      await unregisterPushSubscription();
+    }
+  }
 }
 
 function showChangeEmail() {
@@ -4419,6 +4480,13 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => console.log('SW registered:', reg.scope))
       .catch(err => console.warn('SW error:', err));
+  });
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data?.type === 'OPEN_CHAT' && e.data.senderId) {
+      // Przejdź do wiadomości i otwórz czat z nadawcą
+      goTo('messages');
+      openChat(e.data.senderId);
+    }
   });
 }
 </script>

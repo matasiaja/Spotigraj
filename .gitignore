@@ -1,0 +1,7 @@
+.DS_Store
+.env
+.env.*
+*.env
+vapid_keys.txt
+*_keys.txt
+*secret*.txt
