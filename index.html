@@ -1901,40 +1901,66 @@ function urlBase64ToUint8Array(base64String) {
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
-async function registerPushSubscription() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+async function registerPushSubscription(silent = false) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (!silent) showToast('Twoja przeglądarka nie obsługuje powiadomień push', true);
+    return;
+  }
   if (Notification.permission !== 'granted') return;
+
+  let reg;
   try {
-    const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
+    // Timeout 5 s na gotowość Service Workera
+    reg = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 5000)),
+    ]);
+  } catch (e) {
+    if (!silent) showToast('Błąd: Service Worker nie jest gotowy (' + e.message + ')', true);
+    return;
+  }
+
+  let sub;
+  try {
+    sub = await reg.pushManager.getSubscription();
     if (!sub) {
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
     }
-    const key = sub.getKey('p256dh');
-    const auth = sub.getKey('auth');
-    const endpoint = sub.endpoint;
-    const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
-    const authStr = btoa(String.fromCharCode(...new Uint8Array(auth)));
-    // upsert — nie duplikuje jeśli endpoint już istnieje
-    await sb.from('push_subscriptions').upsert(
-      { user_id: currentUser.id, endpoint, p256dh, auth: authStr },
-      { onConflict: 'endpoint' }
-    );
   } catch (e) {
-    console.warn('Push subscribe error:', e);
+    if (!silent) showToast('Nie udało się zarejestrować powiadomień push: ' + e.message, true);
+    return;
   }
+
+  const key    = sub.getKey('p256dh');
+  const auth   = sub.getKey('auth');
+  const p256dh = btoa(Array.from(new Uint8Array(key),  c => String.fromCharCode(c)).join(''));
+  const authB64= btoa(Array.from(new Uint8Array(auth), c => String.fromCharCode(c)).join(''));
+
+  const { error } = await sb.from('push_subscriptions').upsert(
+    { user_id: currentUser.id, endpoint: sub.endpoint, p256dh, auth: authB64 },
+    { onConflict: 'endpoint' }
+  );
+  if (error) {
+    if (!silent) showToast('Błąd zapisu subskrypcji push: ' + error.message, true);
+    return;
+  }
+  if (!silent) showToast('Powiadomienia push włączone ✓');
 }
 
 async function unregisterPushSubscription() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
   try {
-    const reg = await navigator.serviceWorker.ready;
+    const reg = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 5000)),
+    ]);
     const sub = await reg.pushManager.getSubscription();
     if (sub) {
-      await sb.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      const { error } = await sb.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      if (error) console.warn('Push sub delete error:', error);
       await sub.unsubscribe();
     }
   } catch (e) {
@@ -2729,11 +2755,16 @@ async function resendVerification() {
 async function initNotifications() {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'default') {
-    setTimeout(() => Notification.requestPermission().then(p => {
-      if (p === 'granted' && currentProfile?.notif_push !== false) registerPushSubscription();
-    }), 3000);
+    // Poproś o zgodę po 3 s — tylko jeśli notif_push włączone
+    if (currentProfile?.notif_push !== false) {
+      setTimeout(async () => {
+        const p = await Notification.requestPermission();
+        if (p === 'granted') registerPushSubscription();
+      }, 3000);
+    }
   } else if (Notification.permission === 'granted' && currentProfile?.notif_push !== false) {
-    await registerPushSubscription();
+    // Przy starcie apki: cicho — nie pokazuj toast sukcesu
+    await registerPushSubscription(true).catch(() => {});
   }
 }
 
