@@ -2386,8 +2386,8 @@ function selectGender(gender) {
   document.getElementById('gender-f').classList.toggle('selected', gender === 'female');
   const btn = document.getElementById('save-profile-btn');
   if (btn) {
-    if (gender === 'male') btn.textContent = 'Potwierdź zmiany i bądź zmachowany!';
-    else if (gender === 'female') btn.textContent = 'Naciśnij zmiana i bądź zmachowana!';
+    if (gender === 'male') btn.textContent = 'Potwierdź zmiany i bądź zmatchowany!';
+    else if (gender === 'female') btn.textContent = 'Naciśnij zmiana i bądź zmatchowana!';
     else btn.textContent = 'Gotowe — szukaj muzyków!';
   }
   applyGenderToRoleOptions(gender);
