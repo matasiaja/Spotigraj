@@ -978,6 +978,15 @@ html, body {
   line-height: 1.6;
 }
 .setup-sql code { color: var(--accent); font-family: monospace; }
+.ms-info-btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: none; border: 1.5px solid var(--border);
+  color: var(--muted2); font-size: 11px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: inherit; transition: border-color .15s, color .15s;
+  line-height: 1; padding: 0;
+}
+.ms-info-btn:hover { border-color: var(--border-accent); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -1651,6 +1660,16 @@ html, body {
   </div>
 </div>
 
+<div id="modal-muzyczna-sroda" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:400;display:flex;flex-direction:column;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%)">
+  <div style="display:flex;align-items:center;gap:12px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px 12px;flex-shrink:0;background:#000">
+    <button onclick="closeMuzycznaSroda()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0;line-height:1;font-family:inherit">←</button>
+    <div style="font-size:15px;font-weight:700;color:#fff;flex:1">Muzyczna Środa</div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:0 0 calc(16px + env(safe-area-inset-bottom,0px))">
+    <img id="muzyczna-sroda-img" src="" alt="Muzyczna Środa" style="max-width:100%;max-height:100%;object-fit:contain;display:block">
+  </div>
+</div>
+
 <div id="modal-extpage" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.97);z-index:450;display:flex;flex-direction:column">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--dark2)">
     <span style="font-size:13px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Spotigraj</span>
@@ -2136,7 +2155,23 @@ function buildSectionGrid(containerId, sections, selectedValues) {
       chips.appendChild(chip);
     });
 
-    group.appendChild(btn);
+    if (section.label === 'Media i Promocja' && containerId === 'looking-for-grid') {
+      const headerRow = document.createElement('div');
+      headerRow.style.cssText = 'display:flex;align-items:center;gap:6px';
+      btn.style.flex = '1';
+      btn.style.width = 'auto';
+      const infoBtn = document.createElement('button');
+      infoBtn.type = 'button';
+      infoBtn.className = 'ms-info-btn';
+      infoBtn.title = 'Dowiedz się o Muzycznej Środzie';
+      infoBtn.textContent = '?';
+      infoBtn.onclick = e => { e.stopPropagation(); openMuzycznaSroda(); };
+      headerRow.appendChild(btn);
+      headerRow.appendChild(infoBtn);
+      group.appendChild(headerRow);
+    } else {
+      group.appendChild(btn);
+    }
     group.appendChild(chips);
     container.appendChild(group);
   });
@@ -2345,6 +2380,16 @@ function showAbout() {
 function closeAbout() {
   document.getElementById('modal-about').classList.add('hidden');
   document.getElementById('modal-about').style.display = 'none';
+}
+function openMuzycznaSroda() {
+  document.getElementById('muzyczna-sroda-img').src = '/muzyczna-sroda-promo.png';
+  document.getElementById('modal-muzyczna-sroda').classList.remove('hidden');
+  document.getElementById('modal-muzyczna-sroda').style.display = 'flex';
+  window.history.pushState({ overlay: 'muzyczna-sroda' }, '');
+}
+function closeMuzycznaSroda() {
+  document.getElementById('modal-muzyczna-sroda').classList.add('hidden');
+  document.getElementById('modal-muzyczna-sroda').style.display = 'none';
 }
 
 const EXTERNAL_PAGE_WHITELIST = ['warunki-testow-premium.html', 'formularz-premium-test.html'];
@@ -4368,6 +4413,7 @@ window.addEventListener('popstate', function(e) {
   if (!document.getElementById('modal-bug').classList.contains('hidden')) { closeBugModal(); return; }
   if (!document.getElementById('modal-zastepstwo').classList.contains('hidden')) { closeAddZastepstwo(); return; }
   if (!document.getElementById('modal-about').classList.contains('hidden')) { closeAbout(); return; }
+  if (!document.getElementById('modal-muzyczna-sroda').classList.contains('hidden')) { closeMuzycznaSroda(); return; }
   if (!document.getElementById('modal-premium').classList.contains('hidden')) { closePremiumModal(); return; }
   if (!document.getElementById('change-password-screen').classList.contains('hidden')) { hideChangePassword(); return; }
   if (!document.getElementById('change-email-screen').classList.contains('hidden')) { hideChangeEmail(); return; }
