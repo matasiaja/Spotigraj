@@ -996,21 +996,21 @@ html, body {
   line-height: 1.6;
 }
 .setup-sql code { color: var(--accent); font-family: monospace; }
-/* ── Przycisk Muzyczna Środa: chip z zieloną poświatą (niezależny od planu) ── */
+/* ── Przycisk Muzyczna Środa: zawsze zielony, niezależny od planu ── */
 .ms-chip-btn {
   padding: 7px 15px;
   border-radius: 50px;
-  border: 1.5px solid var(--border-accent);
-  background: var(--accent-glow);
-  color: var(--accent);
+  border: 1.5px solid rgba(29,185,84,0.3);
+  background: rgba(29,185,84,0.15);
+  color: #1DB954;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   font-family: inherit;
-  box-shadow: 0 0 8px 2px var(--accent-glow);
+  box-shadow: 0 0 8px 2px rgba(29,185,84,0.15);
   transition: border-color .15s, box-shadow .15s;
 }
-.ms-chip-btn:hover { border-color: var(--accent); box-shadow: 0 0 14px 3px var(--accent-glow); }
+.ms-chip-btn:hover { border-color: #1DB954; box-shadow: 0 0 14px 3px rgba(29,185,84,0.15); }
 
 /* Darmowa wersja: cyjan */
 #looking-for-grid .section-btn:hover {
