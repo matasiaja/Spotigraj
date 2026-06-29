@@ -978,15 +978,15 @@ html, body {
   line-height: 1.6;
 }
 .setup-sql code { color: var(--accent); font-family: monospace; }
-.ms-info-btn {
-  width: 22px; height: 22px; border-radius: 50%;
-  background: none; border: 1.5px solid var(--border);
-  color: var(--muted2); font-size: 11px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-family: inherit; transition: border-color .15s, color .15s;
-  line-height: 1; padding: 0;
+.ms-label-btn {
+  flex-shrink: 0; padding: 5px 11px;
+  background: var(--accent-glow); border: 1.5px solid var(--border-accent);
+  border-radius: 50px; color: var(--accent);
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+  transition: background .15s, color .15s; line-height: 1.4;
 }
-.ms-info-btn:hover { border-color: var(--border-accent); color: var(--accent); }
+.ms-label-btn:hover { background: var(--accent); color: var(--on-dark); }
 </style>
 </head>
 <body>
@@ -1665,8 +1665,42 @@ html, body {
     <button onclick="closeMuzycznaSroda()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0;line-height:1;font-family:inherit">←</button>
     <div style="font-size:15px;font-weight:700;color:#fff;flex:1">Muzyczna Środa</div>
   </div>
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:0 0 calc(16px + env(safe-area-inset-bottom,0px))">
-    <img id="muzyczna-sroda-img" src="" alt="Muzyczna Środa" style="max-width:100%;max-height:100%;object-fit:contain;display:block">
+  <div style="flex:1;overflow-y:auto;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))">
+    <img id="muzyczna-sroda-img" src="" alt="Muzyczna Środa" style="max-width:100%;display:block;object-fit:contain">
+    <div style="padding:24px 16px 8px">
+      <div id="ms-success" class="hidden" style="text-align:center;padding:40px 0 24px">
+        <div style="font-size:40px;margin-bottom:14px">✅</div>
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">Dziękujemy za zgłoszenie!</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6">Odezwiemy się najszybciej jak to możliwe.</div>
+      </div>
+      <form id="ms-form" onsubmit="submitMuzycznaSroda(event)" autocomplete="off">
+        <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">Dołącz do programu</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;line-height:1.5">Wypełnij formularz — skontaktujemy się z Tobą.</div>
+        <div class="field">
+          <label style="color:rgba(255,255,255,0.55)">Nazwa / pseudonim artystyczny *</label>
+          <input type="text" id="ms-name" required placeholder="np. Jan Kowalski / DJ Beats" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);color:#fff">
+        </div>
+        <div class="field">
+          <label style="color:rgba(255,255,255,0.55)">Linki do twórczości *</label>
+          <textarea id="ms-links" required rows="3" placeholder="Spotify, YouTube, Instagram, SoundCloud..." style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);color:#fff"></textarea>
+        </div>
+        <div class="field">
+          <label style="color:rgba(255,255,255,0.55)">Wiadomość / opis <span style="opacity:.5;font-weight:400">(opcjonalne)</span></label>
+          <textarea id="ms-msg" rows="3" placeholder="Kilka słów o sobie i swojej twórczości..." style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);color:#fff"></textarea>
+        </div>
+        <div class="field">
+          <label style="color:rgba(255,255,255,0.55)">Email kontaktowy *</label>
+          <input type="email" id="ms-email" required placeholder="twoj@email.com" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);color:#fff">
+        </div>
+        <div class="field">
+          <label style="color:rgba(255,255,255,0.55)">Numer telefonu *</label>
+          <input type="tel" id="ms-phone" required placeholder="+48 123 456 789" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);color:#fff">
+        </div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:16px">Podane dane wykorzystamy wyłącznie w celu kontaktu w sprawie programu Muzyczna Środa. Nie udostępniamy ich osobom trzecim.</p>
+        <div id="ms-err" style="color:#ff6b7a;font-size:13px;margin-bottom:12px;min-height:16px"></div>
+        <button type="submit" id="ms-submit-btn" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;margin-bottom:8px">Wyślij zgłoszenie</button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -2162,9 +2196,8 @@ function buildSectionGrid(containerId, sections, selectedValues) {
       btn.style.width = 'auto';
       const infoBtn = document.createElement('button');
       infoBtn.type = 'button';
-      infoBtn.className = 'ms-info-btn';
-      infoBtn.title = 'Dowiedz się o Muzycznej Środzie';
-      infoBtn.textContent = '?';
+      infoBtn.className = 'ms-label-btn';
+      infoBtn.textContent = 'Muzyczna Środa';
       infoBtn.onclick = e => { e.stopPropagation(); openMuzycznaSroda(); };
       headerRow.appendChild(btn);
       headerRow.appendChild(infoBtn);
@@ -2390,6 +2423,40 @@ function openMuzycznaSroda() {
 function closeMuzycznaSroda() {
   document.getElementById('modal-muzyczna-sroda').classList.add('hidden');
   document.getElementById('modal-muzyczna-sroda').style.display = 'none';
+}
+async function submitMuzycznaSroda(e) {
+  e.preventDefault();
+  const name = document.getElementById('ms-name').value.trim();
+  const links = document.getElementById('ms-links').value.trim();
+  const msg = document.getElementById('ms-msg').value.trim();
+  const email = document.getElementById('ms-email').value.trim();
+  const phone = document.getElementById('ms-phone').value.trim();
+  const errEl = document.getElementById('ms-err');
+  const submitBtn = document.getElementById('ms-submit-btn');
+  errEl.textContent = '';
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.6';
+  submitBtn.textContent = 'Wysyłanie...';
+  try {
+    const resp = await fetch(SUPABASE_URL + '/functions/v1/send-music-wednesday-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({ name, links, message: msg, email, phone }),
+    });
+    const result = await resp.json().catch(() => ({}));
+    if (!resp.ok || !result.success) {
+      errEl.textContent = result.error || 'Błąd wysyłki. Spróbuj ponownie.';
+      return;
+    }
+    document.getElementById('ms-form').classList.add('hidden');
+    document.getElementById('ms-success').classList.remove('hidden');
+  } catch {
+    errEl.textContent = 'Błąd połączenia. Sprawdź internet i spróbuj ponownie.';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
+    submitBtn.textContent = 'Wyślij zgłoszenie';
+  }
 }
 
 const EXTERNAL_PAGE_WHITELIST = ['warunki-testow-premium.html', 'formularz-premium-test.html'];
