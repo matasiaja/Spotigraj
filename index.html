@@ -1993,6 +1993,7 @@ const COLORS = ['#534AB7','#1D9E75','#D85A30','#C0392B','#8E44AD','#2980B9','#27
 let currentUser = null;
 let currentProfile = null;
 let chatWith = null;
+let _svInStartup = true;
 let chatSub = null;
 let activeFilter = 'Wszyscy';
 let discoverQueue = [];
@@ -2460,20 +2461,24 @@ function showAbout() {
   document.getElementById('modal-about').classList.remove('hidden');
   document.getElementById('modal-about').style.display = 'flex';
   window.history.pushState({ overlay: 'about' }, '');
+  _saveViewState('about');
 }
 function closeAbout() {
   document.getElementById('modal-about').classList.add('hidden');
   document.getElementById('modal-about').style.display = 'none';
+  _saveViewState(null);
 }
 function openMuzycznaSroda() {
   document.getElementById('muzyczna-sroda-img').src = '/muzyczna-sroda-promo.png';
   document.getElementById('modal-muzyczna-sroda').classList.remove('hidden');
   document.getElementById('modal-muzyczna-sroda').style.display = 'flex';
   window.history.pushState({ overlay: 'muzyczna-sroda' }, '');
+  _saveViewState('muzyczna-sroda');
 }
 function closeMuzycznaSroda() {
   document.getElementById('modal-muzyczna-sroda').classList.add('hidden');
   document.getElementById('modal-muzyczna-sroda').style.display = 'none';
+  _saveViewState(null);
 }
 async function submitMuzycznaSroda(e) {
   e.preventDefault();
@@ -2871,7 +2876,9 @@ function showApp() {
       window.history.pushState({ screen: startScreen }, '', '/#' + startScreen);
     }
     _applyScreen(startScreen);
+    _restoreViewState(); // przywróć overlay z sessionStorage (tylko jeśli nie chat)
   }
+  _svInStartup = false; // od teraz _saveViewState działa normalnie
   loadDiscover();
   loadMyProfile();
   buildFilters();
@@ -3043,12 +3050,14 @@ function showNotifHistory() {
   screen.classList.remove('hidden');
   screen.style.display = 'flex';
   window.history.pushState({ overlay: 'notif-history' }, '');
+  _saveViewState('notif-history');
 }
 
 function closeNotifHistory() {
   const screen = document.getElementById('notif-history-screen');
   screen.classList.add('hidden');
   screen.style.display = 'none';
+  _saveViewState(null);
 }
 
 function clearNotifHistory() {
@@ -3097,6 +3106,37 @@ function checkForMatches() {
 // Sprawdzaj co 60 sekund
 setInterval(checkForMatches, 60000);
 
+// ── SESSION RESTORE: przywracanie widoku po odświeżeniu ──────────
+function _saveViewState(overlay) {
+  if (_svInStartup) return;
+  const screen = document.querySelector('.screen.active')?.id?.replace('s-', '') || 'discover';
+  try {
+    sessionStorage.setItem('spotigraj-last-view', JSON.stringify({
+      screen, overlay: overlay || null, ts: Date.now(),
+    }));
+  } catch(e) {}
+}
+
+function _restoreViewState() {
+  try {
+    const raw = sessionStorage.getItem('spotigraj-last-view');
+    if (!raw) return;
+    const sv = JSON.parse(raw);
+    if (!sv || Date.now() - sv.ts > 30 * 60 * 1000) { sessionStorage.removeItem('spotigraj-last-view'); return; }
+    if (!sv.overlay) return;
+    const restorers = {
+      'muzyczna-sroda': () => openMuzycznaSroda(),
+      'about':          () => showAbout(),
+      'edit-profile':   () => { if (currentProfile) showEdit(); },
+      'notif-history':  () => showNotifHistory(),
+      'zastepstwo':     () => { if (currentProfile && isPremium()) showAddZastepstwo(); },
+      'premium':        () => showPremiumModal('default'),
+    };
+    const fn = restorers[sv.overlay];
+    if (fn) fn();
+  } catch(e) {}
+}
+
 // Aktualizuje UI bez dotykania historii — wywoływana przez goTo() i popstate
 function _applyScreen(screen, anchor) {
   setTimeout(() => {
@@ -3129,6 +3169,7 @@ function _applyScreen(screen, anchor) {
   if (screen === 'zastepstwa') loadZastepstwa();
   if (screen === 'appgrajd') loadAppgrajd();
   if (screen === 'settings') loadSettings();
+  _saveViewState(null);
 }
 
 const TOPBAR_PARENT = {
@@ -4183,6 +4224,7 @@ function showEdit() {
   document.getElementById('app').classList.add('hidden');
   document.getElementById('onboarding').classList.remove('hidden');
   window.history.pushState({ overlay: 'edit-profile' }, '');
+  _saveViewState('edit-profile');
 }
 
 function cancelEditProfile() {
@@ -4403,12 +4445,14 @@ function showAddZastepstwo() {
   document.getElementById('modal-zastepstwo').classList.remove('hidden');
   document.getElementById('modal-zastepstwo').style.display = 'flex';
   window.history.pushState({ overlay: 'zastepstwo' }, '');
+  _saveViewState('zastepstwo');
 }
 
 function closeAddZastepstwo() {
   document.getElementById('modal-zastepstwo').classList.add('hidden');
   document.getElementById('modal-zastepstwo').style.display = 'none';
   setErr('zast-err', '');
+  _saveViewState(null);
 }
 
 // Konteksty wyświetlania modalu Premium
@@ -4451,6 +4495,7 @@ function showPremiumModal(context) {
   document.getElementById('modal-premium').style.display = 'flex';
   // Backspace zamknie modal zamiast wyjść z appki
   window.history.pushState({ modal: 'premium' }, '');
+  _saveViewState('premium');
 }
 
 let currentPremPlan = 'monthly';
@@ -4523,6 +4568,7 @@ async function handleStripeReturn() {
 function closePremiumModal() {
   document.getElementById('modal-premium').classList.add('hidden');
   document.getElementById('modal-premium').style.display = 'none';
+  _saveViewState(null);
 }
 
 window.addEventListener('popstate', function(e) {
