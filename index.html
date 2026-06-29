@@ -1003,12 +1003,13 @@ html, body {
   border-radius: 50px; color: var(--cyan-accent);
   font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: inherit; white-space: nowrap;
-  transition: border-color .15s, color .15s, background .15s; line-height: 1.4;
+  box-shadow: 0 0 8px 1px var(--cyan-glow);
+  transition: border-color .15s, color .15s, background .15s, box-shadow .15s; line-height: 1.4;
 }
 .ms-label-btn::before { content: 'ℹ'; margin-right: 4px; font-size: 10px; }
-.ms-label-btn:hover { background: var(--cyan-accent); color: #fff; border-color: var(--cyan-accent); }
-body.premium-mode .ms-label-btn { background: var(--purple-glow); border-color: var(--purple-border); color: var(--purple-accent); }
-body.premium-mode .ms-label-btn:hover { background: var(--purple-accent); color: #fff; border-color: var(--purple-accent); }
+.ms-label-btn:hover { background: var(--cyan-accent); color: #fff; border-color: var(--cyan-accent); box-shadow: 0 0 14px 2px var(--cyan-glow); }
+body.premium-mode .ms-label-btn { background: var(--purple-glow); border-color: var(--purple-border); color: var(--purple-accent); box-shadow: 0 0 8px 1px var(--purple-glow); }
+body.premium-mode .ms-label-btn:hover { background: var(--purple-accent); color: #fff; border-color: var(--purple-accent); box-shadow: 0 0 14px 2px var(--purple-glow); }
 
 /* Darmowa wersja: cyjan */
 #looking-for-grid .section-btn:hover {
