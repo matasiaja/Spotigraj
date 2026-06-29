@@ -4690,18 +4690,60 @@ function setErr(id, msg) {
 }
 </script>
 <script>
+// ── Detekcja i bezpieczny auto-reload po aktualizacji SW ─────────────
+let _swPendingReload = false;
+
+function _swIsUserBusy() {
+  // Czy user aktywnie pisze?
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return true;
+  // Czy otwarty jest modal z formularzem?
+  const guardIds = [
+    'modal-bug', 'modal-muzyczna-sroda', 'modal-zastepstwo',
+    'modal-extpage', 'change-password-screen', 'change-email-screen', 'delete-account-screen',
+  ];
+  return guardIds.some(id => { const el = document.getElementById(id); return el && !el.classList.contains('hidden'); });
+}
+
+function _swAttemptReload() {
+  if (_swPendingReload && !_swIsUserBusy()) window.location.reload();
+}
+
+function _swScheduleReload() {
+  if (_swPendingReload) return;
+  _swPendingReload = true;
+  if (!_swIsUserBusy()) { window.location.reload(); return; }
+  // User zajęty — poczekaj na pierwsze okno, gdy skończy
+  setInterval(_swAttemptReload, 2000);
+  document.addEventListener('blur', _swAttemptReload, { capture: true });
+  document.addEventListener('visibilitychange', _swAttemptReload);
+}
+
+// Gdy user wraca do apki z tła — sprawdź czy można już przeładować
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') _swAttemptReload();
+});
+
 if ('serviceWorker' in navigator) {
+  let _swHadController = Boolean(navigator.serviceWorker.controller);
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => console.log('SW registered:', reg.scope))
       .catch(err => console.warn('SW error:', err));
   });
+
   navigator.serviceWorker.addEventListener('message', e => {
     if (e.data?.type === 'OPEN_CHAT' && e.data.senderId) {
-      // Przejdź do wiadomości i otwórz czat z nadawcą
       goTo('messages');
       openChat(e.data.senderId);
     }
+  });
+
+  // Nowy SW przejął kontrolę — zaplanuj bezpieczny reload
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!_swHadController) { _swHadController = true; return; } // pierwsze zainstalowanie, nie reload
+    _swScheduleReload();
   });
 }
 </script>

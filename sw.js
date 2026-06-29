@@ -1,4 +1,4 @@
-const CACHE = 'spotigraj-v5';
+const CACHE = 'spotigraj-v6';
 const ASSETS = [
   '/',
   '/index.html',
@@ -28,15 +28,31 @@ self.addEventListener('fetch', e => {
   if (e.request.url.includes('supabase.co')) return;
   if (e.request.url.includes('stripe.com')) return;
 
-  e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-        return res;
+  const path = new URL(e.request.url).pathname;
+  const isHtml = path === '/' || path.endsWith('.html');
+
+  if (isHtml) {
+    // Network-first: zawsze świeży HTML, cache jako fallback offline
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+  } else {
+    // Cache-first: statyczne assety (ikony, obrazki) — brak zbędnego transferu
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          return res;
+        });
       })
-      .catch(() => caches.match(e.request))
-  );
+    );
+  }
 });
 
 // Powiadomienia push
