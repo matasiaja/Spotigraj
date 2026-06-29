@@ -996,20 +996,21 @@ html, body {
   line-height: 1.6;
 }
 .setup-sql code { color: var(--accent); font-family: monospace; }
-/* ── Przycisk Muzyczna Środa + sekcja "kogo szukamy": cyjan (darmowa) / fiolet (Premium) ── */
-.ms-label-btn {
-  flex-shrink: 0; padding: 5px 11px;
-  background: var(--cyan-glow); border: 1.5px solid var(--cyan-border);
-  border-radius: 50px; color: var(--cyan-accent);
-  font-size: 11px; font-weight: 600; cursor: pointer;
-  font-family: inherit; white-space: nowrap;
-  box-shadow: 0 0 8px 1px var(--cyan-glow);
-  transition: border-color .15s, color .15s, background .15s, box-shadow .15s; line-height: 1.4;
+/* ── Przycisk Muzyczna Środa: chip z zieloną poświatą (niezależny od planu) ── */
+.ms-chip-btn {
+  padding: 7px 15px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border-accent);
+  background: var(--accent-glow);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  box-shadow: 0 0 8px 2px var(--accent-glow);
+  transition: border-color .15s, box-shadow .15s;
 }
-.ms-label-btn::before { content: 'ℹ'; margin-right: 4px; font-size: 10px; }
-.ms-label-btn:hover { background: var(--cyan-accent); color: #fff; border-color: var(--cyan-accent); box-shadow: 0 0 14px 2px var(--cyan-glow); }
-body.premium-mode .ms-label-btn { background: var(--purple-glow); border-color: var(--purple-border); color: var(--purple-accent); box-shadow: 0 0 8px 1px var(--purple-glow); }
-body.premium-mode .ms-label-btn:hover { background: var(--purple-accent); color: #fff; border-color: var(--purple-accent); box-shadow: 0 0 14px 2px var(--purple-glow); }
+.ms-chip-btn:hover { border-color: var(--accent); box-shadow: 0 0 14px 3px var(--accent-glow); }
 
 /* Darmowa wersja: cyjan */
 #looking-for-grid .section-btn:hover {
@@ -2242,21 +2243,14 @@ function buildSectionGrid(containerId, sections, selectedValues) {
     });
 
     if (section.label === 'Media i Promocja' && containerId === 'looking-for-grid') {
-      const headerRow = document.createElement('div');
-      headerRow.style.cssText = 'display:flex;align-items:center;gap:6px';
-      btn.style.flex = '1';
-      btn.style.width = 'auto';
-      const infoBtn = document.createElement('button');
-      infoBtn.type = 'button';
-      infoBtn.className = 'ms-label-btn';
-      infoBtn.textContent = 'Muzyczna Środa';
-      infoBtn.onclick = e => { e.stopPropagation(); openMuzycznaSroda(); };
-      headerRow.appendChild(btn);
-      headerRow.appendChild(infoBtn);
-      group.appendChild(headerRow);
-    } else {
-      group.appendChild(btn);
+      const msChip = document.createElement('button');
+      msChip.type = 'button';
+      msChip.className = 'ms-chip-btn';
+      msChip.textContent = 'Muzyczna Środa';
+      msChip.onclick = e => { e.stopPropagation(); openMuzycznaSroda(); };
+      chips.appendChild(msChip);
     }
+    group.appendChild(btn);
     group.appendChild(chips);
     container.appendChild(group);
   });
