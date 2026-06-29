@@ -1,9 +1,10 @@
-const CACHE = 'spotigraj-v15';
+const CACHE = 'spotigraj-v16';
 const ASSETS = [
   '/',
   '/index.html',
   '/landing.html',
   '/manifest.json',
+  '/new.png',
 ];
 
 self.addEventListener('install', e => {
