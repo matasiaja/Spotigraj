@@ -3849,20 +3849,24 @@ function renderAppgrajdText(str) {
 }
 
 // Przetwarza segment tekstu między linkami: przepuszcza <img> z https:// src
-// jako klikalny obrazek z lightboxem, resztę escapuje.
+// i <a href="javascript:void(0)"> (treść wyłącznie od foundera), resztę escapuje.
 function renderAppgrajdChunk(str) {
-  const imgPattern = /<img\s[^>]*>/gi;
+  const elemPattern = /<a\b[^>]*\bhref=["']javascript:void\(0\)["'][^>]*>[\s\S]*?<\/a>|<img\s[^>]*>/gi;
   let result = '';
   let lastIndex = 0;
   let match;
-  while ((match = imgPattern.exec(str)) !== null) {
+  while ((match = elemPattern.exec(str)) !== null) {
     result += escapeHtml(str.slice(lastIndex, match.index));
-    const srcMatch = /\bsrc=["']([^"']+)["']/i.exec(match[0]);
-    if (srcMatch && /^https?:\/\//.test(srcMatch[1])) {
-      const safeSrc = escapeHtml(srcMatch[1]).replace(/"/g, '&quot;');
-      result += `<img src="${safeSrc}" class="appgrajd-img" onclick="openImgLightbox(this.src)" alt="" loading="lazy">`;
+    if (/^<a\b/i.test(match[0])) {
+      result += match[0];
+    } else {
+      const srcMatch = /\bsrc=["']([^"']+)["']/i.exec(match[0]);
+      if (srcMatch && /^https?:\/\//.test(srcMatch[1])) {
+        const safeSrc = escapeHtml(srcMatch[1]).replace(/"/g, '&quot;');
+        result += `<img src="${safeSrc}" class="appgrajd-img" onclick="openImgLightbox(this.src)" alt="" loading="lazy">`;
+      }
     }
-    lastIndex = imgPattern.lastIndex;
+    lastIndex = elemPattern.lastIndex;
   }
   result += escapeHtml(str.slice(lastIndex));
   return result;
