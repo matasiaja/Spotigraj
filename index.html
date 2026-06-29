@@ -59,10 +59,14 @@
   --purple: #534AB7;
   --dark: var(--navy);
 
-  /* ── FIOLET: sekcja "kogo szukamy" ── */
+  /* ── FIOLET: sekcja "kogo szukamy" (Premium) ── */
   --purple-accent: #9D4EDD;
   --purple-glow: rgba(157,78,221,0.15);
   --purple-border: rgba(157,78,221,0.30);
+  /* ── CYJAN: sekcja "kogo szukamy" (darmowa) ── */
+  --cyan-accent: #22D3EE;
+  --cyan-glow: rgba(34,211,238,0.15);
+  --cyan-border: rgba(34,211,238,0.30);
   --dark2: var(--navy2);
   --dark3: var(--navy3);
 
@@ -109,10 +113,14 @@
   --dark2: var(--navy2);
   --dark3: var(--navy3);
 
-  /* ── FIOLET: sekcja "kogo szukamy" (light mode — ciemniejszy dla kontrastu WCAG AA) ── */
+  /* ── FIOLET: sekcja "kogo szukamy" (light, Premium — kontrast 7.0:1) ── */
   --purple-accent: #7B2FBE;
   --purple-glow: rgba(123,47,190,0.12);
   --purple-border: rgba(123,47,190,0.35);
+  /* ── CYJAN: sekcja "kogo szukamy" (light, darmowa — kontrast 6.8:1) ── */
+  --cyan-accent: #0A6475;
+  --cyan-glow: rgba(10,100,117,0.12);
+  --cyan-border: rgba(10,100,117,0.35);
 }
 
 /* ── ZŁOTY MOTYW PREMIUM ───────────────────────────────── */
@@ -988,30 +996,47 @@ html, body {
   line-height: 1.6;
 }
 .setup-sql code { color: var(--accent); font-family: monospace; }
+/* ── Przycisk Muzyczna Środa + sekcja "kogo szukamy": cyjan (darmowa) / fiolet (Premium) ── */
 .ms-label-btn {
   flex-shrink: 0; padding: 5px 11px;
-  background: var(--purple-glow); border: 1.5px solid var(--purple-border);
-  border-radius: 50px; color: var(--purple-accent);
+  background: var(--cyan-glow); border: 1.5px solid var(--cyan-border);
+  border-radius: 50px; color: var(--cyan-accent);
   font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: inherit; white-space: nowrap;
   transition: border-color .15s, color .15s, background .15s; line-height: 1.4;
 }
 .ms-label-btn::before { content: 'ℹ'; margin-right: 4px; font-size: 10px; }
-.ms-label-btn:hover { background: var(--purple-accent); color: #fff; border-color: var(--purple-accent); }
+.ms-label-btn:hover { background: var(--cyan-accent); color: #fff; border-color: var(--cyan-accent); }
+body.premium-mode .ms-label-btn { background: var(--purple-glow); border-color: var(--purple-border); color: var(--purple-accent); }
+body.premium-mode .ms-label-btn:hover { background: var(--purple-accent); color: #fff; border-color: var(--purple-accent); }
 
-/* ── Fioletowy akcent: sekcja "kogo szukamy" (#looking-for-grid) ── */
+/* Darmowa wersja: cyjan */
 #looking-for-grid .section-btn:hover {
+  border-color: var(--cyan-border); color: var(--cyan-accent);
+  box-shadow: 0 0 0 3px var(--cyan-glow);
+}
+#looking-for-grid .section-btn.has-selected {
+  border-color: var(--cyan-border); color: var(--cyan-accent);
+  background: var(--cyan-glow); box-shadow: 0 0 0 3px var(--cyan-glow);
+}
+#looking-for-grid .genre-chip.selected {
+  background: var(--cyan-glow); color: var(--cyan-accent); border-color: var(--cyan-border);
+}
+#looking-for-grid .selected-preview { color: var(--cyan-accent); }
+
+/* Premium: fiolet (nadpisuje cyjan) */
+body.premium-mode #looking-for-grid .section-btn:hover {
   border-color: var(--purple-border); color: var(--purple-accent);
   box-shadow: 0 0 0 3px var(--purple-glow);
 }
-#looking-for-grid .section-btn.has-selected {
+body.premium-mode #looking-for-grid .section-btn.has-selected {
   border-color: var(--purple-border); color: var(--purple-accent);
   background: var(--purple-glow); box-shadow: 0 0 0 3px var(--purple-glow);
 }
-#looking-for-grid .genre-chip.selected {
+body.premium-mode #looking-for-grid .genre-chip.selected {
   background: var(--purple-glow); color: var(--purple-accent); border-color: var(--purple-border);
 }
-#looking-for-grid .selected-preview { color: var(--purple-accent); }
+body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-accent); }
 </style>
 </head>
 <body>
