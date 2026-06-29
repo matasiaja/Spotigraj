@@ -58,6 +58,11 @@
   --green-dark: #17a349;
   --purple: #534AB7;
   --dark: var(--navy);
+
+  /* ── FIOLET: sekcja "kogo szukamy" ── */
+  --purple-accent: #9D4EDD;
+  --purple-glow: rgba(157,78,221,0.15);
+  --purple-border: rgba(157,78,221,0.30);
   --dark2: var(--navy2);
   --dark3: var(--navy3);
 
@@ -103,6 +108,11 @@
   --dark: var(--navy);
   --dark2: var(--navy2);
   --dark3: var(--navy3);
+
+  /* ── FIOLET: sekcja "kogo szukamy" (light mode — ciemniejszy dla kontrastu WCAG AA) ── */
+  --purple-accent: #7B2FBE;
+  --purple-glow: rgba(123,47,190,0.12);
+  --purple-border: rgba(123,47,190,0.35);
 }
 
 /* ── ZŁOTY MOTYW PREMIUM ───────────────────────────────── */
@@ -980,14 +990,28 @@ html, body {
 .setup-sql code { color: var(--accent); font-family: monospace; }
 .ms-label-btn {
   flex-shrink: 0; padding: 5px 11px;
-  background: none; border: 1.5px solid var(--border);
-  border-radius: 50px; color: var(--muted2);
+  background: var(--purple-glow); border: 1.5px solid var(--purple-border);
+  border-radius: 50px; color: var(--purple-accent);
   font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: inherit; white-space: nowrap;
   transition: border-color .15s, color .15s, background .15s; line-height: 1.4;
 }
 .ms-label-btn::before { content: 'ℹ'; margin-right: 4px; font-size: 10px; }
-.ms-label-btn:hover { border-color: var(--border-accent); color: var(--accent); background: var(--accent-glow); }
+.ms-label-btn:hover { background: var(--purple-accent); color: #fff; border-color: var(--purple-accent); }
+
+/* ── Fioletowy akcent: sekcja "kogo szukamy" (#looking-for-grid) ── */
+#looking-for-grid .section-btn:hover {
+  border-color: var(--purple-border); color: var(--purple-accent);
+  box-shadow: 0 0 0 3px var(--purple-glow);
+}
+#looking-for-grid .section-btn.has-selected {
+  border-color: var(--purple-border); color: var(--purple-accent);
+  background: var(--purple-glow); box-shadow: 0 0 0 3px var(--purple-glow);
+}
+#looking-for-grid .genre-chip.selected {
+  background: var(--purple-glow); color: var(--purple-accent); border-color: var(--purple-border);
+}
+#looking-for-grid .selected-preview { color: var(--purple-accent); }
 </style>
 </head>
 <body>
