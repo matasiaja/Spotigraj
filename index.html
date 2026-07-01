@@ -565,36 +565,41 @@ html, body {
   white-space: nowrap;
 }
 .tag-gray { background: rgba(255,255,255,0.05); color: var(--muted2); border-color: var(--border); }
-.card-actions { display: flex; gap: 10px; }
+.card-actions { display: flex; justify-content: center; align-items: center; gap: 28px; padding-top: 4px; }
 .btn-skip {
-  flex: 1;
-  padding: 11px;
-  background: var(--navy3);
-  border: 1.5px solid var(--border);
-  border-radius: 50px;
-  color: var(--muted2);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,107,122,0.10);
+  border: 2px solid var(--error);
+  color: var(--error);
+  font-size: 26px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  transition: all .2s;
-  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .18s;
+  line-height: 1;
+  flex-shrink: 0;
 }
-.btn-skip:hover { border-color: var(--error); color: var(--error); }
+.btn-skip:hover { background: rgba(255,107,122,0.22); transform: scale(1.10); }
 .btn-like {
-  flex: 2;
-  padding: 11px;
-  background: var(--accent);
-  border: none;
-  border-radius: 50px;
-  color: var(--on-dark);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(157,78,221,0.14);
+  border: 2px solid var(--accent);
+  font-size: 26px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
-  transition: all .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .18s;
   box-shadow: var(--shadow-accent);
-  font-family: inherit;
+  line-height: 1;
+  flex-shrink: 0;
 }
-.btn-like:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,201,184,0.3); }
+.btn-like:hover { background: rgba(157,78,221,0.26); transform: scale(1.10); }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-icon { font-size: 48px; margin-bottom: 14px; }
 
@@ -3461,8 +3466,8 @@ function buildCard(p) {
     <div class="tags">${genres}</div>
     ${lookingSection}
     <div class="card-actions">
-      <button class="btn-skip" onclick="buttonSwipe('${p.id}','skip')">Pomiń</button>
-      <button class="btn-like" ${isUnavailable ? 'style="background:var(--muted);cursor:default"' : ''} onclick="${isUnavailable ? '' : `buttonSwipe('${p.id}','like')`}">${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie ✓'}</button>
+      <button class="btn-skip" onclick="buttonSwipe('${p.id}','skip')" aria-label="Pomiń" title="Pomiń">👋</button>
+      <button class="btn-like" ${isUnavailable ? 'style="opacity:0.35;cursor:not-allowed"' : ''} onclick="${isUnavailable ? '' : `buttonSwipe('${p.id}','like')`}" aria-label="${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie'}" title="${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie'}">🎸</button>
     </div>`;
   return card;
 }
