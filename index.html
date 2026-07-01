@@ -350,7 +350,7 @@ html, body {
 }
 
 /* Desktop — ładna ramka jak telefon */
-@media (min-width: 520px) {
+@media (min-width: 481px) {
   body {
     background:
       radial-gradient(ellipse 900px 700px at 12% 8%, rgba(147,51,234,0.10) 0%, transparent 55%),
@@ -361,6 +361,11 @@ html, body {
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
     box-shadow: 0 0 60px rgba(0,0,0,0.6);
+  }
+  .topbar {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   #bug-btn { right: calc(50% - 224px); }
 }
@@ -1346,7 +1351,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
   <div id="s-discover" class="screen">
     <div class="topbar">
       <div>
-        <div class="topbar-title">Spotigraj</div>
+        <div class="topbar-title" id="discover-topbar-title">Spotigraj</div>
         <div class="topbar-sub" id="discover-city">Polska</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
@@ -4455,6 +4460,17 @@ function applyPremiumTheme() {
   } else {
     document.body.classList.remove('premium-mode');
     document.getElementById('premium-banner').classList.remove('hidden');
+  }
+  updateTopbarTitle();
+}
+
+function updateTopbarTitle() {
+  const el = document.getElementById('discover-topbar-title');
+  if (!el) return;
+  if (isPremium()) {
+    el.innerHTML = 'Spotigraj Premium <span style="font-size:15px;line-height:1;vertical-align:middle">⭐</span>';
+  } else {
+    el.textContent = 'Spotigraj';
   }
 }
 
