@@ -3208,6 +3208,12 @@ const TOPBAR_PARENT = {
 };
 
 function goBack() {
+  if (document.getElementById('chat-screen').classList.contains('active')) {
+    closeChat();
+    window.history.replaceState({ screen: 'messages' }, '', '/#messages');
+    _applyScreen('messages');
+    return;
+  }
   const current = window.location.hash.replace('#', '') || 'discover';
   const parent = TOPBAR_PARENT[current];
   if (parent) goTo(parent);
