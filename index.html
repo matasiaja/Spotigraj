@@ -362,11 +362,6 @@ html, body {
     border-right: 1px solid var(--border);
     box-shadow: 0 0 60px rgba(0,0,0,0.6);
   }
-  .topbar {
-    max-width: 480px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
   #bug-btn { right: calc(50% - 224px); }
 }
 
@@ -393,7 +388,16 @@ html, body {
 .topbar-icon-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--muted2); display: flex; align-items: center; justify-content: center; transition: color .15s; }
 .topbar-icon-btn:hover { color: var(--text); }
 /* premium-mode topbar icon styles moved to premium-mode block above */
-.main-content { flex: 1; overflow-y: auto; overflow-x: clip; padding: 16px 16px calc(190px + env(safe-area-inset-bottom, 0px)); padding-top: calc(74px + env(safe-area-inset-top, 0px)); }
+
+/* Topbar na desktopie — musi być PO bazowej regule .topbar, żeby wygrać kaskadę */
+@media (min-width: 481px) {
+  .topbar {
+    left: calc(50% - 240px);
+    width: 480px;
+  }
+}
+
+.main-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 16px calc(190px + env(safe-area-inset-bottom, 0px)); padding-top: calc(74px + env(safe-area-inset-top, 0px)); }
 
 /* ── BOTTOM NAV ────────────────────────────── */
 .bottom-nav {
