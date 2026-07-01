@@ -565,41 +565,60 @@ html, body {
   white-space: nowrap;
 }
 .tag-gray { background: rgba(255,255,255,0.05); color: var(--muted2); border-color: var(--border); }
-.card-actions { display: flex; justify-content: center; align-items: center; gap: 28px; padding-top: 4px; }
-.btn-skip {
-  width: 56px;
+.card-actions { padding-top: 6px; }
+.swipe-slider {
+  position: relative;
   height: 56px;
-  border-radius: 50%;
-  background: rgba(255,107,122,0.10);
-  border: 2px solid var(--error);
-  color: var(--error);
-  font-size: 26px;
-  cursor: pointer;
+  border-radius: 28px;
+  background: var(--navy3);
+  border: 1.5px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all .18s;
-  line-height: 1;
-  flex-shrink: 0;
+  user-select: none;
+  touch-action: none;
+  overflow: hidden;
+  cursor: default;
 }
-.btn-skip:hover { background: rgba(255,107,122,0.22); transform: scale(1.10); }
-.btn-like {
-  width: 56px;
-  height: 56px;
+.swipe-slider--disabled { opacity: 0.35; cursor: not-allowed; }
+.swipe-slider__fill {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.swipe-slider__fill--left  { left: 0;  background: var(--error); border-radius: 28px 0 0 28px; }
+.swipe-slider__fill--right { right: 0; background: var(--accent); border-radius: 0 28px 28px 0; }
+.swipe-slider__label {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 2;
+  letter-spacing: 0.03em;
+  opacity: 0.45;
+}
+.swipe-slider__label--left  { left: 14px;  color: var(--error); }
+.swipe-slider__label--right { right: 14px; color: var(--accent); }
+.swipe-slider__handle {
+  position: relative;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(157,78,221,0.14);
-  border: 2px solid var(--accent);
-  font-size: 26px;
-  cursor: pointer;
+  background: var(--text);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all .18s;
-  box-shadow: var(--shadow-accent);
-  line-height: 1;
+  font-size: 15px;
+  color: var(--navy2);
+  cursor: grab;
+  touch-action: none;
   flex-shrink: 0;
 }
-.btn-like:hover { background: rgba(157,78,221,0.26); transform: scale(1.10); }
+.swipe-slider__handle:active { cursor: grabbing; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-icon { font-size: 48px; margin-bottom: 14px; }
 
@@ -3329,6 +3348,7 @@ function renderTopCard() {
   card.insertAdjacentHTML('beforeend', '<div class="swipe-indicator like">Lubię to</div><div class="swipe-indicator skip">Pomiń</div>');
   container.appendChild(card);
   attachSwipeHandlers(card, p.id);
+  attachSliderHandlers(card, p.id);
 }
 
 // Obsługa przeciągania karty (mysz + dotyk, przez Pointer Events — jedno API dla obu)
@@ -3403,6 +3423,88 @@ function buttonSwipe(targetId, action) {
   }
 }
 
+function attachSliderHandlers(card, targetId) {
+  const slider = card.querySelector('.swipe-slider');
+  if (!slider || slider.classList.contains('swipe-slider--disabled')) return;
+
+  const handle   = slider.querySelector('.swipe-slider__handle');
+  const fillL    = slider.querySelector('.swipe-slider__fill--left');
+  const fillR    = slider.querySelector('.swipe-slider__fill--right');
+  const labelL   = slider.querySelector('.swipe-slider__label--left');
+  const labelR   = slider.querySelector('.swipe-slider__label--right');
+
+  const THRESHOLD = 0.6;
+  const PAD = 6;
+  let startX = 0, offset = 0, dragging = false;
+
+  function getMax() { return (slider.offsetWidth - handle.offsetWidth) / 2 - PAD; }
+
+  function update(dx) {
+    const max = getMax();
+    offset = Math.max(-max, Math.min(max, dx));
+    handle.style.transform = `translateX(${offset}px)`;
+    const p = max > 0 ? Math.abs(offset) / max : 0;
+    if (offset < 0) {
+      fillL.style.opacity  = p * 0.75;  fillR.style.opacity = 0;
+      labelL.style.opacity = 0.45 + 0.55 * p;
+      labelR.style.opacity = Math.max(0.1, 0.45 - 0.3 * p);
+    } else if (offset > 0) {
+      fillR.style.opacity  = p * 0.75;  fillL.style.opacity = 0;
+      labelR.style.opacity = 0.45 + 0.55 * p;
+      labelL.style.opacity = Math.max(0.1, 0.45 - 0.3 * p);
+    } else {
+      fillL.style.opacity = fillR.style.opacity = 0;
+      labelL.style.opacity = labelR.style.opacity = 0.45;
+    }
+  }
+
+  function reset() {
+    handle.style.transition = 'transform 0.2s cubic-bezier(.34,1.56,.64,1)';
+    update(0);
+    setTimeout(() => { handle.style.transition = ''; }, 230);
+  }
+
+  function onDown(e) {
+    e.stopPropagation(); // nie triggeruj swipe karty
+    dragging = true;
+    startX = e.clientX;
+    handle.style.transition = 'none';
+    handle.setPointerCapture(e.pointerId);
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    update(e.clientX - startX);
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    const max = getMax();
+    const progress = max > 0 ? Math.abs(offset) / max : 0;
+    if (progress >= THRESHOLD) {
+      const action = offset < 0 ? 'skip' : 'like';
+      const finalPos = offset < 0 ? -(max + PAD) : (max + PAD);
+      handle.style.transition = 'transform 0.15s ease';
+      handle.style.transform = `translateX(${finalPos}px)`;
+      setTimeout(() => buttonSwipe(targetId, action), 160);
+    } else {
+      reset();
+    }
+  }
+
+  handle.addEventListener('pointerdown', onDown);
+  handle.addEventListener('pointermove', onMove);
+  handle.addEventListener('pointerup',   onUp);
+  handle.addEventListener('pointercancel', reset);
+
+  // TODO: pełna obsługa klawiatury (ArrowLeft/Right + Enter + aria-valuenow) — na teraz fallback
+  handle.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); buttonSwipe(targetId, 'skip'); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); buttonSwipe(targetId, 'like'); }
+  });
+}
+
 function calcMatch(p) {
   if (!currentProfile) return 75;
   let score = 30;
@@ -3466,8 +3568,15 @@ function buildCard(p) {
     <div class="tags">${genres}</div>
     ${lookingSection}
     <div class="card-actions">
-      <button class="btn-skip" onclick="buttonSwipe('${p.id}','skip')" aria-label="Pomiń" title="Pomiń">👋</button>
-      <button class="btn-like" ${isUnavailable ? 'style="opacity:0.35;cursor:not-allowed"' : ''} onclick="${isUnavailable ? '' : `buttonSwipe('${p.id}','like')`}" aria-label="${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie'}" title="${isUnavailable ? 'Niedostępny' : 'Wyślij zaproszenie'}">🎸</button>
+      <div class="swipe-slider${isUnavailable ? ' swipe-slider--disabled' : ''}"
+           role="slider" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0"
+           aria-label="Suwak: przeciągnij w lewo aby pominąć, w prawo aby wysłać zaproszenie">
+        <div class="swipe-slider__fill swipe-slider__fill--left"></div>
+        <div class="swipe-slider__fill swipe-slider__fill--right"></div>
+        <span class="swipe-slider__label swipe-slider__label--left">👋 Pomiń</span>
+        <span class="swipe-slider__label swipe-slider__label--right">Zaproś 🎸</span>
+        <div class="swipe-slider__handle" tabindex="${isUnavailable ? '-1' : '0'}" aria-label="Uchwyt suwaka">⇄</div>
+      </div>
     </div>`;
   return card;
 }
