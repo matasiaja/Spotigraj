@@ -1,4 +1,4 @@
-const CACHE = 'spotigraj-v27';
+const CACHE = 'spotigraj-v28';
 const ASSETS = [
   '/',
   '/index.html',
@@ -37,7 +37,8 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       fetch(e.request)
         .then(res => {
-          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          const resClone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, resClone));
           return res;
         })
         .catch(() => caches.match(e.request))
@@ -48,7 +49,8 @@ self.addEventListener('fetch', e => {
       caches.match(e.request).then(cached => {
         if (cached) return cached;
         return fetch(e.request).then(res => {
-          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          const resClone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, resClone));
           return res;
         });
       })
