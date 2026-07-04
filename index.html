@@ -4829,6 +4829,8 @@ function setPremPlan(plan, btn) {
 const STRIPE_KEY = 'pk_live_51ThzeYPpHBFYMbnuJsapxsPKTPhZ5nBjVSQrHSHulEEeG6DAj4rxcJwvAgZ0y8IChpZafTbVUxibqFCv0EFuJHNU00y0lmuSrk';
 const STRIPE_PRICE_ID = 'price_1Ti0DzPpHBFYMbnuJOhHDEXA';
 let stripeInstance = null;
+const CHECKOUT_PENDING_KEY = 'spotigraj_checkout_pending';
+const CHECKOUT_PENDING_MAX_AGE_MS = 30 * 60 * 1000; // 30 min — po tym czasie flaga uznawana za nieaktualną, bez komunikatu
 
 async function startCheckout() {
   // Jeśli currentUser null — spróbuj pobrać sesję ze Supabase
@@ -4847,13 +4849,17 @@ async function startCheckout() {
   };
   const base = links[currentPremPlan] || links.monthly;
   const paymentUrl = `${base}?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${currentUser.id}`;
-  window.open(paymentUrl, '_blank');
+  sessionStorage.setItem(CHECKOUT_PENDING_KEY, String(Date.now()));
+  window.location.href = paymentUrl;
 }
 
 // Obsługa powrotu ze Stripe
 async function handleStripeReturn() {
   const params = new URLSearchParams(window.location.search);
+  const pendingSince = Number(sessionStorage.getItem(CHECKOUT_PENDING_KEY) || 0);
+
   if (params.get('premium') === 'success' && currentUser) {
+    sessionStorage.removeItem(CHECKOUT_PENDING_KEY);
     // Ustaw is_premium = true w bazie
     await sb.from('profiles').update({ is_premium: true }).eq('id', currentUser.id);
     if (currentProfile) currentProfile.is_premium = true;
@@ -4871,7 +4877,13 @@ async function handleStripeReturn() {
       document.body.appendChild(popup);
     }, 500);
   } else if (params.get('premium') === 'cancel') {
+    sessionStorage.removeItem(CHECKOUT_PENDING_KEY);
     window.history.replaceState({}, '', '/');
+  } else if (pendingSince) {
+    sessionStorage.removeItem(CHECKOUT_PENDING_KEY);
+    if (Date.now() - pendingSince < CHECKOUT_PENDING_MAX_AGE_MS) {
+      setTimeout(() => alert('Nie udało się potwierdzić płatności. Spróbuj ponownie.'), 500);
+    }
   }
 }
 
