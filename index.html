@@ -4853,6 +4853,16 @@ async function startCheckout() {
   window.location.href = paymentUrl;
 }
 
+// Odpytuje profil aż webhook Stripe potwierdzi is_premium (webhook bywa wolniejszy niż redirect)
+async function waitForPremiumConfirmation(userId, attempts = 6, delayMs = 1500) {
+  for (let i = 0; i < attempts; i++) {
+    const { data } = await sb.from('profiles').select('is_premium').eq('id', userId).single();
+    if (data?.is_premium) return true;
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+  return false;
+}
+
 // Obsługa powrotu ze Stripe
 async function handleStripeReturn() {
   const params = new URLSearchParams(window.location.search);
@@ -4860,11 +4870,15 @@ async function handleStripeReturn() {
 
   if (params.get('premium') === 'success' && currentUser) {
     sessionStorage.removeItem(CHECKOUT_PENDING_KEY);
-    // Ustaw is_premium = true w bazie
-    await sb.from('profiles').update({ is_premium: true }).eq('id', currentUser.id);
-    if (currentProfile) currentProfile.is_premium = true;
     // Wyczyść URL
     window.history.replaceState({}, '', '/');
+    // is_premium ustawia wyłącznie stripe-webhook (service_role) — tu tylko czekamy na potwierdzenie
+    const confirmed = await waitForPremiumConfirmation(currentUser.id);
+    if (!confirmed) {
+      setTimeout(() => alert('Płatność przyjęta, aktywacja Premium może potrwać do minuty — odśwież stronę za chwilę.'), 500);
+      return;
+    }
+    if (currentProfile) currentProfile.is_premium = true;
     // Pokaż potwierdzenie
     setTimeout(() => {
       const popup = document.createElement('div');
