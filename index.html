@@ -1513,7 +1513,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
 
       <div class="section-label">Premium</div>
       <div class="settings-group">
-        <div class="settings-row clickable" onclick="showPremiumModal('default')">
+        <div class="settings-row clickable" onclick="handlePremiumTileClick()">
           <div class="settings-row-label">
             <span id="settings-prem-badge">⭐</span>
             <span>
@@ -4542,6 +4542,14 @@ async function loadPremiumSubscription() {
   if (error) { console.error(error); document.getElementById('premium-cancel-group').classList.add('hidden'); return; }
   currentSubscription = data || null;
   renderPremiumCancelUI();
+}
+
+function handlePremiumTileClick() {
+  if (currentProfile?.is_premium) {
+    showCancelPremium();
+  } else {
+    showPremiumModal('default');
+  }
 }
 
 function showCancelPremium() {
