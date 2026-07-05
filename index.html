@@ -1854,7 +1854,8 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     </div>
     <!-- Info o kuponie -->
     <div id="prem-coupon-info" style="background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
-      🎁 Masz kod promocyjny? Wpisz <strong style="color:var(--green)">SPOTIGRAJ500</strong> przy płatności — pierwsze 3 miesiące za darmo (dotyczy planu miesięcznego).
+      🎁 Masz kod promocyjny? Wpisz go poniżej (dotyczy planu miesięcznego):
+      <input type="text" id="prem-promo-input" placeholder="Kod promocyjny (opcjonalnie)" style="width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;text-transform:uppercase">
     </div>
 
     <!-- Testimonial -->
@@ -4843,6 +4844,35 @@ async function startCheckout() {
       return;
     }
   }
+  const promoInput = document.getElementById('prem-promo-input');
+  const promoCode = promoInput ? promoInput.value.trim() : '';
+
+  if (promoCode && currentPremPlan === 'monthly') {
+    const { data: { session } } = await sb.auth.getSession();
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/create-promo-checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: currentUser.email, code: promoCode }),
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (resp.ok && result.url) {
+        sessionStorage.setItem(CHECKOUT_PENDING_KEY, String(Date.now()));
+        window.location.href = result.url;
+        return;
+      }
+      alert(result.error || 'Nieprawidłowy kod promocyjny.');
+      return;
+    } catch (e) {
+      alert('Nie udało się zweryfikować kodu promocyjnego. Spróbuj ponownie.');
+      return;
+    }
+  }
+
   const links = {
     monthly: 'https://buy.stripe.com/9B6dRb6IDdHNf8jezAcwg03',
     yearly:  'https://buy.stripe.com/6oU7sN9UP47d9NZ3UWcwg02'
