@@ -1819,6 +1819,14 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
   .prem-social { display:flex; align-items:center; gap:8px; background:rgba(29,185,84,0.08); border:1px solid rgba(29,185,84,0.2); border-radius:10px; padding:10px 14px; margin-bottom:16px; text-align:left; }
   .prem-testimonial { background:var(--dark3); border-radius:10px; padding:12px 14px; margin-bottom:16px; text-align:left; }
   #modal-premium-inner { overflow-y:auto; max-height:92vh; }
+  @keyframes promoGlowPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(157,78,221,0.55), 0 0 20px rgba(157,78,221,0.3); }
+    50%      { box-shadow: 0 0 10px rgba(157,78,221,0.75), 0 0 28px rgba(157,78,221,0.5); }
+  }
+  #prem-coupon-info.promo-glow-pulse { animation: promoGlowPulse 2.4s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    #prem-coupon-info.promo-glow-pulse { animation: none; }
+  }
 </style>
 
 <div id="modal-premium" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px">
@@ -1853,7 +1861,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       </div>
     </div>
     <!-- Info o kuponie -->
-    <div id="prem-coupon-info" style="background:rgba(29,185,84,0.08);border:2px solid var(--purple-accent);box-shadow:0 0 10px rgba(157,78,221,0.35);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
+    <div id="prem-coupon-info" class="promo-glow-pulse" style="background:rgba(29,185,84,0.08);border:2px solid #C77DFF;box-shadow:0 0 8px rgba(157,78,221,0.55),0 0 20px rgba(157,78,221,0.3);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
       🎁 Masz kod promocyjny? Wpisz go poniżej (dotyczy planu miesięcznego):
       <input type="text" id="prem-promo-input" placeholder="Kod promocyjny (opcjonalnie)" style="width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;text-transform:uppercase" oninput="updatePremCta()">
     </div>
