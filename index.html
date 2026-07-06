@@ -3391,7 +3391,8 @@ function buttonSwipe(targetId, action) {
 
 function attachSliderHandlers(card, targetId) {
   const slider = card.querySelector('.swipe-slider');
-  if (!slider || slider.classList.contains('swipe-slider--disabled')) return;
+  if (!slider) return;
+  const inviteDisabled = slider.classList.contains('swipe-slider--disabled');
 
   const handle   = slider.querySelector('.swipe-slider__handle');
   const fillL    = slider.querySelector('.swipe-slider__fill--left');
@@ -3448,8 +3449,8 @@ function attachSliderHandlers(card, targetId) {
     dragging = false;
     const max = getMax();
     const progress = max > 0 ? Math.abs(offset) / max : 0;
-    if (progress >= THRESHOLD) {
-      const action = offset < 0 ? 'skip' : 'like';
+    const action = offset < 0 ? 'skip' : 'like';
+    if (progress >= THRESHOLD && !(action === 'like' && inviteDisabled)) {
       const finalPos = offset < 0 ? -(max + PAD) : (max + PAD);
       handle.style.transition = 'transform 0.15s ease';
       handle.style.transform = `translateX(${finalPos}px)`;
@@ -3467,7 +3468,7 @@ function attachSliderHandlers(card, targetId) {
   // TODO: pełna obsługa klawiatury (ArrowLeft/Right + Enter + aria-valuenow) — na teraz fallback
   handle.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); buttonSwipe(targetId, 'skip'); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); buttonSwipe(targetId, 'like'); }
+    if (e.key === 'ArrowRight' && !inviteDisabled) { e.preventDefault(); buttonSwipe(targetId, 'like'); }
   });
 }
 
@@ -3540,7 +3541,7 @@ function buildCard(p) {
         <div class="swipe-slider__fill swipe-slider__fill--right"></div>
         <span class="swipe-slider__label swipe-slider__label--left">Pomiń</span>
         <span class="swipe-slider__label swipe-slider__label--right">Zaproś</span>
-        <div class="swipe-slider__handle" tabindex="${isUnavailable ? '-1' : '0'}" aria-label="Uchwyt suwaka">⇄</div>
+        <div class="swipe-slider__handle" tabindex="0" aria-label="Uchwyt suwaka">⇄</div>
       </div>
     </div>`;
   return card;
