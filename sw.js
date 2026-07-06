@@ -1,4 +1,4 @@
-const CACHE = 'spotigraj-v32';
+const CACHE = 'spotigraj-v33';
 const ASSETS = [
   '/',
   '/index.html',

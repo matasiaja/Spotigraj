@@ -4829,7 +4829,9 @@ function setPremPlan(plan, btn) {
 
 function updatePremCta() {
   const promoInput = document.getElementById('prem-promo-input');
-  const hasCode = !!(promoInput && promoInput.value.trim()) && currentPremPlan === 'monthly';
+  // Na sztywno SPOTIGRAJ500 — jedyny aktywny kod promo w UI; przy kolejnych kodach
+  // zamienić na bardziej generyczną walidację (np. długość/format) zamiast dopisywać kolejne stałe.
+  const hasCode = !!(promoInput && promoInput.value.trim().toUpperCase() === 'SPOTIGRAJ500') && currentPremPlan === 'monthly';
   const btn = document.getElementById('prem-cta-btn');
   const sub = document.getElementById('prem-cta-sub');
   if (hasCode) {
