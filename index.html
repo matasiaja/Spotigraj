@@ -1855,17 +1855,17 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <!-- Info o kuponie -->
     <div id="prem-coupon-info" style="background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
       🎁 Masz kod promocyjny? Wpisz go poniżej (dotyczy planu miesięcznego):
-      <input type="text" id="prem-promo-input" placeholder="Kod promocyjny (opcjonalnie)" style="width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;text-transform:uppercase">
+      <input type="text" id="prem-promo-input" placeholder="Kod promocyjny (opcjonalnie)" style="width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;text-transform:uppercase" oninput="updatePremCta()">
     </div>
 
     <!-- Testimonial -->
     <!-- testimonial dodamy gdy będą prawdziwe opinie -->
 
     <!-- CTA -->
-    <button onclick="startCheckout()" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em">
+    <button id="prem-cta-btn" onclick="startCheckout()" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em">
       Zacznij 7 dni za darmo →
     </button>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Bez zobowiązań · anuluj przed końcem trialu</div>
+    <div id="prem-cta-sub" style="font-size:11px;color:var(--muted);margin-bottom:12px">Bez zobowiązań · anuluj przed końcem trialu</div>
     <button onclick="closePremiumModal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer">Może później</button>
   </div>
 </div>
@@ -4823,6 +4823,21 @@ function setPremPlan(plan, btn) {
   } else {
     priceEl.textContent = '19 zł';
     periodEl.textContent = 'miesięcznie · anuluj kiedy chcesz';
+  }
+  updatePremCta();
+}
+
+function updatePremCta() {
+  const promoInput = document.getElementById('prem-promo-input');
+  const hasCode = !!(promoInput && promoInput.value.trim()) && currentPremPlan === 'monthly';
+  const btn = document.getElementById('prem-cta-btn');
+  const sub = document.getElementById('prem-cta-sub');
+  if (hasCode) {
+    btn.textContent = 'Aktywuj 3 miesiące za darmo →';
+    sub.textContent = 'Bez zobowiązań · anuluj kiedy chcesz';
+  } else {
+    btn.textContent = 'Zacznij 7 dni za darmo →';
+    sub.textContent = 'Bez zobowiązań · anuluj przed końcem trialu';
   }
 }
 
