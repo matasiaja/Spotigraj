@@ -4836,18 +4836,35 @@ function setPremPlan(plan, btn) {
   updatePremCta();
 }
 
+// Kody testerskie beta (Stripe Promotion Codes, kupon 12 miesięcy free, wewn. ID Gy05nlJC)
+const TESTER_CODES = ['B8NXK3WQ', 'R3WTZ8NB', 'K9PLX4VD', 'M2QRT7HJ', '7XKQ4M9P'];
+
 function updatePremCta() {
   const promoInput = document.getElementById('prem-promo-input');
-  // Na sztywno SPOTIGRAJ500 — jedyny aktywny kod promo w UI; przy kolejnych kodach
+  const normalizedCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+  // Na sztywno SPOTIGRAJ500 — jedyny aktywny kod promo zwykły w UI; przy kolejnych kodach
   // zamienić na bardziej generyczną walidację (np. długość/format) zamiast dopisywać kolejne stałe.
-  const hasCode = !!(promoInput && promoInput.value.trim().toUpperCase() === 'SPOTIGRAJ500') && currentPremPlan === 'monthly';
+  const hasCode = normalizedCode === 'SPOTIGRAJ500' && currentPremPlan === 'monthly';
+  const hasTesterCode = TESTER_CODES.includes(normalizedCode) && currentPremPlan === 'monthly';
   const btn = document.getElementById('prem-cta-btn');
   const sub = document.getElementById('prem-cta-sub');
-  if (hasCode) {
+  if (hasTesterCode) {
+    btn.textContent = 'Dzięki za zgłoszenie odbierz 12 miesięcy premium za darmo';
+    btn.style.whiteSpace = 'normal';
+    btn.style.fontSize = '13px';
+    btn.style.lineHeight = '1.3';
+    sub.textContent = 'Bez zobowiązań · anuluj kiedy chcesz';
+  } else if (hasCode) {
     btn.textContent = 'Aktywuj 3 miesiące za darmo →';
+    btn.style.whiteSpace = '';
+    btn.style.fontSize = '15px';
+    btn.style.lineHeight = '';
     sub.textContent = 'Bez zobowiązań · anuluj kiedy chcesz';
   } else {
     btn.textContent = 'Zacznij 7 dni za darmo →';
+    btn.style.whiteSpace = '';
+    btn.style.fontSize = '15px';
+    btn.style.lineHeight = '';
     sub.textContent = 'Bez zobowiązań · anuluj przed końcem trialu';
   }
 }
