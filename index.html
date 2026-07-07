@@ -1852,7 +1852,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     </div>
     <!-- Poleć appkę — zdobądź Premium za darmo -->
     <div id="prem-referral-info" style="background:rgba(29,185,84,0.08);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
-      🎁 Poleć appkę 4 znajomym, którzy zaczną z niej korzystać — dostajesz miesiąc Premium gratis.
+      🎁 Zaproś 4 Spotigrajtones, którzy zaczną korzystać z appki — dostajesz miesiąc Premium gratis.
       <button onclick="shareReferral()" style="width:100%;margin-top:10px;padding:11px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Poleć appkę</button>
     </div>
 
@@ -1871,6 +1871,22 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     </button>
     <div id="prem-cta-sub" style="font-size:11px;color:var(--muted);margin-bottom:12px">Bez zobowiązań · anuluj przed końcem trialu</div>
     <button onclick="closePremiumModal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer">Może później</button>
+  </div>
+</div>
+
+<!-- OGŁOSZENIE: P4Z0 — Poleć Czterem, Zapłać Zerem -->
+<div id="modal-p4z0" class="hidden" onclick="if(event.target===this)closeP4Z0Modal()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--dark2);border:1px solid rgba(29,185,84,0.3);border-radius:var(--radius);padding:28px 24px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🎁</div>
+    <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:4px">Nowość: P4Z0</div>
+    <div style="font-size:13px;font-weight:700;color:var(--green);letter-spacing:0.3px;margin-bottom:16px">Poleć Czterem, Zapłać Zerem</div>
+    <div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:20px;text-align:left">
+      Nie musisz już płacić za Premium. Zaproś 4 nowych Spotigrajtones, którzy zaczną korzystać z appki — a dostajesz miesiąc Premium całkowicie za darmo. Bez limitu: każda kolejna czwórka to kolejny darmowy miesiąc.
+    </div>
+    <button onclick="closeP4Z0Modal(); shareReferral();" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em;font-family:inherit">
+      Poleć appkę →
+    </button>
+    <button onclick="closeP4Z0Modal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">Może później</button>
   </div>
 </div>
 
@@ -2168,6 +2184,19 @@ async function unregisterPushSubscription() {
 
 // ── REFERRALS ─────────────────────────────────────────────────────
 const REFERRAL_SHORT_ID_KEY = 'spotigraj_referral_short_id';
+const P4Z0_SEEN_KEY = 'spotigraj_p4z0_seen_v1';
+
+// Jednorazowe ogłoszenie programu P4Z0 — pokazujemy raz na przeglądarkę, po starcie appki.
+function showP4Z0AnnouncementIfNeeded() {
+  if (localStorage.getItem(P4Z0_SEEN_KEY)) return;
+  const m = document.getElementById('modal-p4z0');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+function closeP4Z0Modal() {
+  localStorage.setItem(P4Z0_SEEN_KEY, '1');
+  const m = document.getElementById('modal-p4z0');
+  m.classList.add('hidden'); m.style.display = 'none';
+}
 
 // Wywoływane raz, tuż po potwierdzeniu emaila przez nowego usera. short_id
 // trafił do sessionStorage przy wejściu na spotigraj.app/i/{short_id} (patrz 404.html).
@@ -3019,6 +3048,7 @@ function showApp() {
   updateAppgrajdBadge();
   updateMatchDot();
   subscribeMatchDot();
+  showP4Z0AnnouncementIfNeeded();
 }
 
 // Globalna subskrypcja — aktualizuje badge na żywo niezależnie od aktywnego ekranu
