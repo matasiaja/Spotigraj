@@ -420,16 +420,6 @@ html, body {
   z-index: 100;
   overflow: hidden;
 }
-#premium-banner {
-  position: fixed;
-  bottom: calc(85px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: calc(480px - 32px);
-  z-index: 99;
-  border-radius: var(--radius-sm);
-}
 .nav-btn {
   flex: 1;
   padding: 12px 0 10px;
@@ -1632,14 +1622,6 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       </div>
       <div id="appgrajd-list"></div>
     </div>
-  </div>
-  <!-- BANER PREMIUM (tylko dla non-premium) -->
-  <div id="premium-banner" class="hidden" onclick="showPremiumModal('default')" style="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(85px + env(safe-area-inset-bottom, 0px));width:calc(100% - 32px);max-width:calc(480px - 32px);padding:10px 16px;background:linear-gradient(135deg,rgba(29,185,84,0.12),rgba(29,185,84,0.06));border:1px solid rgba(29,185,84,0.2);border-radius:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;z-index:99">
-    <div>
-      <div style="font-size:12px;font-weight:800;color:var(--green)">✨ Wypróbuj Premium — pierwsze 7 dni gratis</div>
-      <div style="font-size:11px;color:var(--muted)">Kod <strong style="display:inline-block;color:var(--purple-accent);border:2px solid var(--purple-accent);border-radius:6px;padding:2px 7px;box-shadow:0 0 10px rgba(157,78,221,0.45)">SPOTIGRAJ500</strong> = 3 miesiące za darmo</div>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--on-accent);background:var(--green);padding:6px 14px;border-radius:50px">Więcej →</div>
   </div>
   <div class="bottom-nav">
     <button class="nav-btn" id="nb-discover" onclick="goTo('discover')">
@@ -4807,10 +4789,8 @@ async function setTheme(theme) {
 function applyPremiumTheme() {
   if (isPremium()) {
     document.body.classList.add('premium-mode');
-    document.getElementById('premium-banner').classList.add('hidden');
   } else {
     document.body.classList.remove('premium-mode');
-    document.getElementById('premium-banner').classList.remove('hidden');
   }
   updateTopbarTitle();
 }
