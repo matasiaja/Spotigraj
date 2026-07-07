@@ -2524,7 +2524,7 @@ async function shareReferral() {
     return;
   }
   const referralUrl = `https://spotigraj.app/i/${data.short_id}`;
-  const message = `Cześć! Korzystam ze Spotigraj — appki do networkingu muzycznego. Dołącz i zobacz jakie daje możliwości!\n${referralUrl}`;
+  const message = `Tworzysz muzykę i chcesz ją promować?\nDziałasz w branży artystycznej i szukasz zleceń?\nSzukasz ludzi do wspólnych projektów muzycznych?\n\nTeraz jest to łatwiejsze niż kiedykolwiek — dzięki aplikacji Spotigraj!\n\nDołącz za darmo:\n${referralUrl}`;
   // Samo text, bez title — patrz komentarz w shareApp().
   const shareData = { text: message };
   if (navigator.share) {
