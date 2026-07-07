@@ -2502,10 +2502,10 @@ async function updatePassword() {
 }
 
 async function shareApp() {
-  // Tylko title+text (bez osobnego url) — iOS Messages potrafi skleić trzy oddzielne
-  // pola Web Share API w bełkot z resztkami identyfikatorów schowka (np. "mp:"/"ms:").
+  // Samo text, bez title/url jako osobnych pól — iOS (przy udostępnianiu bezpośrednio
+  // do kontaktu z arkusza Udostępnij) potrafi skleić kilka oddzielnych pól Web Share API
+  // w bełkot z resztkami wewnętrznych identyfikatorów (np. "mp:"/"ms:").
   const shareData = {
-    title: 'Spotigraj',
     text: 'Sprawdź Spotigraj — pierwsza polska appka dla muzyków!\nhttps://spotigraj.app'
   };
   if (navigator.share) {
@@ -2525,8 +2525,8 @@ async function shareReferral() {
   }
   const referralUrl = `https://spotigraj.app/i/${data.short_id}`;
   const message = `Cześć! Korzystam ze Spotigraj — appki do networkingu muzycznego. Dołącz i zobacz jakie daje możliwości!\n${referralUrl}`;
-  // Tylko title+text (bez osobnego url) — patrz komentarz w shareApp().
-  const shareData = { title: 'Spotigraj', text: message };
+  // Samo text, bez title — patrz komentarz w shareApp().
+  const shareData = { text: message };
   if (navigator.share) {
     try { await navigator.share(shareData); } catch(e) { /* user cancelled */ }
   } else {
