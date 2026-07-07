@@ -2509,14 +2509,23 @@ async function updatePassword() {
   }
 }
 
-// navigator.share() (systemowy arkusz Udostępnij) nie jest tu już używany wcale.
-// Udokumentowana, potwierdzona niezależnie przez wiele zgłoszeń przyczyna: Facebook
-// Messenger na Androidzie duplikuje dowolną wiadomość zawierającą link (w dowolnym
-// polu payloadu) — inne kanały (WhatsApp, SMS, email) działają poprawnie. Android
-// pokazuje ikonki "szybkich kontaktów" różnych appek (w tym Messengera) na górze
-// arkusza Udostępnij, więc navigator.share() naraża usera na trafienie akurat w tę
-// wadliwą ścieżkę. Pokazujemy więc własne menu z konkretnymi, bezpiecznymi kanałami.
-function openShareMenu(text) {
+// UWAGA: navigator.share() (systemowy arkusz Udostępnij) przywrócony jako główna
+// ścieżka na wyraźne życzenie — daje userowi pełną listę opcji jego urządzenia
+// (Messenger, Messages, inne appki), zamiast tylko naszych 4 przycisków. Ryzyko:
+// Android pokazuje w tym arkuszu ikonki "szybkich kontaktów" różnych appek, w tym
+// Messengera, którego integracja jest udokumentowanym źródłem duplikacji wiadomości
+// z linkiem (patrz historia gita: c6f2d6b, eec7132, fa11945, oraz zgłoszenia
+// react-native-share#1724 i .NET MAUI — obie potwierdzają, że to wina Messengera,
+// nie SMS/WhatsApp/email). Jeśli navigator.share nie jest dostępne (np. desktop),
+// pokazujemy nasze własne menu z bezpiecznymi kanałami jako fallback.
+async function shareViaNativeSheet(text) {
+  if (navigator.share) {
+    try { await navigator.share({ text }); return true; } catch (e) { if (e?.name === 'AbortError') return true; }
+  }
+  return false;
+}
+async function openShareMenu(text) {
+  if (await shareViaNativeSheet(text)) return;
   document.getElementById('share-link-input').value = text;
   const m = document.getElementById('modal-share-fallback');
   m.classList.remove('hidden'); m.style.display = 'flex';
