@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotigraj</title>
+</head>
+<body>
+<script>
+  // GitHub Pages serwuje ten plik dla każdej nieznanej ścieżki (np. /i/abc12).
+  // Wyciągamy short_id linku polecającego, zapisujemy do sessionStorage
+  // (przetrwa do potwierdzenia emaila przez nowego usera) i wracamy na "/".
+  var m = window.location.pathname.match(/^\/i\/([A-Za-z0-9]+)\/?$/);
+  if (m) {
+    try { sessionStorage.setItem('spotigraj_referral_short_id', m[1]); } catch (e) {}
+  }
+  window.location.replace('/');
+</script>
+</body>
+</html>

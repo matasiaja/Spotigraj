@@ -1868,6 +1868,12 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
         <div class="prem-feature">✓ 🎭 Do 3 profesji <span class="prem-tip"><button class="prem-tip-btn" onclick="showPremTip(this)">?</button><span class="prem-tip-box">Pokaż wszystkie swoje role — gitarzysta, producent i realizator w jednym profilu.</span></span></div>
       </div>
     </div>
+    <!-- Poleć appkę — zdobądź Premium za darmo -->
+    <div id="prem-referral-info" style="background:rgba(29,185,84,0.08);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
+      🎁 Poleć appkę 4 znajomym, którzy zaczną z niej korzystać — dostajesz miesiąc Premium gratis.
+      <button onclick="shareReferral()" style="width:100%;margin-top:10px;padding:11px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Poleć appkę</button>
+    </div>
+
     <!-- Info o kuponie -->
     <div id="prem-coupon-info" class="promo-glow-pulse" style="background:rgba(29,185,84,0.08);border:2px solid #00E5FF;box-shadow:0 0 12px rgba(0,229,255,0.6),0 0 32px rgba(0,229,255,0.35);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
       🎁 Masz kod promocyjny? Wpisz go poniżej (dotyczy planu miesięcznego):
@@ -2178,6 +2184,30 @@ async function unregisterPushSubscription() {
   }
 }
 
+// ── REFERRALS ─────────────────────────────────────────────────────
+const REFERRAL_SHORT_ID_KEY = 'spotigraj_referral_short_id';
+
+// Wywoływane raz, tuż po potwierdzeniu emaila przez nowego usera. short_id
+// trafił do sessionStorage przy wejściu na spotigraj.app/i/{short_id} (patrz 404.html).
+async function resolveReferralIfPending(session) {
+  const shortId = sessionStorage.getItem(REFERRAL_SHORT_ID_KEY);
+  if (!shortId) return;
+  sessionStorage.removeItem(REFERRAL_SHORT_ID_KEY);
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/resolve-referral`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': SUPABASE_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ short_id: shortId }),
+    });
+  } catch (e) {
+    console.warn('resolve-referral error:', e);
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────
 async function initApp() {
   buildGenresGrid();
@@ -2203,6 +2233,7 @@ async function initApp() {
       window.history.replaceState({}, '', '/');
       if (!error && data.session) {
         currentUser = data.session.user;
+        resolveReferralIfPending(data.session); // fire-and-forget, nie blokuje onboardingu
         await loadProfile();
         return;
       }
@@ -2465,15 +2496,38 @@ async function shareApp() {
   if (navigator.share) {
     try { await navigator.share(shareData); } catch(e) { /* user cancelled */ }
   } else {
+    document.getElementById('share-link-input').value = 'https://spotigraj.app';
+    const m = document.getElementById('modal-share-fallback');
+    m.classList.remove('hidden'); m.style.display = 'flex';
+  }
+}
+async function shareReferral() {
+  if (!currentUser) return;
+  const { data, error } = await sb.from('referral_links').select('short_id').eq('referrer_id', currentUser.id).single();
+  if (error || !data) {
+    showToast('Nie udało się pobrać linku polecającego');
+    return;
+  }
+  const referralUrl = `https://spotigraj.app/i/${data.short_id}`;
+  const shareData = {
+    title: 'Spotigraj',
+    text: 'Cześć! Korzystam ze Spotigraj — appki do networkingu muzycznego. Dołącz i zobacz jakie daje możliwości!',
+    url: referralUrl
+  };
+  if (navigator.share) {
+    try { await navigator.share(shareData); } catch(e) { /* user cancelled */ }
+  } else {
+    document.getElementById('share-link-input').value = `${shareData.text}\n${referralUrl}`;
     const m = document.getElementById('modal-share-fallback');
     m.classList.remove('hidden'); m.style.display = 'flex';
   }
 }
 async function copyShareLink() {
+  const val = document.getElementById('share-link-input').value;
   try {
-    await navigator.clipboard.writeText('https://spotigraj.app');
+    await navigator.clipboard.writeText(val);
     closeShareFallback();
-    showToast('Link skopiowany!');
+    showToast('Skopiowano!');
   } catch(e) {
     document.getElementById('share-link-input').select();
   }
