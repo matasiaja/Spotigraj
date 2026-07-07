@@ -2501,25 +2501,18 @@ async function updatePassword() {
   }
 }
 
-// iOS ma udokumentowany bug: udostępnianie tekstu z linkiem przez ikonkę "szybkiego"
-// kontaktu w arkuszu Udostępnij potrafi wysłać zdublowaną, popsutą wiadomość (resztki
-// wewnętrznych identyfikatorów typu "mp:"/"ms:" wklejone w treść). Nie da się tego
-// naprawić zmianą struktury danych przekazywanych do navigator.share — więc na iOS
-// w ogóle pomijamy Web Share API dla tekstu z linkiem i pokazujemy modal do ręcznego
-// skopiowania treści.
-function isIOS() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
-
+// Zarówno iOS, jak i Android mają udokumentowany bug: udostępnianie tekstu z linkiem
+// przez ikonkę "szybkiego" kontaktu w arkuszu Udostępnij potrafi wysłać zdublowaną,
+// popsutą wiadomość (resztki wewnętrznych identyfikatorów typu "mp:"/"ms:" wklejone
+// w treść). Nie da się tego naprawić zmianą struktury danych przekazywanych do
+// navigator.share (próbowaliśmy: samo pole text, bez title/url) — więc w ogóle
+// pomijamy Web Share API dla tekstu z linkiem, na każdej platformie, i zawsze
+// pokazujemy modal do ręcznego skopiowania treści.
 async function shareApp() {
   const text = 'Sprawdź Spotigraj — pierwsza polska appka dla muzyków!\nhttps://spotigraj.app';
-  if (navigator.share && !isIOS()) {
-    try { await navigator.share({ text }); } catch(e) { /* user cancelled */ }
-  } else {
-    document.getElementById('share-link-input').value = text;
-    const m = document.getElementById('modal-share-fallback');
-    m.classList.remove('hidden'); m.style.display = 'flex';
-  }
+  document.getElementById('share-link-input').value = text;
+  const m = document.getElementById('modal-share-fallback');
+  m.classList.remove('hidden'); m.style.display = 'flex';
 }
 async function shareReferral() {
   if (!currentUser) return;
@@ -2530,13 +2523,9 @@ async function shareReferral() {
   }
   const referralUrl = `https://spotigraj.app/i/${data.short_id}`;
   const message = `Tworzysz muzykę i chcesz ją promować?\nDziałasz w branży artystycznej i szukasz zleceń?\nSzukasz ludzi do wspólnych projektów muzycznych?\n\nTeraz jest to łatwiejsze niż kiedykolwiek — dzięki aplikacji Spotigraj!\n\nDołącz za darmo:\n${referralUrl}`;
-  if (navigator.share && !isIOS()) {
-    try { await navigator.share({ text: message }); } catch(e) { /* user cancelled */ }
-  } else {
-    document.getElementById('share-link-input').value = message;
-    const m = document.getElementById('modal-share-fallback');
-    m.classList.remove('hidden'); m.style.display = 'flex';
-  }
+  document.getElementById('share-link-input').value = message;
+  const m = document.getElementById('modal-share-fallback');
+  m.classList.remove('hidden'); m.style.display = 'flex';
 }
 async function copyShareLink() {
   const val = document.getElementById('share-link-input').value;
