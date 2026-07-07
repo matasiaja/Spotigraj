@@ -1686,11 +1686,11 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
 <div id="modal-share-fallback" class="hidden" onclick="if(event.target===this)closeShareFallback()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:360px">
     <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">Udostępnij Spotigraj</div>
-    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Skopiuj link i wyślij znajomym:</div>
-    <input id="share-link-input" readonly value="https://spotigraj.app" onclick="this.select()" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;cursor:text">
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Skopiuj treść i wyślij znajomym:</div>
+    <textarea id="share-link-input" readonly onclick="this.select()" rows="6" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;cursor:text;resize:none;box-sizing:border-box">https://spotigraj.app</textarea>
     <div style="display:flex;gap:10px">
       <button onclick="closeShareFallback()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
-      <button onclick="copyShareLink()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Kopiuj link</button>
+      <button onclick="copyShareLink()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Kopiuj</button>
     </div>
   </div>
 </div>
@@ -2501,17 +2501,22 @@ async function updatePassword() {
   }
 }
 
+// iOS ma udokumentowany bug: udostępnianie tekstu z linkiem przez ikonkę "szybkiego"
+// kontaktu w arkuszu Udostępnij potrafi wysłać zdublowaną, popsutą wiadomość (resztki
+// wewnętrznych identyfikatorów typu "mp:"/"ms:" wklejone w treść). Nie da się tego
+// naprawić zmianą struktury danych przekazywanych do navigator.share — więc na iOS
+// w ogóle pomijamy Web Share API dla tekstu z linkiem i pokazujemy modal do ręcznego
+// skopiowania treści.
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
 async function shareApp() {
-  // Samo text, bez title/url jako osobnych pól — iOS (przy udostępnianiu bezpośrednio
-  // do kontaktu z arkusza Udostępnij) potrafi skleić kilka oddzielnych pól Web Share API
-  // w bełkot z resztkami wewnętrznych identyfikatorów (np. "mp:"/"ms:").
-  const shareData = {
-    text: 'Sprawdź Spotigraj — pierwsza polska appka dla muzyków!\nhttps://spotigraj.app'
-  };
-  if (navigator.share) {
-    try { await navigator.share(shareData); } catch(e) { /* user cancelled */ }
+  const text = 'Sprawdź Spotigraj — pierwsza polska appka dla muzyków!\nhttps://spotigraj.app';
+  if (navigator.share && !isIOS()) {
+    try { await navigator.share({ text }); } catch(e) { /* user cancelled */ }
   } else {
-    document.getElementById('share-link-input').value = 'https://spotigraj.app';
+    document.getElementById('share-link-input').value = text;
     const m = document.getElementById('modal-share-fallback');
     m.classList.remove('hidden'); m.style.display = 'flex';
   }
@@ -2525,10 +2530,8 @@ async function shareReferral() {
   }
   const referralUrl = `https://spotigraj.app/i/${data.short_id}`;
   const message = `Tworzysz muzykę i chcesz ją promować?\nDziałasz w branży artystycznej i szukasz zleceń?\nSzukasz ludzi do wspólnych projektów muzycznych?\n\nTeraz jest to łatwiejsze niż kiedykolwiek — dzięki aplikacji Spotigraj!\n\nDołącz za darmo:\n${referralUrl}`;
-  // Samo text, bez title — patrz komentarz w shareApp().
-  const shareData = { text: message };
-  if (navigator.share) {
-    try { await navigator.share(shareData); } catch(e) { /* user cancelled */ }
+  if (navigator.share && !isIOS()) {
+    try { await navigator.share({ text: message }); } catch(e) { /* user cancelled */ }
   } else {
     document.getElementById('share-link-input').value = message;
     const m = document.getElementById('modal-share-fallback');
