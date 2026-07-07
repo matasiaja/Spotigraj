@@ -1008,6 +1008,9 @@ html, body {
 .setup-sql code { color: var(--accent); font-family: monospace; }
 /* ── Przycisk Muzyczna Środa: zawsze zielony, niezależny od motywu/planu ── */
 .ms-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 7px 15px;
   border-radius: 50px;
   border: 1.5px solid rgba(0,176,80,0.3);
@@ -1021,6 +1024,7 @@ html, body {
   transition: border-color .15s, box-shadow .15s;
 }
 .ms-chip-btn:hover { border-color: #00b050; box-shadow: 0 0 14px 3px rgba(0,176,80,0.15); }
+.ms-chip-logo { height: 22px; width: auto; display: block; flex-shrink: 0; }
 
 /* Darmowa wersja: cyjan */
 #looking-for-grid .section-btn:hover {
@@ -2324,7 +2328,7 @@ function buildSectionGrid(containerId, sections, selectedValues) {
       const msChip = document.createElement('button');
       msChip.type = 'button';
       msChip.className = 'ms-chip-btn';
-      msChip.textContent = 'Muzyczna Środa';
+      msChip.innerHTML = '<span>Muzyczna Środa</span><img src="/muzyczna-sroda-logo.png" alt="" class="ms-chip-logo">';
       msChip.onclick = e => { e.stopPropagation(); openMuzycznaSroda(); };
       chips.appendChild(msChip);
     }
