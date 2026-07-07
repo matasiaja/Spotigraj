@@ -1686,7 +1686,11 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
 <div id="modal-share-fallback" class="hidden" onclick="if(event.target===this)closeShareFallback()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:360px">
     <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">Udostępnij Spotigraj</div>
-    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Skopiuj treść i wyślij znajomym:</div>
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Wybierz sposób wysłania:</div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button onclick="shareViaWhatsApp()" style="flex:1;padding:12px;background:#25D366;border:none;border-radius:50px;color:#04140b;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">WhatsApp</button>
+      <button onclick="shareViaSms()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--text);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">SMS</button>
+    </div>
     <textarea id="share-link-input" readonly onclick="this.select()" rows="6" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;cursor:text;resize:none;box-sizing:border-box">https://spotigraj.app</textarea>
     <div style="display:flex;gap:10px">
       <button onclick="closeShareFallback()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
@@ -2501,18 +2505,30 @@ async function updatePassword() {
   }
 }
 
-// Zarówno iOS, jak i Android mają udokumentowany bug: udostępnianie tekstu z linkiem
-// przez ikonkę "szybkiego" kontaktu w arkuszu Udostępnij potrafi wysłać zdublowaną,
-// popsutą wiadomość (resztki wewnętrznych identyfikatorów typu "mp:"/"ms:" wklejone
-// w treść). Nie da się tego naprawić zmianą struktury danych przekazywanych do
-// navigator.share (próbowaliśmy: samo pole text, bez title/url) — więc w ogóle
-// pomijamy Web Share API dla tekstu z linkiem, na każdej platformie, i zawsze
-// pokazujemy modal do ręcznego skopiowania treści.
-async function shareApp() {
-  const text = 'Sprawdź Spotigraj — pierwsza polska appka dla muzyków!\nhttps://spotigraj.app';
+// navigator.share() (systemowy arkusz Udostępnij) nie jest tu już używany wcale —
+// jego "szybka ikonka kontaktu" potrafi rozjechać tekst z linkiem na "mp:"/"ms:" plus
+// zdublowaną wiadomość bez linku, na iOS i Androidzie, niezależnie od struktury
+// przekazywanego payloadu (potwierdzone 3 razy, patrz historia gita: c6f2d6b, eec7132,
+// fa11945). Zamiast tego pokazujemy własne, małe menu z konkretnymi kanałami
+// (WhatsApp, SMS, kopiowanie) — żaden z nich nie przechodzi przez tę wadliwą ścieżkę,
+// a jednocześnie user nadal ma wybór kanału, nie tylko jeden z nich.
+function openShareMenu(text) {
   document.getElementById('share-link-input').value = text;
   const m = document.getElementById('modal-share-fallback');
   m.classList.remove('hidden'); m.style.display = 'flex';
+}
+function shareViaWhatsApp() {
+  const text = document.getElementById('share-link-input').value;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+function shareViaSms() {
+  const text = document.getElementById('share-link-input').value;
+  // iOS wymaga "&" przed "body" gdy nie podano numeru, Android/reszta oczekuje "?".
+  const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  window.location.href = `sms:${isIOSDevice ? '&' : '?'}body=${encodeURIComponent(text)}`;
+}
+async function shareApp() {
+  openShareMenu('Sprawdź Spotigraj — pierwsza polska appka dla muzyków!\nhttps://spotigraj.app');
 }
 async function shareReferral() {
   if (!currentUser) return;
@@ -2523,9 +2539,7 @@ async function shareReferral() {
   }
   const referralUrl = `https://spotigraj.app/i/${data.short_id}`;
   const message = `Tworzysz muzykę i chcesz ją promować?\nDziałasz w branży artystycznej i szukasz zleceń?\nSzukasz ludzi do wspólnych projektów muzycznych?\n\nTeraz jest to łatwiejsze niż kiedykolwiek — dzięki aplikacji Spotigraj!\n\nDołącz za darmo:\n${referralUrl}`;
-  document.getElementById('share-link-input').value = message;
-  const m = document.getElementById('modal-share-fallback');
-  m.classList.remove('hidden'); m.style.display = 'flex';
+  openShareMenu(message);
 }
 async function copyShareLink() {
   const val = document.getElementById('share-link-input').value;
