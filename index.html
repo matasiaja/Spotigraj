@@ -1516,7 +1516,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
             <span id="settings-prem-badge">⭐</span>
             <span>
               <span id="settings-prem-status">Sprawdzanie…</span>
-              <span class="sub">Zobacz korzyści Premium</span>
+              <span class="sub" id="settings-prem-sub">Poleć appkę i zdobądź Premium za darmo</span>
             </span>
           </div>
           <span class="settings-chevron">›</span>
@@ -4482,15 +4482,18 @@ function loadSettings() {
 
   const statusEl = document.getElementById('settings-prem-status');
   const badgeEl = document.getElementById('settings-prem-badge');
+  const subEl = document.getElementById('settings-prem-sub');
   if (currentProfile.is_premium) {
     statusEl.textContent = 'Premium aktywny';
     statusEl.style.color = 'var(--gold)';
     badgeEl.textContent = '⭐';
+    subEl.textContent = 'Zarządzaj subskrypcją';
     loadPremiumSubscription();
   } else {
     statusEl.textContent = 'Premium nieaktywny';
     statusEl.style.color = 'var(--text)';
     badgeEl.textContent = '☆';
+    subEl.textContent = 'Poleć appkę i zdobądź Premium za darmo';
     document.getElementById('premium-cancel-group').classList.add('hidden');
   }
 
@@ -4638,7 +4641,7 @@ function handlePremiumTileClick() {
   if (currentProfile?.is_premium) {
     showCancelPremium();
   } else {
-    showPremiumModal('default');
+    shareReferral();
   }
 }
 
