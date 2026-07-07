@@ -1455,6 +1455,10 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
           </div>
         </div>
       </div>
+      <div class="profile-section" id="prof-email-section" style="display:none">
+        <div class="section-label">Email</div>
+        <div id="prof-email" style="font-size:14px;color:var(--muted2)"></div>
+      </div>
       <div class="profile-section" id="prof-phone-section" style="display:none">
         <div class="section-label">Telefon (widoczny po matchu)</div>
         <div id="prof-phone" style="font-size:14px;color:var(--muted2)"></div>
@@ -4256,6 +4260,12 @@ async function loadMyProfile() {
       langSection.style.display = 'block';
       langEl.innerHTML = p.languages.map(l => `<span class="tag tag-gray">${l}</span>`).join('');
     } else { langSection.style.display = 'none'; }
+  }
+  const emailSection = document.getElementById('prof-email-section');
+  const emailEl = document.getElementById('prof-email');
+  if (currentUser?.email && emailSection && emailEl) {
+    emailSection.style.display = 'block';
+    emailEl.textContent = currentUser.email;
   }
   const phoneSection = document.getElementById('prof-phone-section');
   const phoneEl = document.getElementById('prof-phone');
