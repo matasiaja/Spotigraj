@@ -2509,23 +2509,16 @@ async function updatePassword() {
   }
 }
 
-// UWAGA: navigator.share() (systemowy arkusz Udostępnij) przywrócony jako główna
-// ścieżka na wyraźne życzenie — daje userowi pełną listę opcji jego urządzenia
-// (Messenger, Messages, inne appki), zamiast tylko naszych 4 przycisków. Ryzyko:
-// Android pokazuje w tym arkuszu ikonki "szybkich kontaktów" różnych appek, w tym
+// navigator.share() (systemowy arkusz Udostępnij) celowo NIE jest tu używany.
+// Web Share API nie ma sposobu, żeby wykluczyć pojedynczą appkę z tej listy — a
+// Android pokazuje w niej ikonki "szybkich kontaktów" różnych aplikacji, w tym
 // Messengera, którego integracja jest udokumentowanym źródłem duplikacji wiadomości
 // z linkiem (patrz historia gita: c6f2d6b, eec7132, fa11945, oraz zgłoszenia
 // react-native-share#1724 i .NET MAUI — obie potwierdzają, że to wina Messengera,
-// nie SMS/WhatsApp/email). Jeśli navigator.share nie jest dostępne (np. desktop),
-// pokazujemy nasze własne menu z bezpiecznymi kanałami jako fallback.
-async function shareViaNativeSheet(text) {
-  if (navigator.share) {
-    try { await navigator.share({ text }); return true; } catch (e) { if (e?.name === 'AbortError') return true; }
-  }
-  return false;
-}
-async function openShareMenu(text) {
-  if (await shareViaNativeSheet(text)) return;
+// nie SMS/WhatsApp/email). Jedyny sposób, żeby zagwarantować brak Messengera na
+// liście, to nie pokazywać tej listy wcale — więc zawsze pokazujemy własne menu
+// z jawnie wybranymi, bezpiecznymi kanałami.
+function openShareMenu(text) {
   document.getElementById('share-link-input').value = text;
   const m = document.getElementById('modal-share-fallback');
   m.classList.remove('hidden'); m.style.display = 'flex';
