@@ -21,7 +21,7 @@
 <meta name="description" content="Gdzie muzyka łączy ludzi. Pierwsza polska platforma networkingowa dla branży muzycznej.">
 <link rel="icon" type="image/png" sizes="192x192" href="https://spotigraj.app/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%239D4EDD'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%239D4EDD'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%239D4EDD'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%239D4EDD'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="https://spotigraj.app/icon-192.png"/>
 <meta name="theme-color" content="#9D4EDD"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2529,12 +2529,11 @@ function shareViaWhatsApp() {
 }
 function shareViaTelegram() {
   const text = document.getElementById('share-link-input').value;
-  // Telegram wymaga niepustego "url", inaczej pokazuje generyczną stronę web zamiast
-  // otworzyć appkę — wyciągamy link z tekstu i wysyłamy osobno od reszty jako caption.
-  const match = text.match(/https?:\/\/\S+/);
-  const url = match ? match[0] : '';
-  const caption = match ? text.replace(match[0], '').trim() : text;
-  window.location.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(caption)}`;
+  // EKSPERYMENT: samo "text" (link zostaje w naturalnym miejscu w treści, na końcu),
+  // bez osobnego "url" — do sprawdzenia na żywym urządzeniu, czy to nadal otwiera
+  // appkę Telegram (poprzednio osobny "url" otwierał appkę, ale wstawiał link NAD
+  // tekstem zamiast na końcu wiadomości, bo tak Telegram zawsze układa url+text).
+  window.location.href = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
 }
 function shareViaEmail() {
   const text = document.getElementById('share-link-input').value;
