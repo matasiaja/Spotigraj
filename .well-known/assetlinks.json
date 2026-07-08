@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.spotigraj.twa",
+    "sha256_cert_fingerprints": [
+      "50:E9:DD:C1:EE:70:48:FF:A1:D3:D6:E4:9B:EE:AE:CA:23:6F:E1:47:2A:60:8B:37:91:ED:B8:62:FE:B4:8F:5D"
+    ]
+  }
+}]

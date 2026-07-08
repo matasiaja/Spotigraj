@@ -5,3 +5,16 @@
 vapid_keys.txt
 *_keys.txt
 *secret*.txt
+
+# Capacitor (generated — regenerate with `npm run sync-web && npx cap sync`)
+node_modules/
+www/
+ios/
+android/
+
+# Signing credentials — never commit
+android-keystore-credentials.txt
+*.keystore
+*.jks
+android-twa/
+*.expect

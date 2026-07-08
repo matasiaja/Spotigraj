@@ -1,0 +1,11 @@
+{
+  "appId": "app.spotigraj.mobile",
+  "appName": "Spotigraj",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}
