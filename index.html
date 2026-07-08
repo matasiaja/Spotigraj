@@ -2536,7 +2536,12 @@ function shareViaWhatsApp() {
 }
 function shareViaTelegram() {
   const text = document.getElementById('share-link-input').value;
-  window.open('https://t.me/share/url?url=&text=' + encodeURIComponent(text), '_blank');
+  // Telegram wymaga niepustego "url", inaczej pokazuje generyczną stronę web zamiast
+  // otworzyć appkę — wyciągamy link z tekstu i wysyłamy osobno od reszty jako caption.
+  const match = text.match(/https?:\/\/\S+/);
+  const url = match ? match[0] : '';
+  const caption = match ? text.replace(match[0], '').trim() : text;
+  window.location.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(caption)}`;
 }
 function shareViaEmail() {
   const text = document.getElementById('share-link-input').value;
