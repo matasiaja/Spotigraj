@@ -3497,7 +3497,11 @@ function buttonSwipe(targetId, action) {
   }
 }
 
+let cleanupSliderHandlers = null;
+
 function attachSliderHandlers(card, targetId) {
+  if (cleanupSliderHandlers) { cleanupSliderHandlers(); cleanupSliderHandlers = null; }
+
   const slider = card.querySelector('.swipe-slider');
   if (!slider) return;
   const inviteDisabled = slider.classList.contains('swipe-slider--disabled');
@@ -3534,6 +3538,7 @@ function attachSliderHandlers(card, targetId) {
   }
 
   function reset() {
+    dragging = false;
     handle.style.transition = 'transform 0.2s cubic-bezier(.34,1.56,.64,1)';
     update(0);
     setTimeout(() => { handle.style.transition = ''; }, 230);
@@ -3572,6 +3577,25 @@ function attachSliderHandlers(card, targetId) {
   handle.addEventListener('pointermove', onMove);
   handle.addEventListener('pointerup',   onUp);
   handle.addEventListener('pointercancel', reset);
+  handle.addEventListener('lostpointercapture', () => { if (dragging) reset(); });
+
+  // Safety net: some browsers (notably Safari) occasionally fail to deliver
+  // pointerup/lostpointercapture to a captured element on fast drags, which
+  // left `dragging` stuck true and the handle unresponsive until reload.
+  // Mirror the same handlers on window so the drag always resolves, and
+  // tear them down whenever this card is replaced (see cleanupSliderHandlers).
+  const onBlur = () => { if (dragging) reset(); };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup',   onUp);
+  window.addEventListener('pointercancel', reset);
+  window.addEventListener('blur', onBlur);
+
+  cleanupSliderHandlers = () => {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup',   onUp);
+    window.removeEventListener('pointercancel', reset);
+    window.removeEventListener('blur', onBlur);
+  };
 
   // TODO: pełna obsługa klawiatury (ArrowLeft/Right + Enter + aria-valuenow) — na teraz fallback
   handle.addEventListener('keydown', e => {
