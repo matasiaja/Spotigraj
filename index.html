@@ -670,7 +670,8 @@ html, body {
 .msg-time-text { opacity: 0.55; }
 .msg-out .msg-time { justify-content: flex-end; }
 .msg-ticks { letter-spacing: -1px; font-weight: 900; font-size: 12px; opacity: 0.7; }
-.msg-ticks--read { color: #6B1FA8; opacity: 1; }
+.msg-ticks--read-premium { color: #6B1FA8; opacity: 1; }
+.msg-ticks--read-free { color: #E0B400; opacity: 1; }
 .chat-input-row {
   display: flex;
   gap: 10px;
@@ -4311,9 +4312,13 @@ async function loadMessages() {
   container.scrollTop = container.scrollHeight;
 }
 
-// Wysłano: pojedynczy haczyk. Dostarczono: podwójny, szary. Przeczytano: podwójny, niebieski.
+// Wysłano: pojedynczy haczyk. Dostarczono: podwójny, szary. Przeczytano: podwójny,
+// fioletowy dla Premium / żółty dla darmowych kont (kolor zależy od TEGO, kto wysłał wiadomość).
 function renderMsgTicks(m) {
-  if (m.read)      return '<span class="msg-ticks msg-ticks--read" title="Przeczytano">✓✓</span>';
+  if (m.read) {
+    const readClass = isPremium() ? 'msg-ticks--read-premium' : 'msg-ticks--read-free';
+    return `<span class="msg-ticks ${readClass}" title="Przeczytano">✓✓</span>`;
+  }
   if (m.delivered) return '<span class="msg-ticks" title="Dostarczono">✓✓</span>';
   return '<span class="msg-ticks" title="Wysłano">✓</span>';
 }
