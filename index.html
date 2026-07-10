@@ -3081,6 +3081,7 @@ function showApp() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
+  document.getElementById('bug-btn').dataset.loggedIn = '1';
   document.getElementById('bug-btn').style.display = 'flex';
   // Fundament historii — DWA wpisy na dole stosu (ten sam #discover), żeby pierwszy Back
   // na Discover faktycznie odpalił popstate (JS potrzebuje co najmniej jednego wpisu pod sobą,
@@ -3407,6 +3408,12 @@ function _applyScreen(screen, anchor) {
   if (screen === 'zastepstwa') loadZastepstwa();
   if (screen === 'appgrajd') loadAppgrajd();
   if (screen === 'settings') loadSettings();
+  // Ikonka zgłaszania błędów tylko na Discover i w Ustawieniach — na innych ekranach
+  // (zwłaszcza Wiadomości) zasłaniała istotne powiadomienia.
+  const bugBtn = document.getElementById('bug-btn');
+  if (bugBtn && bugBtn.dataset.loggedIn === '1') {
+    bugBtn.style.display = (screen === 'discover' || screen === 'settings') ? 'flex' : 'none';
+  }
   _saveViewState(null);
 }
 
