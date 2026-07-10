@@ -1864,6 +1864,14 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       <button onclick="shareReferral()" style="width:100%;margin-top:10px;padding:11px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Poleć appkę</button>
     </div>
 
+    <!-- Kategoria: Wiadomość — panel admina do wysyłania ogłoszeń do wszystkich Spotigrajtonów. Ukryte JS-em, chyba że currentProfile.is_admin. -->
+    <div id="prem-admin-message" class="hidden" style="background:rgba(0,229,255,0.08);border:1.5px solid rgba(0,229,255,0.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
+      📣 <strong style="color:var(--text)">Wiadomość</strong> — wyślij ogłoszenie do wszystkich Spotigrajtonów
+      <textarea id="admin-announcement-text" placeholder="Napisz wiadomość, którą zobaczą wszyscy użytkownicy..." style="width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;resize:vertical;min-height:70px;font-family:inherit"></textarea>
+      <button onclick="sendAnnouncement()" style="width:100%;margin-top:8px;padding:11px;background:#00E5FF;border:none;border-radius:50px;color:#000;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Wyślij do wszystkich</button>
+      <div id="admin-announcement-status" style="margin-top:6px;font-size:11px"></div>
+    </div>
+
     <!-- Info o kuponie -->
     <div id="prem-coupon-info" class="promo-glow-pulse" style="background:rgba(29,185,84,0.08);border:2px solid #00E5FF;box-shadow:0 0 12px rgba(0,229,255,0.6),0 0 32px rgba(0,229,255,0.35);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
       🎁 Masz kod promocyjny? Wpisz go poniżej (dotyczy planu miesięcznego):
@@ -1895,6 +1903,16 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       Poleć appkę →
     </button>
     <button onclick="closeP4Z0Modal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">Może później</button>
+  </div>
+</div>
+
+<!-- OGŁOSZENIE: wiadomość od admina, treść wstawiana dynamicznie przez showAnnouncementModal() -->
+<div id="modal-announcement" class="hidden" onclick="if(event.target===this)closeAnnouncementModal()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--dark2);border:1px solid rgba(29,185,84,0.3);border-radius:var(--radius);padding:28px 24px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">📣</div>
+    <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:16px">Wiadomość od Spotigraj</div>
+    <div id="announcement-text" style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:20px;text-align:left;white-space:pre-wrap"></div>
+    <button onclick="closeAnnouncementModal()" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;letter-spacing:0.01em;font-family:inherit">Rozumiem</button>
   </div>
 </div>
 
@@ -2207,6 +2225,54 @@ function closeP4Z0Modal() {
   localStorage.setItem(P4Z0_SEEN_KEY, '1');
   const m = document.getElementById('modal-p4z0');
   m.classList.add('hidden'); m.style.display = 'none';
+}
+
+// ── ADMIN ANNOUNCEMENTS ("Wiadomość") ────────────────────────────
+// Kategoria admina w modalu Premium: wysyła jednorazowy komunikat do
+// wszystkich Spotigrajtonów. Widoczność samego panelu do wysyłania
+// kontrolowana w showPremiumModal() (currentProfile.is_admin).
+const ANNOUNCEMENT_SEEN_PREFIX = 'spotigraj_announcement_seen_';
+
+async function sendAnnouncement() {
+  const textarea = document.getElementById('admin-announcement-text');
+  const status = document.getElementById('admin-announcement-status');
+  const message = textarea.value.trim();
+  if (!message) { status.textContent = 'Napisz treść wiadomości.'; status.style.color = 'var(--error)'; return; }
+
+  status.textContent = 'Wysyłanie...'; status.style.color = 'var(--muted2)';
+  const { error } = await sb.from('announcements').insert({ message, created_by: currentUser.id });
+  if (error) {
+    status.textContent = 'Błąd: ' + error.message; status.style.color = 'var(--error)';
+    return;
+  }
+  textarea.value = '';
+  status.textContent = 'Wysłano — pojawi się wszystkim przy następnym wejściu do appki.';
+  status.style.color = 'var(--green)';
+}
+
+function showAnnouncementModal(text) {
+  document.getElementById('announcement-text').textContent = text;
+  const m = document.getElementById('modal-announcement');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+function closeAnnouncementModal() {
+  const m = document.getElementById('modal-announcement');
+  m.classList.add('hidden'); m.style.display = 'none';
+}
+
+// Pokazuje najnowsze aktywne ogłoszenie, jeśli ten użytkownik (przeglądarka) go jeszcze nie widział.
+// Każde ogłoszenie ma osobny klucz w localStorage (po id), więc kolejne wiadomości znów się pokażą.
+async function showLatestAnnouncementIfNeeded() {
+  const { data, error } = await sb.from('announcements')
+    .select('id, message')
+    .eq('active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return;
+  if (localStorage.getItem(ANNOUNCEMENT_SEEN_PREFIX + data.id)) return;
+  localStorage.setItem(ANNOUNCEMENT_SEEN_PREFIX + data.id, '1');
+  showAnnouncementModal(data.message);
 }
 
 // Wywoływane raz, tuż po potwierdzeniu emaila przez nowego usera. short_id
@@ -3098,6 +3164,7 @@ function showApp() {
   updateMatchDot();
   subscribeMatchDot();
   showP4Z0AnnouncementIfNeeded();
+  showLatestAnnouncementIfNeeded();
 }
 
 // Globalna subskrypcja — aktualizuje badge na żywo niezależnie od aktywnego ekranu
@@ -4966,6 +5033,7 @@ function showPremiumModal(context) {
   document.getElementById('prem-subtitle').textContent = ctx.subtitle;
   // reset do planu miesięcznego
   setPremPlan('monthly', document.querySelector('.prem-plan-btn'));
+  document.getElementById('prem-admin-message')?.classList.toggle('hidden', !currentProfile?.is_admin);
   document.getElementById('modal-premium').classList.remove('hidden');
   document.getElementById('modal-premium').style.display = 'flex';
   // Backspace zamknie modal zamiast wyjść z appki
