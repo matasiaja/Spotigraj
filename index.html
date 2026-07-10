@@ -666,7 +666,10 @@ html, body {
   border-bottom-left-radius: 5px;
   border: 1px solid var(--border);
 }
-.msg-time { font-size: 10px; opacity: 0.55; margin-top: 4px; }
+.msg-time { font-size: 10px; opacity: 0.55; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.msg-out .msg-time { justify-content: flex-end; }
+.msg-ticks { letter-spacing: -1px; }
+.msg-ticks--read { color: #4FC3F7; }
 .chat-input-row {
   display: flex;
   gap: 10px;
@@ -3112,6 +3115,7 @@ function showApp() {
   checkEmailVerification();
   refreshUnreadCounts();
   subscribeUnreadBadge();
+  markPendingMessagesDelivered();
   updateAppgrajdBadge();
   updateMatchDot();
   subscribeMatchDot();
@@ -3127,6 +3131,9 @@ function subscribeUnreadBadge() {
   unreadSub = sb.channel('unread-badge-' + currentUser.id)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=eq.' + currentUser.id }, payload => {
       refreshUnreadCounts();
+      // Mój klient jest online i dostał wiadomość — oznacz jako dostarczoną,
+      // niezależnie od tego, czy mam akurat otwarty ten konkretny czat.
+      sb.from('messages').update({ delivered: true }).eq('id', payload.new.id);
       if (chatWith !== payload.new.sender_id) {
         const senderRow = document.querySelector('.conv-row[data-uid="' + payload.new.sender_id + '"]');
         const senderName = senderRow?.querySelector('.conv-name')?.textContent?.trim() || 'Ktoś';
@@ -3134,6 +3141,12 @@ function subscribeUnreadBadge() {
       }
     })
     .subscribe();
+}
+
+// Przy starcie appki: wszystko co czekało zanim byłem online, liczy się jako właśnie dostarczone.
+async function markPendingMessagesDelivered() {
+  if (!currentUser) return;
+  await sb.from('messages').update({ delivered: true }).eq('receiver_id', currentUser.id).eq('delivered', false);
 }
 
 function subscribeMatchDot() {
@@ -4265,7 +4278,7 @@ async function openChat(userId) {
   await loadMessages();
 
   // Oznacz wiadomości od tego usera jako przeczytane
-  await sb.from('messages').update({ read: true }).eq('sender_id', userId).eq('receiver_id', currentUser.id).eq('read', false);
+  await sb.from('messages').update({ delivered: true, read: true }).eq('sender_id', userId).eq('receiver_id', currentUser.id).eq('read', false);
   refreshUnreadCounts();
 
   if (chatSub) chatSub.unsubscribe();
@@ -4273,8 +4286,15 @@ async function openChat(userId) {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
       if ((payload.new.sender_id === userId && payload.new.receiver_id === currentUser.id)) {
         appendMsg(payload.new, false);
-        // Czat jest otwarty z tym userem — oznacz od razu jako przeczytane
-        sb.from('messages').update({ read: true }).eq('id', payload.new.id).then(() => refreshUnreadCounts());
+        // Czat jest otwarty z tym userem — oznacz od razu jako dostarczone i przeczytane
+        sb.from('messages').update({ delivered: true, read: true }).eq('id', payload.new.id).then(() => refreshUnreadCounts());
+      }
+    })
+    // Wiadomości, które JA wysłałem do tego rozmówcy — aktualizuj haczyki na żywo,
+    // gdy druga strona je odbierze (delivered) albo przeczyta (read).
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, payload => {
+      if (payload.new.sender_id === currentUser.id && payload.new.receiver_id === userId) {
+        updateMsgTicks(payload.new);
       }
     }).subscribe();
 }
@@ -4290,14 +4310,32 @@ async function loadMessages() {
   container.scrollTop = container.scrollHeight;
 }
 
+// Wysłano: pojedynczy haczyk. Dostarczono: podwójny, szary. Przeczytano: podwójny, niebieski.
+function renderMsgTicks(m) {
+  if (m.read)      return '<span class="msg-ticks msg-ticks--read" title="Przeczytano">✓✓</span>';
+  if (m.delivered) return '<span class="msg-ticks" title="Dostarczono">✓✓</span>';
+  return '<span class="msg-ticks" title="Wysłano">✓</span>';
+}
+
 function appendMsg(m, isOwn) {
   const container = document.getElementById('chat-messages');
   const d = document.createElement('div');
+  d.id = 'msg-' + m.id;
   d.className = 'msg ' + (isOwn ? 'msg-out' : 'msg-in');
   const time = new Date(m.created_at).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  d.innerHTML = `${m.content}<div class="msg-time">${time}</div>`;
+  d.innerHTML = `${m.content}<div class="msg-time">${time}${isOwn ? renderMsgTicks(m) : ''}</div>`;
   container.appendChild(d);
   container.scrollTop = container.scrollHeight;
+}
+
+// Aktualizuje haczyki na już wyrenderowanym dymku (np. gdy odbiorca przeczyta wiadomość w trakcie otwartego czatu).
+function updateMsgTicks(m) {
+  const el = document.getElementById('msg-' + m.id);
+  if (!el) return;
+  const timeEl = el.querySelector('.msg-time');
+  if (!timeEl) return;
+  const existingTicks = timeEl.querySelector('.msg-ticks');
+  if (existingTicks) existingTicks.outerHTML = renderMsgTicks(m);
 }
 
 async function sendMessage() {
