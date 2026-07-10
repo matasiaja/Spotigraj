@@ -666,10 +666,11 @@ html, body {
   border-bottom-left-radius: 5px;
   border: 1px solid var(--border);
 }
-.msg-time { font-size: 10px; opacity: 0.55; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.msg-time { font-size: 10px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.msg-time-text { opacity: 0.55; }
 .msg-out .msg-time { justify-content: flex-end; }
-.msg-ticks { letter-spacing: -1px; }
-.msg-ticks--read { color: var(--purple-accent); }
+.msg-ticks { letter-spacing: -1px; font-weight: 900; font-size: 12px; opacity: 0.7; }
+.msg-ticks--read { color: #6B1FA8; opacity: 1; }
 .chat-input-row {
   display: flex;
   gap: 10px;
@@ -4323,7 +4324,7 @@ function appendMsg(m, isOwn) {
   d.id = 'msg-' + m.id;
   d.className = 'msg ' + (isOwn ? 'msg-out' : 'msg-in');
   const time = new Date(m.created_at).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  d.innerHTML = `${m.content}<div class="msg-time">${time}${isOwn ? renderMsgTicks(m) : ''}</div>`;
+  d.innerHTML = `${m.content}<div class="msg-time"><span class="msg-time-text">${time}</span>${isOwn ? renderMsgTicks(m) : ''}</div>`;
   container.appendChild(d);
   container.scrollTop = container.scrollHeight;
 }
