@@ -4321,13 +4321,13 @@ async function loadMessages() {
 
 // Wysłano: ptaszek (fioletowy dla Premium / żółty dla darmowych kont — kolor zależy
 // od TEGO, kto wysłał wiadomość). Dostarczono: klepsydra. Przeczytano: gitarka.
-const MSG_BIRD_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M23 5.1c-.85.38-1.76.63-2.72.75a4.76 4.76 0 0 0 2.09-2.62c-.92.55-1.94.94-3.02 1.16A4.75 4.75 0 0 0 11.02 8.6c0 .37.04.73.12 1.08A13.48 13.48 0 0 1 1.64 4.3a4.75 4.75 0 0 0 1.47 6.33 4.71 4.71 0 0 1-2.15-.59v.06a4.75 4.75 0 0 0 3.81 4.65c-.4.11-.82.17-1.25.17-.3 0-.6-.03-.9-.08a4.76 4.76 0 0 0 4.44 3.3A9.53 9.53 0 0 1 0 20.13a13.44 13.44 0 0 0 7.29 2.14c8.75 0 13.53-7.25 13.53-13.53 0-.21 0-.41-.02-.62A9.7 9.7 0 0 0 23 5.1z"/></svg>';
+const MSG_NOTE_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
 
 function renderMsgTicks(m) {
   if (m.read) return '<span class="msg-ticks" title="Przeczytano">🎸</span>';
   if (m.delivered) return '<span class="msg-ticks" title="Dostarczono">⏳</span>';
   const sentClass = isPremium() ? 'msg-ticks--sent-premium' : 'msg-ticks--sent-free';
-  return `<span class="msg-ticks ${sentClass}" title="Wysłano">${MSG_BIRD_SVG}</span>`;
+  return `<span class="msg-ticks ${sentClass}" title="Wysłano">${MSG_NOTE_SVG}</span>`;
 }
 
 function appendMsg(m, isOwn) {
