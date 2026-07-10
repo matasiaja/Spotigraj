@@ -1111,7 +1111,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div class="field"><label>Imię / pseudonim</label><input type="text" id="ob-name" placeholder="np. Matt, KasiaVocals..."></div>
     <div class="field">
       <label>Twoja rola</label>
-      <select id="ob-role">
+      <select id="ob-role" onchange="syncRoleOptions()">
         <option value="">Wybierz rolę...</option>
         <optgroup label="Wokaliści">
           <option>Wokalista/Wokalistka</option>
@@ -2816,12 +2816,14 @@ function checkRolePremium(select, wrapId) {
   if (!isPremium()) {
     select.value = '';
     showPremiumModal('roles');
+    syncRoleOptions();
     return;
   }
   if (wrapId === 'role2-wrap' && select.value) {
     const r3 = document.getElementById('role3-wrap');
     if (r3) r3.classList.remove('hidden');
   }
+  syncRoleOptions();
 }
 
 function selectGender(gender) {
@@ -2876,6 +2878,27 @@ function applyGenderToRoleOptions(gender) {
         : selectedOriginal;
       select.value = newSelectedValue;
     }
+  });
+  syncRoleOptions();
+}
+
+// Nie pozwala wybrać tej samej profesji w dwóch z trzech pól (ob-role/role2/role3).
+// Porównuje po dataset.original, bo widoczna wartość opcji zmienia się z płcią
+// (np. "Trębacz" vs "Trębaczka" to ta sama rola).
+function syncRoleOptions() {
+  const selects = ['ob-role', 'ob-role2', 'ob-role3']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+  const canonicalOf = opt => opt && opt.value ? (opt.dataset.original || opt.value) : '';
+  const selectedCanonical = selects.map(s => canonicalOf(s.options[s.selectedIndex]));
+
+  selects.forEach((select, i) => {
+    Array.from(select.options).forEach(opt => {
+      if (!opt.value) { opt.disabled = false; return; }
+      const optCanonical = opt.dataset.original || opt.value;
+      const selectedElsewhere = selectedCanonical.some((v, j) => j !== i && v && v === optCanonical);
+      opt.disabled = selectedElsewhere;
+    });
   });
 }
 
@@ -4433,6 +4456,7 @@ function showEdit() {
       if (r[1] && document.getElementById('ob-role2')) { document.getElementById('ob-role2').value = r[1]; document.getElementById('role3-wrap').classList.remove('hidden'); }
       if (r[2] && document.getElementById('ob-role3')) document.getElementById('ob-role3').value = r[2];
     }
+    syncRoleOptions();
     document.getElementById('ob-city').value = currentProfile.city || '';
     if (currentProfile.experience_level) selectExperience(currentProfile.experience_level);
     document.getElementById('ob-bio').value = currentProfile.bio || '';
