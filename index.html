@@ -2578,6 +2578,10 @@ async function shareApp() {
 }
 async function shareReferral() {
   if (!currentUser) return;
+  if (!currentProfile?.full_name || !currentProfile?.role || !currentProfile?.city) {
+    showToast('Uzupełnij najpierw swój profil, żeby dołączyć do programu partnerskiego', 'warn', 5000);
+    return;
+  }
   const { data, error } = await sb.from('referral_links').select('short_id').eq('referrer_id', currentUser.id).single();
   if (error || !data) {
     showToast('Nie udało się pobrać linku polecającego');
