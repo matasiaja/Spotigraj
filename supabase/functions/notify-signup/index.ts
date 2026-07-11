@@ -14,7 +14,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const email = payload.record?.email ?? "nieznany email";
-  const createdAt = payload.record?.created_at ?? new Date().toISOString();
+  const verifiedAt = payload.record?.created_at ?? new Date().toISOString();
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -23,10 +23,10 @@ Deno.serve(async (req: Request) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Spotigraj <onboarding@resend.dev>",
+      from: "Spotigraj <info@spotigraj.app>",
       to: [NOTIFY_EMAIL],
-      subject: "Nowa rejestracja w Spotigraj",
-      text: `Nowy użytkownik zarejestrował się w Spotigraj.\n\nEmail: ${email}\nData: ${createdAt}`,
+      subject: "Użytkownik zweryfikował konto w Spotigraj",
+      text: `Użytkownik potwierdził rejestrację w Spotigraj klikając link weryfikacyjny.\n\nEmail: ${email}\nZweryfikowano: ${verifiedAt}`,
     }),
   });
 
