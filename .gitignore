@@ -18,3 +18,6 @@ android-keystore-credentials.txt
 *.jks
 android-twa/
 *.expect
+
+# Supabase CLI local state
+supabase/.temp/
