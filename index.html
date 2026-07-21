@@ -2113,6 +2113,7 @@ const ROLE_SECTIONS = [
 const COLORS = ['#534AB7','#1D9E75','#D85A30','#C0392B','#8E44AD','#2980B9','#27AE60','#E67E22'];
 
 let currentUser = null;
+let _pendingChatOpen = null; // senderId z powiadomienia otwarty przed gotowością currentUser
 let currentProfile = null;
 let chatWith = null;
 let currentSubscription = null;
@@ -3098,7 +3099,14 @@ function showApp() {
   // Przywróć stan z URL hash (F5/reload) — _startHash zapisany przed pushBackTrap
   const _screenMap = { '#discover':'discover','#messages':'messages','#profile':'profile','#zastepstwa':'zastepstwa','#appgrajd':'appgrajd','#settings':'settings' };
   const chatMatch = _startHash.match(/^#messages\/chat\/(.+)$/);
-  if (chatMatch) {
+  if (_pendingChatOpen) {
+    // Powiadomienie otwarte zanim currentUser był gotowy — dokończ teraz.
+    const _pid = _pendingChatOpen;
+    _pendingChatOpen = null;
+    window.history.pushState({ screen: 'messages' }, '', '/#messages');
+    _applyScreen('messages');
+    openChat(_pid);
+  } else if (chatMatch) {
     window.history.pushState({ screen: 'messages' }, '', '/#messages');
     _applyScreen('messages');
     openChat(chatMatch[1]);
@@ -4262,6 +4270,18 @@ async function openChat(userId) {
   const chatEl = document.getElementById('chat-screen');
   chatEl.classList.add('active');
 
+  try {
+    await _openChatBody(userId);
+  } catch (e) {
+    // Nie zostawiaj appki zablokowanej na ukrytym ekranie głównym przy błędzie
+    // (np. currentUser jeszcze nie gotowy, brak sieci) — wróć do listy wiadomości.
+    console.warn('openChat error:', e);
+    window.history.replaceState({ screen: 'messages' }, '', '/#messages');
+    closeChat();
+  }
+}
+
+async function _openChatBody(userId) {
   const { data: p } = await sb.from('profiles').select('*').eq('id', userId).single();
   if (!p) {
     window.history.replaceState({ screen: 'messages' }, '', '/#messages');
@@ -5482,8 +5502,16 @@ if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker.addEventListener('message', e => {
     if (e.data?.type === 'OPEN_CHAT' && e.data.senderId) {
-      goTo('messages');
-      openChat(e.data.senderId);
+      // currentUser może jeszcze nie być gotowy (appka wybudzona z tła przez tap
+      // w powiadomienie) — otwarcie czatu wtedy wywala loadMessages() na
+      // currentUser.id i appka zawiesza się na wpół wyrenderowanym ekranie.
+      // Odkładamy więc otwarcie do momentu, aż showApp() faktycznie ruszy.
+      if (currentUser) {
+        goTo('messages');
+        openChat(e.data.senderId);
+      } else {
+        _pendingChatOpen = e.data.senderId;
+      }
     }
   });
 
