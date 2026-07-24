@@ -1134,7 +1134,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div class="ob-step" data-step="1">
     <div class="onboard-sub">Powiedz nam kim jesteś jako muzyk</div>
     <div class="ob-avatar-upload" id="ob-avatar-preview" onclick="document.getElementById('ob-avatar-input').click()">📷</div>
-    <div class="ob-avatar-hint">Dodaj zdjęcie — profile bez zdjęcia dostają dużo mniej polubień</div>
+    <div class="ob-avatar-hint">Dodaj zdjęcie (opcjonalnie) — profile ze zdjęciem dostają dużo więcej polubień</div>
     <input type="file" id="ob-avatar-input" accept="image/*" style="display:none" onchange="uploadOnboardingAvatar(this)">
     <div class="field"><label>Imię / pseudonim</label><input type="text" id="ob-name" placeholder="np. Matt, KasiaVocals..."></div>
     <div class="field">
@@ -3026,10 +3026,6 @@ function obValidateStep(step) {
     if (!name || !role) {
       markFieldsInvalid(...(!name ? ['ob-name'] : []), ...(!role ? ['ob-role'] : []));
       return setErr('ob-err', 'Wypełnij imię i rolę'), false;
-    }
-    if (!obAvatarPath) {
-      document.getElementById('ob-avatar-preview').classList.add('field-invalid');
-      return setErr('ob-err', 'Dodaj zdjęcie profilowe — bez niego trudniej o match'), false;
     }
     return true;
   }
