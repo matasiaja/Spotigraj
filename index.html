@@ -939,6 +939,18 @@ html, body {
 }
 .onboard-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -0.01em; }
 .onboard-sub { font-size: 14px; color: var(--muted2); margin-bottom: 24px; }
+.ob-progress-track { height: 4px; background: var(--navy3); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.ob-progress-fill { height: 100%; width: 25%; background: var(--accent); border-radius: 4px; transition: width 0.25s ease; }
+.ob-progress-label { font-size: 11px; color: var(--muted2); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 22px; }
+.ob-step.hidden { display: none; }
+.ob-nav-row { display: flex; gap: 10px; margin-top: 6px; }
+.ob-nav-row .btn { flex: 1; }
+.ob-avatar-upload {
+  width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 8px; background: var(--navy3);
+  border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: var(--muted); cursor: pointer; background-size: cover; background-position: center;
+}
+.ob-avatar-hint { text-align: center; font-size: 11px; color: var(--muted2); margin-bottom: 18px; }
 .genres-grid { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
 .genre-chip {
   padding: 7px 15px;
@@ -1116,7 +1128,14 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
 <div id="onboarding" class="hidden">
   <div class="onboard-box">
     <div class="onboard-title">Utwórz profil 🎵</div>
+    <div class="ob-progress-track"><div class="ob-progress-fill" id="ob-progress-fill"></div></div>
+    <div class="ob-progress-label" id="ob-progress-label">Krok 1 z 4 — Kim jesteś</div>
+
+    <div class="ob-step" data-step="1">
     <div class="onboard-sub">Powiedz nam kim jesteś jako muzyk</div>
+    <div class="ob-avatar-upload" id="ob-avatar-preview" onclick="document.getElementById('ob-avatar-input').click()">📷</div>
+    <div class="ob-avatar-hint">Dodaj zdjęcie — profile bez zdjęcia dostają dużo mniej polubień</div>
+    <input type="file" id="ob-avatar-input" accept="image/*" style="display:none" onchange="uploadOnboardingAvatar(this)">
     <div class="field"><label>Imię / pseudonim</label><input type="text" id="ob-name" placeholder="np. Matt, KasiaVocals..."></div>
     <div class="field">
       <label>Twoja rola</label>
@@ -1268,6 +1287,13 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
         <button type="button" class="status-btn" id="gender-f" data-gender="female" onclick="selectGender('female')" style="flex:1">Kobieta</button>
       </div>
     </div>
+    <div class="ob-nav-row">
+      <button type="button" class="btn btn-green" onclick="obNext()">Dalej</button>
+    </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="2">
+    <div class="onboard-sub">Doświadczenie i dostępność</div>
     <div class="field">
       <label>Poziom zaawansowania *</label>
       <div style="display:flex;gap:8px;margin-top:4px">
@@ -1334,6 +1360,14 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:6px">Włącz jeśli możesz wskoczyć na zastępstwo w razie potrzeby — nawet gdy jesteś zajęty w stałym składzie.</div>
     </div>
+    <div class="ob-nav-row">
+      <button type="button" class="btn" onclick="obBack()">Wstecz</button>
+      <button type="button" class="btn btn-green" onclick="obNext()">Dalej</button>
+    </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="3">
+    <div class="onboard-sub">Czym grasz i kogo szukasz</div>
     <div class="field">
       <label>Gatunki muzyczne (wybierz kilka)</label>
       <div class="genres-grid" id="genres-grid"></div>
@@ -1342,11 +1376,24 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       <label>Kogo szukasz? (wybierz kilka ról)</label>
       <div class="genres-grid" id="looking-for-grid"></div>
     </div>
+    <div class="ob-nav-row">
+      <button type="button" class="btn" onclick="obBack()">Wstecz</button>
+      <button type="button" class="btn btn-green" onclick="obNext()">Dalej</button>
+    </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="4">
+    <div class="onboard-sub">Kilka słów o Tobie (opcjonalnie)</div>
     <div class="field">
       <label>Krótkie bio (opcjonalnie)</label>
       <textarea id="ob-bio" placeholder="Kilka słów o sobie i czego szukasz... (nie podawaj kontaktów — telefon i czat dostępne po matchu)"></textarea>
     </div>
-    <button class="btn btn-green" id="save-profile-btn" onclick="saveProfile()">Gotowe — szukaj muzyków!</button>
+    <div class="ob-nav-row">
+      <button type="button" class="btn" onclick="obBack()">Wstecz</button>
+      <button class="btn btn-green" id="save-profile-btn" onclick="saveProfile()">Gotowe — szukaj muzyków!</button>
+    </div>
+    </div>
+
     <div class="err" id="ob-err"></div>
     <button type="button" onclick="skipOnboarding()" style="width:100%;margin-top:10px;padding:13px;background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.01em">Wypełnię później →</button>
   </div>
@@ -2116,6 +2163,9 @@ let currentUser = null;
 let _pendingChatOpen = null; // senderId z powiadomienia otwarty przed gotowością currentUser
 let currentProfile = null;
 let chatWith = null;
+let obStep = 1;
+const OB_TOTAL_STEPS = 4;
+let obAvatarPath = null;
 let currentSubscription = null;
 let _svInStartup = true;
 let chatSub = null;
@@ -2955,6 +3005,105 @@ function markFieldsInvalid(...ids) {
   ids.forEach(id => document.getElementById(id)?.classList.add('field-invalid'));
 }
 
+// ── ONBOARDING: kreator krok po kroku ────────────────────────────
+const OB_STEP_LABELS = { 1: 'Kim jesteś', 2: 'Doświadczenie i dostępność', 3: 'Czym grasz', 4: 'O Tobie' };
+
+function obGoToStep(step) {
+  obStep = step;
+  document.querySelectorAll('.ob-step').forEach(el => {
+    el.classList.toggle('hidden', Number(el.dataset.step) !== step);
+  });
+  document.getElementById('ob-progress-fill').style.width = (step / OB_TOTAL_STEPS * 100) + '%';
+  document.getElementById('ob-progress-label').textContent = `Krok ${step} z ${OB_TOTAL_STEPS} — ${OB_STEP_LABELS[step]}`;
+  setErr('ob-err', '');
+}
+
+function obValidateStep(step) {
+  clearFieldErrors();
+  if (step === 1) {
+    const name = document.getElementById('ob-name').value.trim();
+    const role = document.getElementById('ob-role').value;
+    if (!name || !role) {
+      markFieldsInvalid(...(!name ? ['ob-name'] : []), ...(!role ? ['ob-role'] : []));
+      return setErr('ob-err', 'Wypełnij imię i rolę'), false;
+    }
+    if (!obAvatarPath) {
+      document.getElementById('ob-avatar-preview').classList.add('field-invalid');
+      return setErr('ob-err', 'Dodaj zdjęcie profilowe — bez niego trudniej o match'), false;
+    }
+    return true;
+  }
+  if (step === 2) {
+    const city = document.getElementById('ob-city').value.trim();
+    const expBtn = document.querySelector('#exp-amator.selected, #exp-sredni.selected, #exp-pro.selected');
+    if (!expBtn) {
+      markFieldsInvalid('exp-amator', 'exp-sredni', 'exp-pro');
+      return setErr('ob-err', 'Wybierz poziom zaawansowania'), false;
+    }
+    if (!city) {
+      markFieldsInvalid('ob-city');
+      return setErr('ob-err', 'Podaj miasto'), false;
+    }
+    const phone = document.getElementById('ob-phone')?.value.trim() || '';
+    if (phone) {
+      const phoneDigits = phone.replace(/[\s\-\(\)]/g, '');
+      const phoneRegex = /^\+(?=[1-9][0-9]{6,12}$)[0-9]+$/;
+      if (!phoneRegex.test(phoneDigits)) {
+        markFieldsInvalid('ob-phone');
+        return setErr('ob-err', 'Nieprawidłowy numer telefonu. Podaj numer z kierunkowym kraju, np. +48 600 123 456'), false;
+      }
+    }
+    return true;
+  }
+  if (step === 3) {
+    const genres = [...document.querySelectorAll('#genres-grid .genre-chip.selected')];
+    const lookingFor = [...document.querySelectorAll('#looking-for-grid .genre-chip.selected')];
+    if (genres.length === 0) {
+      markFieldsInvalid('genres-grid');
+      return setErr('ob-err', 'Wybierz przynajmniej jeden gatunek'), false;
+    }
+    if (lookingFor.length === 0) {
+      markFieldsInvalid('looking-for-grid');
+      return setErr('ob-err', 'Wybierz przynajmniej jedną rolę kogo szukasz'), false;
+    }
+    return true;
+  }
+  return true;
+}
+
+function obNext() {
+  if (!obValidateStep(obStep)) return;
+  if (obStep < OB_TOTAL_STEPS) obGoToStep(obStep + 1);
+}
+
+function obBack() {
+  if (obStep > 1) obGoToStep(obStep - 1);
+}
+
+async function uploadOnboardingAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Zdjęcie nie może być większe niż 2MB');
+    return;
+  }
+  const preview = document.getElementById('ob-avatar-preview');
+  preview.textContent = '⏳';
+  const ext = file.name.split('.').pop();
+  const path = `${currentUser.id}/avatar.${ext}`;
+  const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (upErr) {
+    alert('Błąd uploadu: ' + upErr.message);
+    preview.textContent = '📷';
+    return;
+  }
+  obAvatarPath = path;
+  preview.classList.remove('field-invalid');
+  const { data } = sb.storage.from('avatars').getPublicUrl(path);
+  preview.style.backgroundImage = `url(${data.publicUrl})`;
+  preview.textContent = '';
+}
+
 async function saveProfile() {
   clearFieldErrors();
   const name = document.getElementById('ob-name').value.trim();
@@ -3036,6 +3185,7 @@ async function saveProfile() {
     role, roles: roles, city, bio, genres,
     looking_for: lookingFor,
     avatar_color: color,
+    avatar_url: obAvatarPath || currentProfile?.avatar_url || null,
     phone: phone,
     status: status,
     vacation_until: vacationUntil || null,
@@ -3067,6 +3217,8 @@ function showOnboarding() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('onboarding').classList.remove('hidden');
   document.getElementById('app').classList.add('hidden');
+  obAvatarPath = null;
+  obGoToStep(1);
 }
 
 function skipOnboarding() {
