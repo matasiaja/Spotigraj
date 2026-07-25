@@ -2401,7 +2401,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-function buildSectionGrid(containerId, sections, selectedValues) {
+function buildSectionGrid(containerId, sections, selectedValues, maxSelected) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.innerHTML = '';
@@ -2444,6 +2444,13 @@ function buildSectionGrid(containerId, sections, selectedValues) {
       chip.className = 'genre-chip' + (selectedValues && selectedValues.includes(item) ? ' selected' : '');
       chip.textContent = item;
       chip.onclick = () => {
+        if (maxSelected && !chip.classList.contains('selected')) {
+          const totalSelected = container.querySelectorAll('.genre-chip.selected').length;
+          if (totalSelected >= maxSelected) {
+            showToast(`Możesz wybrać maksymalnie ${maxSelected} gatunków`, true);
+            return;
+          }
+        }
         chip.classList.toggle('selected');
         const hasSelected = chips.querySelectorAll('.genre-chip.selected').length > 0;
         const anySelected = sections.some(s =>
@@ -2471,7 +2478,7 @@ function buildSectionGrid(containerId, sections, selectedValues) {
 }
 
 function buildGenresGrid() {
-  buildSectionGrid('genres-grid', GENRE_SECTIONS, null);
+  buildSectionGrid('genres-grid', GENRE_SECTIONS, null, 8);
   buildSectionGrid('looking-for-grid', ROLE_SECTIONS, null);
 }
 
@@ -4756,7 +4763,7 @@ function showEdit() {
       }
     }
     // Przebuduj gridy z zaznaczonymi wartościami
-    buildSectionGrid('genres-grid', GENRE_SECTIONS, currentProfile.genres || []);
+    buildSectionGrid('genres-grid', GENRE_SECTIONS, currentProfile.genres || [], 8);
     buildSectionGrid('looking-for-grid', ROLE_SECTIONS, currentProfile.looking_for || []);
   }
   document.getElementById('app').classList.add('hidden');
