@@ -3677,6 +3677,8 @@ async function loadDiscover() {
 
   if (activeExpFilter !== 'Wszyscy') profiles = profiles.filter(p => p.experience_level === activeExpFilter);
 
+  // Kolejka sortowana wg calcMatch (gatunki, wzajemność ról, miasto) — dotąd ten sam wzór liczył tylko etykietkę % na karcie, nie kolejność
+  profiles.sort((a, b) => calcMatch(b) - calcMatch(a));
   profiles = profiles.slice(0, 10);
 
   container.innerHTML = '';
