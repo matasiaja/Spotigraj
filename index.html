@@ -3677,9 +3677,13 @@ async function loadDiscover() {
 
   if (activeExpFilter !== 'Wszyscy') profiles = profiles.filter(p => p.experience_level === activeExpFilter);
 
-  // Kolejka sortowana wg calcMatch (gatunki, wzajemność ról, miasto) — dotąd ten sam wzór liczył tylko etykietkę % na karcie, nie kolejność
-  profiles.sort((a, b) => calcMatch(b) - calcMatch(a));
-  profiles = profiles.slice(0, 10);
+  // Kolejka sortowana wg calcMatch (gatunki, wzajemność ról, miasto) — dotąd ten sam wzór liczył tylko etykietkę % na karcie, nie kolejność.
+  // Jitter na wyniku (nie na wyświetlanym %) zapobiega identycznej kolejce przy każdym odświeżeniu — bez niego słabsze
+  // dopasowania nigdy nie weszłyby do top 10, bo ranking byłby w 100% deterministyczny.
+  const DISCOVER_SCORE_JITTER = 18;
+  const scoredProfiles = profiles.map(p => ({ p, score: calcMatch(p) + (Math.random() - 0.5) * DISCOVER_SCORE_JITTER }));
+  scoredProfiles.sort((a, b) => b.score - a.score);
+  profiles = scoredProfiles.map(sp => sp.p).slice(0, 10);
 
   container.innerHTML = '';
 
