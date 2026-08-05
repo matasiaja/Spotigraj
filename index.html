@@ -331,11 +331,15 @@ html, body {
 .bug-cat {
   padding: 7px 16px; border-radius: 50px;
   border: 1.5px solid var(--border);
-  background: var(--navy3);
+  background: linear-gradient(180deg, var(--navy4), var(--navy3));
   color: var(--muted2); font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: all .15s; font-family: inherit;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s, border-color .15s;
 }
-.bug-cat.sel { background: var(--accent-glow); color: var(--accent); border-color: var(--border-accent); }
+.bug-cat:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
+.bug-cat.sel { background: var(--accent); color: var(--on-dark); border-color: transparent; box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.3); }
+.bug-cat.sel:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
 .bug-sheet textarea {
   width: 100%; padding: 13px 16px;
   background: var(--navy3); border: 1.5px solid var(--border);
@@ -474,16 +478,20 @@ html, body {
   padding: 7px 16px;
   border-radius: 50px;
   border: 1.5px solid var(--border);
-  background: var(--navy3);
+  background: linear-gradient(180deg, var(--navy4), var(--navy3));
   cursor: pointer;
   color: var(--muted2);
-  transition: all .2s;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s, border-color .15s;
 }
+.chip:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
 .chip.on {
-  background: var(--accent-glow);
-  color: var(--accent);
-  border-color: var(--border-accent);
+  background: var(--accent);
+  color: var(--on-dark);
+  border-color: transparent;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.3);
 }
+.chip.on:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
 
 /* ── PROFILE CARDS ─────────────────────────── */
 .profile-card {
@@ -779,18 +787,28 @@ html, body {
 .edit-btn {
   width: 100%;
   padding: 13px;
-  background: transparent;
-  border: 1.5px solid var(--border-accent);
+  background: linear-gradient(180deg, var(--accent-glow), transparent);
+  border: 1.5px solid var(--accent);
   border-radius: 50px;
   color: var(--accent);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   margin-top: 8px;
-  transition: all .2s;
+  box-shadow: 0 4px 0 var(--border-accent), 0 7px 14px rgba(157,78,221,.15), inset 0 1px 0 rgba(255,255,255,.1);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s;
   font-family: inherit;
 }
 .edit-btn:hover { background: var(--accent-glow); }
+.edit-btn:active { background: var(--accent-glow); box-shadow: 0 1px 0 var(--border-accent), inset 0 3px 7px rgba(0,0,0,.2); transform: translateY(3px); }
+.edit-btn-danger {
+  border-color: var(--error);
+  color: var(--error);
+  background: linear-gradient(180deg, rgba(255,107,122,0.12), transparent);
+  box-shadow: 0 4px 0 rgba(255,107,122,0.35), 0 7px 14px rgba(255,107,122,0.15), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.edit-btn-danger:hover { background: rgba(255,107,122,0.12); }
+.edit-btn-danger:active { background: rgba(255,107,122,0.12); box-shadow: 0 1px 0 rgba(255,107,122,0.35), inset 0 3px 7px rgba(0,0,0,.2); transform: translateY(3px); }
 .appgrajd-img {
   max-width: 100%; border-radius: var(--radius-xs);
   cursor: pointer; margin-top: 8px; display: block;
@@ -821,16 +839,20 @@ html, body {
   padding: 11px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--navy3);
+  background: linear-gradient(180deg, var(--navy4), var(--navy3));
   color: var(--muted2);
   font-size: 13px;
   cursor: pointer;
-  transition: all .2s;
   text-align: center;
   font-family: inherit;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s, border-color .15s;
 }
-.status-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
-.status-btn.standy-on { border-color: var(--warn); color: var(--warn); background: rgba(245,158,11,0.1); }
+.status-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 5px rgba(0,0,0,.35); }
+.status-btn.selected { border-color: transparent; color: var(--on-dark); background: var(--accent); box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.3); }
+.status-btn.selected:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 5px rgba(0,0,0,.35); }
+.status-btn.standy-on { border-color: transparent; color: #1a1200; background: var(--warn); box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px rgba(245,158,11,0.3), inset 0 1px 0 rgba(255,255,255,.3); }
+.status-btn.standy-on:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 5px rgba(0,0,0,.35); }
 .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 50px; white-space: nowrap; }
 .status-active { background: rgba(0,201,184,0.12); color: var(--accent); }
 .status-busy { background: rgba(234,179,8,0.12); color: var(--status-busy-color); }
@@ -963,15 +985,18 @@ html, body {
   padding: 7px 15px;
   border-radius: 50px;
   border: 1.5px solid var(--border);
-  background: var(--navy3);
+  background: linear-gradient(180deg, var(--navy4), var(--navy3));
   color: var(--muted2);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all .2s;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s, border-color .15s;
   font-family: inherit;
 }
-.genre-chip.selected { background: var(--accent-glow); color: var(--accent); border-color: var(--border-accent); }
+.genre-chip:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
+.genre-chip.selected { background: var(--accent); color: var(--on-dark); border-color: transparent; box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.3); }
+.genre-chip.selected:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
 .section-group { margin-bottom: 10px; width: 100%; }
 .section-btn {
   display: flex;
@@ -979,19 +1004,22 @@ html, body {
   justify-content: space-between;
   width: 100%;
   padding: 10px 14px;
-  background: var(--navy3);
+  background: linear-gradient(180deg, var(--navy4), var(--navy3));
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all .2s;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.10);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s, border-color .15s;
   text-align: left;
   font-family: inherit;
 }
+.section-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 5px rgba(0,0,0,.35); }
 .section-btn:hover { border-color: var(--border-accent); color: var(--accent); }
-.section-btn.has-selected { border-color: var(--border-accent); color: var(--accent); background: var(--accent-glow); }
+.section-btn.has-selected { border-color: transparent; color: var(--on-dark); background: var(--accent); box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.3); }
+.section-btn.has-selected:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 5px rgba(0,0,0,.35); }
 .section-btn .arrow { font-size: 11px; transition: transform .2s; }
 .section-btn.open .arrow { transform: rotate(180deg); }
 .section-chips {
@@ -1046,11 +1074,12 @@ html, body {
   box-shadow: 0 0 0 3px var(--cyan-glow);
 }
 #looking-for-grid .section-btn.has-selected {
-  border-color: var(--cyan-border); color: var(--cyan-accent);
-  background: var(--cyan-glow); box-shadow: 0 0 0 3px var(--cyan-glow);
+  border-color: transparent; color: var(--navy);
+  background: var(--cyan-accent); box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px var(--cyan-glow), inset 0 1px 0 rgba(255,255,255,.3);
 }
 #looking-for-grid .genre-chip.selected {
-  background: var(--cyan-glow); color: var(--cyan-accent); border-color: var(--cyan-border);
+  background: var(--cyan-accent); color: var(--navy); border-color: transparent;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px var(--cyan-glow), inset 0 1px 0 rgba(255,255,255,.3);
 }
 #looking-for-grid .selected-preview { color: var(--cyan-accent); }
 
@@ -1060,11 +1089,12 @@ body.premium-mode #looking-for-grid .section-btn:hover {
   box-shadow: 0 0 0 3px var(--purple-glow);
 }
 body.premium-mode #looking-for-grid .section-btn.has-selected {
-  border-color: var(--purple-border); color: var(--purple-accent);
-  background: var(--purple-glow); box-shadow: 0 0 0 3px var(--purple-glow);
+  border-color: transparent; color: var(--on-dark);
+  background: var(--purple-accent); box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 6px 12px var(--purple-glow), inset 0 1px 0 rgba(255,255,255,.3);
 }
 body.premium-mode #looking-for-grid .genre-chip.selected {
-  background: var(--purple-glow); color: var(--purple-accent); border-color: var(--purple-border);
+  background: var(--purple-accent); color: var(--on-dark); border-color: transparent;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px var(--purple-glow), inset 0 1px 0 rgba(255,255,255,.3);
 }
 body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-accent); }
 </style>
@@ -1528,7 +1558,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       </div>
       <button class="edit-btn" onclick="showEdit()">✏️ Edytuj profil</button>
       <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-        <button class="edit-btn" style="margin-top:0;flex:1;border-color:var(--error);color:var(--error)" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
+        <button class="edit-btn edit-btn-danger" style="margin-top:0;flex:1" onclick="confirmClearMatches()">🔄 Wyczyść matche</button>
         <div class="info-tip-wrap">
           <button class="info-icon-btn" onclick="toggleInfoTip(event)" aria-label="Informacja">?</button>
           <div class="info-tip-box" role="tooltip">Czyści wszystkie Twoje obecne matche. Możesz użyć tej funkcji raz na 30 dni (Premium: bez limitu).</div>
