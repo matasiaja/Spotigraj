@@ -165,7 +165,6 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex
   </div>
   <div class="nav-right">
     <a href="#zastepstwa" class="nav-link">Zastępstwa</a>
-    <a href="#cennik" class="nav-link">Cennik</a>
     <a href="https://spotigraj.app" class="nav-cta-outline">Zaloguj się</a>
     <a href="https://spotigraj.app" class="nav-cta">Wejdź do aplikacji →</a>
   </div>
@@ -178,8 +177,8 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex
   <h1>Gdzie muzyka<br><span>łączy ludzi.</span></h1>
   <p>Pierwsza polska platforma networkingowa dla całego przemysłu muzycznego. Muzycy, managerowie, producenci, realizatorzy — wszyscy w jednym miejscu. Teraz z modułem zastępstw.</p>
   <div class="hero-actions">
-    <a href="#cennik" class="btn-primary">Zacznij 7 dni za darmo →</a>
-    <a href="#cennik" class="btn-gold">✨ Kup Premium — 19 zł/mies.</a>
+    <a href="https://spotigraj.app" class="btn-primary">Zacznij 7 dni za darmo →</a>
+    <a href="https://spotigraj.app" class="btn-gold">✨ Kup Premium — 19 zł/mies.</a>
     <a href="#zastepstwa" class="btn-outline">🚨 Zobacz zastępstwa</a>
   </div>
   <div class="hero-stats">
@@ -295,8 +294,8 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex
   <!-- testimonial dodamy gdy będą prawdziwe opinie -->
   </div>
   <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative">
-    <a href="#cennik" class="btn-primary" style="font-size:18px;padding:18px 48px">Zacznij 7 dni za darmo →</a>
-    <a href="#cennik" class="btn-gold" style="font-size:18px;padding:18px 48px">✨ Kup Premium</a>
+    <a href="https://spotigraj.app" class="btn-primary" style="font-size:18px;padding:18px 48px">Zacznij 7 dni za darmo →</a>
+    <a href="https://spotigraj.app" class="btn-gold" style="font-size:18px;padding:18px 48px">✨ Kup Premium</a>
   </div>
   <div style="margin-top:14px;font-size:13px;color:#333;position:relative">Bez karty kredytowej · anuluj przed końcem trialu · bezpieczna płatność Stripe</div>
 </section>
@@ -324,87 +323,11 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex
 
 <div class="sep"></div>
 
-<!-- CENNIK -->
-<section id="cennik">
-  <div class="center">
-    <div class="s-label">Cennik</div>
-    <h2 class="s-title">Proste, uczciwe ceny</h2>
-    <p class="s-sub">Zacznij bezpłatnie. 7 dni Premium za darmo — bez karty kredytowej.</p>
-    <!-- Toggle -->
-    <div style="display:inline-flex;background:#0d0d0d;border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:4px;gap:4px;margin-top:24px">
-      <button onclick="setPricingPlan('monthly',this)" id="toggle-monthly" style="padding:8px 22px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;background:var(--purple);color:#000;font-family:inherit;transition:all .2s">Miesięcznie</button>
-      <button onclick="setPricingPlan('yearly',this)" id="toggle-yearly" style="padding:8px 22px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#555;font-family:inherit;transition:all .2s">Rocznie <span style="background:rgba(157,78,221,0.15);color:var(--purple);font-size:10px;padding:2px 7px;border-radius:10px;margin-left:2px">−35%</span></button>
-    </div>
-  </div>
-  <div class="pricing-grid">
-    <div class="plan">
-      <div class="plan-name">Free</div>
-      <div class="plan-price">0 zł</div>
-      <div class="plan-period">na zawsze bezpłatny</div>
-      <ul class="plan-features">
-        <li>5 matchów dziennie</li>
-        <li>3 zaproszenia / tydzień</li>
-        <li>Czat po połączeniu</li>
-        <li>Przeglądanie zastępstw i Stand By</li>
-        <li>Status dostępności</li>
-        <li>1 projekt</li>
-      </ul>
-      <a href="https://spotigraj.app" class="btn-plan btn-free">Zacznij za darmo</a>
-    </div>
-    <div class="plan featured">
-      <div class="plan-badge green">Najpopularniejszy</div>
-      <div class="plan-name">Premium</div>
-      <div class="plan-price" id="landing-price">19 zł</div>
-      <div class="plan-period" id="landing-period">miesięcznie · anuluj kiedy chcesz</div>
-      <ul class="plan-features">
-        <li>Nieograniczone matche</li>
-        <li>Priorytet w wynikach wyszukiwania</li>
-        <li>Zaawansowane filtry</li>
-        <li style="font-weight:700;color:#fff">🚑 Publikowanie zastępstw</li>
-        <li style="font-weight:700;color:#fff">🎯 Lista Stand By — widoczność i kontakt</li>
-        <li>Nieograniczone projekty</li>
-        <li>Statystyki profilu</li>
-        <li>Odznaka Premium</li>
-        <li style="font-weight:700;color:#fff">🎭 Do 3 profesji w profilu</li>
-      </ul>
-      <a href="https://spotigraj.app" class="btn-plan btn-premium" id="landing-cta">Zacznij 7 dni za darmo →</a>
-    </div>
-  </div>
-  <div style="text-align:center;margin-top:28px;font-size:13px;color:#333">Płatność przez Stripe · Bezpieczna · Anuluj w każdej chwili · Bez karty na trial</div>
-  <div style="text-align:center;margin-top:14px;background:rgba(157,78,221,0.06);border:1px solid rgba(157,78,221,0.15);border-radius:10px;padding:12px 20px;max-width:520px;margin-left:auto;margin-right:auto">
-    <span style="font-size:14px">🎁</span> <strong style="color:#9D4EDD">SPOTIGRAJ500</strong> <span style="font-size:13px;color:#555">— wpisz kod przy płatności i odbierz 3 miesiące Premium za darmo (pierwsze 500 osób, dotyczy planu miesięcznego*)</span>
-    <div style="font-size:11px;color:#333;margin-top:6px">* Kod nie łączy się z planem rocznym</div>
-  </div>
-</section>
-
-<script>
-function setPricingPlan(plan, btn) {
-  document.getElementById('toggle-monthly').style.background = 'transparent';
-  document.getElementById('toggle-monthly').style.color = '#555';
-  document.getElementById('toggle-yearly').style.background = 'transparent';
-  document.getElementById('toggle-yearly').style.color = '#555';
-  btn.style.background = 'var(--purple)';
-  btn.style.color = '#000';
-  if (plan === 'yearly') {
-    document.getElementById('landing-price').textContent = '12,40 zł';
-    document.getElementById('landing-period').textContent = 'miesięcznie · 149 zł rocznie · oszczędzasz 79 zł';
-    document.getElementById('landing-cta').href = 'https://spotigraj.app';
-    document.getElementById('landing-cta').textContent = 'Kup plan roczny →';
-  } else {
-    document.getElementById('landing-price').textContent = '19 zł';
-    document.getElementById('landing-period').textContent = 'miesięcznie · anuluj kiedy chcesz';
-    document.getElementById('landing-cta').href = 'https://spotigraj.app';
-    document.getElementById('landing-cta').textContent = 'Zacznij 7 dni za darmo →';
-  }
-}
-</script>
-
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">SPOTIGRAJ</div>
   <div class="footer-links">
     <a href="#zastepstwa">Zastępstwa</a>
-    <a href="#cennik">Cennik</a>
     <a href="https://spotigraj.app">Aplikacja</a>
     <a href="https://www.youtube.com/@MacieKTEMatt" target="_blank">Muzyczna Środa</a>
   </div>
