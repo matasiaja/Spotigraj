@@ -3585,6 +3585,45 @@ function _restoreViewState() {
   } catch(e) {}
 }
 
+// ── Przywracanie pozycji przewijania po odświeżeniu (F5) ──────────────
+// Jeden globalny listener (capture:true) łapie scroll z dowolnego
+// przewijanego elementu — .main-content ekranów, jak i window przy
+// pełnoekranowych overlayach (onboarding/edycja profilu).
+let _scrollSaveTimer = null;
+function _scrollStateKey() {
+  if (!document.getElementById('onboarding').classList.contains('hidden')) return 'onboarding';
+  const screen = document.querySelector('.screen.active')?.id?.replace('s-', '') || 'discover';
+  return 'screen:' + screen;
+}
+function _saveScrollState(target) {
+  clearTimeout(_scrollSaveTimer);
+  _scrollSaveTimer = setTimeout(() => {
+    try {
+      const key = _scrollStateKey();
+      const top = (target === window || target === document) ? (window.scrollY || document.documentElement.scrollTop || 0) : target.scrollTop;
+      const raw = sessionStorage.getItem('spotigraj-scroll');
+      const map = raw ? JSON.parse(raw) : {};
+      map[key] = top;
+      sessionStorage.setItem('spotigraj-scroll', JSON.stringify(map));
+    } catch(e) {}
+  }, 200);
+}
+document.addEventListener('scroll', (e) => {
+  _saveScrollState(e.target === document ? window : e.target);
+}, true);
+function _restoreScrollState(key, target) {
+  try {
+    const raw = sessionStorage.getItem('spotigraj-scroll');
+    if (!raw) return false;
+    const map = JSON.parse(raw);
+    const top = map[key];
+    if (top == null) return false;
+    if (target === window) window.scrollTo(0, top);
+    else target.scrollTop = top;
+    return true;
+  } catch(e) { return false; }
+}
+
 // Aktualizuje UI bez dotykania historii — wywoływana przez goTo() i popstate
 function _applyScreen(screen, anchor) {
   setTimeout(() => {
@@ -3597,7 +3636,7 @@ function _applyScreen(screen, anchor) {
           el.classList.add('section-flash');
           el.addEventListener('animationend', () => el.classList.remove('section-flash'), { once: true });
         }
-      } else {
+      } else if (!_restoreScrollState('screen:' + screen, mc)) {
         mc.scrollTop = 0;
       }
     }
@@ -4810,6 +4849,7 @@ function showEdit() {
   document.getElementById('onboarding').classList.remove('hidden');
   window.history.pushState({ overlay: 'edit-profile' }, '');
   _saveViewState('edit-profile');
+  setTimeout(() => _restoreScrollState('onboarding', window), 60);
 }
 
 function cancelEditProfile() {
