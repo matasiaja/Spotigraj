@@ -11,329 +11,434 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='8' y='38' width='6' height='14' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='17' y='30' width='6' height='22' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='26' y='22' width='6' height='30' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='35' y='28' width='6' height='24' rx='1.5' fill='%239D4EDD'/%3E%3Crect x='44' y='34' width='6' height='18' rx='1.5' fill='%239D4EDD'/%3E%3Ccircle cx='29' cy='15' r='7' fill='%239D4EDD'/%3E%3Ccircle cx='26.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Ccircle cx='31.5' cy='13.5' r='1.3' fill='%23000'/%3E%3Cpath d='M26 16.5 Q29 19 32 16.5' stroke='%23000' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"/>
 <meta name="theme-color" content="#9D4EDD"/>
 <style>
-:root{--purple:#9D4EDD;--radius:14px}
+/* ============ TOKENS ============ */
+:root{
+  --paper:#F4F1F9; --surface:#FFFFFF; --surface-2:#EDE8F5;
+  --ink:#18121F; --ink-soft:#5B5468; --ink-faint:#8A8299;
+  --accent:#7A2CB8; --accent-strong:#9D4EDD; --accent-ink:#FFFFFF;
+  --amber:#A96500; --urgent:#C7342F;
+  --line:rgba(24,18,31,0.13); --line-soft:rgba(24,18,31,0.07);
+  --radius:4px; --radius-lg:8px;
+  --font-display:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --font-mono:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#0B0812; --surface:#151020; --surface-2:#1D1729;
+    --ink:#F2EEFA; --ink-soft:#A99EBF; --ink-faint:#6E6480;
+    --accent:#B57BEF; --accent-strong:#9D4EDD; --accent-ink:#0B0812;
+    --amber:#F3B000; --urgent:#FF6B6B;
+    --line:rgba(255,255,255,0.10); --line-soft:rgba(255,255,255,0.05);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B0812; --surface:#151020; --surface-2:#1D1729;
+  --ink:#F2EEFA; --ink-soft:#A99EBF; --ink-faint:#6E6480;
+  --accent:#B57BEF; --accent-strong:#9D4EDD; --accent-ink:#0B0812;
+  --amber:#F3B000; --urgent:#FF6B6B;
+  --line:rgba(255,255,255,0.10); --line-soft:rgba(255,255,255,0.05);
+}
+:root[data-theme="light"]{
+  --paper:#F4F1F9; --surface:#FFFFFF; --surface-2:#EDE8F5;
+  --ink:#18121F; --ink-soft:#5B5468; --ink-faint:#8A8299;
+  --accent:#7A2CB8; --accent-strong:#9D4EDD; --accent-ink:#FFFFFF;
+  --amber:#A96500; --urgent:#C7342F;
+  --line:rgba(24,18,31,0.13); --line-soft:rgba(24,18,31,0.07);
+}
+
+/* ============ RESET / BASE ============ */
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#000;color:#fff;line-height:1.6}
-nav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:58px}
-.nav-logo{display:flex;align-items:center;gap:10px}
-.nav-logo svg{height:32px;width:auto}
-.nav-logo-text{font-size:18px;font-weight:900;color:var(--purple);letter-spacing:1px}
-.nav-right{display:flex;align-items:center;gap:14px}
-.nav-link{font-size:13px;color:#666;text-decoration:none;transition:color .2s}
-.nav-link:hover{color:#fff}
-.nav-cta{background:var(--purple);color:#000;padding:8px 20px;border-radius:30px;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .2s}
-.nav-cta:hover{opacity:.85}
-.nav-cta-outline{background:transparent;color:var(--purple);padding:7px 18px;border-radius:30px;font-weight:700;font-size:13px;text-decoration:none;border:1px solid rgba(157,78,221,0.4);transition:border-color .2s}
-.nav-cta-outline:hover{border-color:var(--purple)}
-@media(max-width:600px){.nav-link,.nav-cta-outline{display:none}}
-
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 5vw;position:relative;overflow:hidden}
-.hero-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:80%;height:60%;background:radial-gradient(ellipse,rgba(157,78,221,0.12) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(157,78,221,0.1);color:var(--purple);font-size:13px;font-weight:600;padding:6px 16px;border-radius:30px;margin-bottom:28px;border:1px solid rgba(157,78,221,0.2)}
-.hero h1{font-size:clamp(40px,8vw,80px);font-weight:900;line-height:1;letter-spacing:-2px;margin-bottom:20px}
-.hero h1 span{color:var(--purple)}
-.hero p{font-size:clamp(16px,2.5vw,20px);color:#888;max-width:600px;margin:0 auto 48px;line-height:1.7}
-.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
-.btn-primary{background:var(--purple);color:#000;padding:16px 40px;border-radius:30px;font-size:17px;font-weight:800;text-decoration:none;transition:opacity .2s,transform .15s;display:inline-block}
-.btn-primary:hover{opacity:.88;transform:translateY(-2px)}
-.btn-outline{background:transparent;color:#fff;padding:15px 36px;border-radius:30px;font-size:16px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.15);display:inline-block;transition:border-color .2s}
-.btn-outline:hover{border-color:rgba(255,255,255,0.4)}
-.hero-stats{display:flex;gap:48px;justify-content:center;flex-wrap:wrap}
-.stat strong{display:block;font-size:32px;font-weight:900}
-.stat span{font-size:13px;color:#555}
-
-/* SEKCJE */
-section{padding:80px 5vw}
-.s-label{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--purple);margin-bottom:12px}
-.s-title{font-size:clamp(28px,5vw,48px);font-weight:900;line-height:1.1;margin-bottom:16px}
-.s-sub{font-size:17px;color:#666;max-width:580px;line-height:1.7}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.65;transition:background .25s ease,color .25s ease}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent-strong);outline-offset:3px}
+.mono{font-family:var(--font-mono)}
+.eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:16px;height:1px;background:var(--accent-strong)}
+.s-title{font-size:clamp(28px,4.4vw,44px);font-weight:900;line-height:1.06;letter-spacing:-0.02em;margin-bottom:16px;text-transform:uppercase}
+.s-sub{font-size:16px;color:var(--ink-soft);max-width:560px;line-height:1.7}
 .center{text-align:center}
 .center .s-sub{margin:0 auto}
-.sep{height:1px;background:rgba(255,255,255,0.06);margin:0 5vw}
+.center .eyebrow{justify-content:center}
+.center .eyebrow::before{display:none}
+section{padding:96px 6vw}
+@media(max-width:700px){section{padding:64px 6vw}}
 
-/* WHO */
-.who-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:48px}
-.who-card{background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:22px;transition:border-color .2s}
-.who-card:hover{border-color:rgba(157,78,221,0.25)}
-.who-icon{font-size:28px;margin-bottom:12px}
-.who-card h3{font-size:15px;font-weight:700;margin-bottom:5px}
-.who-card p{font-size:12px;color:#555;line-height:1.6}
+/* ============ EQ DIVIDER ============ */
+.eq-divider{display:block;width:100%;height:20px;margin:0 auto;opacity:.55;color:var(--accent-strong)}
+.eq-divider rect{fill:currentColor}
 
-/* ZASTĘPSTWA */
-.zast-section{background:#050505}
-.zast-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:52px}
-@media(max-width:700px){.zast-grid{grid-template-columns:1fr}}
-.zast-feature{margin-bottom:28px}
-.zast-feature h3{font-size:18px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.zast-feature p{font-size:14px;color:#666;line-height:1.7}
-.zast-mockup{background:#0d0d0d;border:1px solid rgba(255,80,80,0.2);border-radius:16px;padding:20px}
-.zast-badge{display:inline-block;background:rgba(255,80,80,0.1);color:#ff6b6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:12px}
-.zast-role{font-size:16px;font-weight:700;margin-bottom:4px}
-.zast-meta{font-size:12px;color:#555;margin-bottom:8px}
-.zast-desc{font-size:13px;color:#888;line-height:1.5;margin-bottom:14px}
-.zast-btn{display:inline-block;padding:8px 18px;background:#ff6b6b;border-radius:20px;color:#fff;font-size:12px;font-weight:700;text-decoration:none}
-.standy-mockup{background:#0d0d0d;border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:20px;margin-top:14px}
-.standy-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.standy-row:last-child{border:none}
-.standy-av{width:36px;height:36px;border-radius:50%;background:rgba(245,158,11,0.15);color:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.standy-info{flex:1}
-.standy-name{font-size:13px;font-weight:700}
-.standy-role{font-size:11px;color:#666}
-.standy-badge{font-size:10px;padding:2px 8px;background:rgba(245,158,11,0.1);color:#f59e0b;border-radius:10px;white-space:nowrap}
+/* ============ NAV ============ */
+nav{position:sticky;top:0;z-index:100;background:color-mix(in srgb, var(--paper) 88%, transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo svg{height:30px;width:auto;color:var(--accent-strong)}
+.nav-logo svg .face-mark{fill:#000}
+.nav-logo-text{font-family:var(--font-display);font-size:17px;font-weight:900;letter-spacing:0.06em;color:var(--ink)}
+.nav-right{display:flex;align-items:center;gap:22px}
+.nav-link{font-family:var(--font-mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-soft);text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--ink)}
+.nav-cta{background:var(--accent-strong);color:var(--accent-ink);padding:8px 18px;border-radius:30px;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .2s}
+.nav-cta:hover{opacity:.85}
+.nav-cta-outline{background:transparent;color:var(--ink);padding:7px 16px;border-radius:30px;font-weight:600;font-size:13px;text-decoration:none;border:1px solid var(--line);transition:border-color .2s}
+.nav-cta-outline:hover{border-color:var(--accent-strong)}
+@media(max-width:760px){.nav-link,.nav-cta-outline{display:none}}
 
-/* JAK DZIAŁA */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-top:52px;position:relative}
-.step{text-align:center}
-.step-num{width:52px;height:52px;border-radius:50%;background:var(--purple);color:#000;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.step h3{font-size:15px;font-weight:700;margin-bottom:8px}
-.step p{font-size:13px;color:#555;line-height:1.6}
+/* Fader theme toggle */
+.fader{position:relative;width:30px;height:34px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;cursor:pointer;display:flex;justify-content:center;padding:4px 0;flex-shrink:0}
+.fader-track{position:relative;width:2px;height:100%;background:var(--line)}
+.fader-thumb{position:absolute;left:50%;transform:translateX(-50%);width:18px;height:9px;background:var(--accent-strong);border-radius:2px;top:2px;transition:top .22s cubic-bezier(.4,0,.2,1)}
+.fader[aria-pressed="true"] .fader-thumb{top:calc(100% - 11px)}
+.fader-cap{position:absolute;font-family:var(--font-mono);font-size:8px;letter-spacing:0.05em;color:var(--ink-faint);left:38px;white-space:nowrap}
+.fader-cap.top{top:1px}
+.fader-cap.bottom{bottom:1px}
 
-/* BIG CTA */
-.big-cta{text-align:center;position:relative;overflow:hidden}
-.big-cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(157,78,221,0.1) 0%,transparent 70%);pointer-events:none}
-.big-cta h2{font-size:clamp(32px,6vw,60px);font-weight:900;letter-spacing:-1px;line-height:1.1;position:relative;margin-bottom:20px}
-.big-cta h2 span{color:var(--purple)}
-.big-cta p{font-size:17px;color:#666;margin-bottom:40px;position:relative}
+/* ============ HERO ============ */
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 5vw 60px;position:relative;overflow:hidden}
+#hero-wave{position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none}
+.hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.hero-badge{font-family:var(--font-mono);display:inline-flex;align-items:center;gap:8px;background:var(--surface);color:var(--accent);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:7px 14px;border-radius:30px;margin-bottom:30px;border:1px solid var(--line)}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#3FB950;box-shadow:0 0 0 3px rgba(63,185,80,0.2)}
+.hero h1{font-size:clamp(42px,8.5vw,92px);font-weight:900;line-height:0.98;letter-spacing:-0.03em;margin-bottom:22px;text-transform:uppercase}
+.hero h1 span{color:var(--accent-strong)}
+.hero p{font-size:clamp(16px,2.2vw,19px);color:var(--ink-soft);max-width:600px;margin:0 auto 44px;line-height:1.7}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
+.btn-primary{background:var(--accent-strong);color:var(--accent-ink);padding:16px 38px;border-radius:30px;font-size:16px;font-weight:800;text-decoration:none;transition:opacity .2s,transform .15s;display:inline-block}
+.btn-primary:hover{opacity:.88;transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--ink);padding:15px 34px;border-radius:30px;font-size:15px;font-weight:600;text-decoration:none;border:1px solid var(--line);display:inline-block;transition:border-color .2s}
+.btn-outline:hover{border-color:var(--accent-strong)}
+.hero-stats{display:flex;gap:0;justify-content:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:28px}
+.stat{padding:0 32px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.stat strong{font-family:var(--font-mono);display:block;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat span{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint)}
 
-/* FEATURES */
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:48px}
-.feat-card{background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:26px}
-.feat-icon{font-size:26px;margin-bottom:12px}
-.feat-card h3{font-size:15px;font-weight:700;margin-bottom:7px}
-.feat-card p{font-size:13px;color:#555;line-height:1.6}
-.feat-tag{font-size:10px;background:rgba(157,78,221,0.15);color:var(--purple);padding:2px 8px;border-radius:10px;font-weight:700;vertical-align:middle;margin-left:4px}
+/* ============ LINEUP (Dla kogo) ============ */
+.lineup{border-top:1px solid var(--line)}
+.lineup-row{display:grid;grid-template-columns:90px 1fr auto;gap:24px;align-items:baseline;padding:26px 0;border-bottom:1px solid var(--line-soft)}
+.lineup-row:first-of-type{border-top:1px solid var(--line-soft)}
+.lineup-tag{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:0.08em;color:var(--accent)}
+.lineup-name{font-family:var(--font-display);font-size:clamp(20px,3vw,30px);font-weight:800;letter-spacing:-0.01em}
+.lineup-desc{font-size:14px;color:var(--ink-soft);max-width:480px;margin-top:4px;line-height:1.6}
+.lineup-role{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);text-align:right;max-width:160px}
+@media(max-width:640px){.lineup-row{grid-template-columns:56px 1fr}.lineup-role{display:none}}
 
-/* P4Z0 REFERRAL */
-.p4z0-section{background:#050505}
-.p4z0-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
-@media(max-width:800px){.p4z0-grid{grid-template-columns:1fr;gap:36px}}
-.p4z0-steps{display:flex;flex-direction:column;gap:20px}
-.p4z0-step{display:flex;gap:16px;background:#0d0d0d;border:1px solid rgba(157,78,221,0.12);border-radius:var(--radius);padding:18px 20px;align-items:flex-start}
-.p4z0-num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:rgba(157,78,221,0.12);color:var(--purple);font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center}
-.p4z0-step h3{font-size:15px;font-weight:700;margin-bottom:4px}
-.p4z0-step p{font-size:13px;color:#666;line-height:1.6}
+/* ============ ZASTĘPSTWA (flagship) ============ */
+.zast-section{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.zast-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:52px}
+@media(max-width:800px){.zast-grid{grid-template-columns:1fr}}
+.zast-feature{margin-bottom:30px;display:flex;gap:16px}
+.zast-feature .mk{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);flex-shrink:0;padding-top:4px}
+.zast-feature h3{font-size:16px;font-weight:700;margin-bottom:6px;letter-spacing:-0.01em}
+.zast-feature p{font-size:14px;color:var(--ink-soft);line-height:1.7}
 
-/* FOOTER */
-footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.footer-logo{font-size:18px;font-weight:900;color:var(--purple)}
-.footer-links{display:flex;gap:24px}
-.footer-links a{font-size:13px;color:#333;text-decoration:none}
-.footer-links a:hover{color:#888}
-.footer-copy{font-size:12px;color:#222}
+.callsheet{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.callsheet-head{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:var(--urgent);color:#fff}
+.callsheet-head span{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase}
+.callsheet-body{padding:18px}
+.zast-role{font-size:17px;font-weight:800;margin-bottom:4px}
+.zast-meta{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-bottom:10px}
+.zast-desc{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:16px}
+.zast-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:14px}
+.zast-foot span{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint)}
+.zast-btn{display:inline-block;padding:9px 18px;background:var(--urgent);border-radius:20px;color:#fff;font-size:12px;font-weight:700;text-decoration:none}
+
+.greenroom{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;margin-top:16px}
+.greenroom-head{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+.gr-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.gr-row:last-child{border:none}
+.gr-av{width:34px;height:34px;border-radius:50%;background:var(--surface-2);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.gr-info{flex:1}
+.gr-name{font-size:13px;font-weight:700}
+.gr-role{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint)}
+.gr-led{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.gr-led.on{background:#3FB950;box-shadow:0 0 0 3px rgba(63,185,80,0.18)}
+.gr-led.busy{background:var(--amber);box-shadow:0 0 0 3px rgba(169,101,0,0.15)}
+
+/* ============ SIGNAL CHAIN (Jak działa) ============ */
+.chain{position:relative;margin-top:64px}
+.chain-line{position:absolute;top:23px;left:0;right:0;height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px);z-index:0}
+.chain-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;z-index:1}
+@media(max-width:760px){.chain-steps{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.chain-steps{grid-template-columns:1fr}}
+.chain-step{display:flex;flex-direction:column;align-items:flex-start}
+.chain-jack{width:46px;height:46px;border-radius:50%;background:var(--surface);border:2px solid var(--accent-strong);color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.chain-step h3{font-size:15px;font-weight:700;margin-bottom:8px;letter-spacing:-0.01em}
+.chain-step p{font-size:13px;color:var(--ink-soft);line-height:1.65}
+
+/* ============ CHANNEL STRIPS (Funkcje) ============ */
+.strip-list{display:flex;flex-direction:column;margin-top:48px;border-top:1px solid var(--line)}
+.strip{display:grid;grid-template-columns:64px 100px 1fr;gap:20px;align-items:center;padding:18px 4px;border-bottom:1px solid var(--line-soft);transition:background .15s}
+.strip:hover{background:var(--surface)}
+.strip-ch{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.led-meter{display:flex;gap:3px}
+.led-meter i{width:8px;height:14px;border-radius:1px;background:var(--line)}
+.led-meter i.lit{background:var(--accent-strong)}
+.led-meter.amber i.lit{background:var(--amber)}
+.strip-body h3{font-size:15px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px;letter-spacing:-0.01em}
+.strip-body p{font-size:13px;color:var(--ink-soft);line-height:1.6}
+.strip-tag{font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--amber);border:1px solid currentColor;border-radius:3px;padding:1px 6px}
+@media(max-width:640px){.strip{grid-template-columns:40px 60px 1fr;gap:10px}.strip-ch{font-size:10px}}
+
+/* ============ P4Z0 TICKET ============ */
+.p4z0-section{border-top:1px solid var(--line)}
+.ticket{display:grid;grid-template-columns:1.1fr 1.6fr;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;margin-top:48px}
+@media(max-width:760px){.ticket{grid-template-columns:1fr}}
+.ticket-stub{padding:36px 32px;background:var(--accent-strong);color:var(--accent-ink);display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.ticket-stub::after{content:"";position:absolute;top:0;bottom:0;right:-1px;width:1px;background-image:radial-gradient(circle,var(--paper) 4px,transparent 4.5px);background-size:100% 22px;background-repeat:repeat-y}
+.ticket-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:.8;margin-bottom:8px}
+.ticket-title{font-family:var(--font-display);font-size:clamp(26px,3.4vw,38px);font-weight:900;line-height:1.05;text-transform:uppercase;letter-spacing:-0.01em}
+.ticket-admit{font-family:var(--font-mono);font-size:12px;margin-top:24px;opacity:.9}
+.ticket-body{padding:36px 40px}
+.ticket-route{display:flex;flex-direction:column;gap:22px}
+.ticket-hop{display:flex;gap:16px}
+.ticket-hop .n{font-family:var(--font-mono);font-size:11px;color:var(--accent);flex-shrink:0;padding-top:2px}
+.ticket-hop h3{font-size:14px;font-weight:700;margin-bottom:4px}
+.ticket-hop p{font-size:13px;color:var(--ink-soft);line-height:1.6}
+
+/* ============ CLOSING CTA ============ */
+.finale{text-align:center;border-top:1px solid var(--line)}
+.finale-title{font-size:clamp(34px,7vw,72px);font-weight:900;letter-spacing:-0.03em;line-height:0.98;margin-bottom:22px;text-transform:uppercase}
+.finale-title span{color:var(--accent-strong)}
+.finale p{font-size:16px;color:var(--ink-soft);margin-bottom:36px}
+.finale-detail{font-family:var(--font-mono);margin-top:18px;font-size:12px;color:var(--ink-faint);letter-spacing:0.03em}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line);padding:36px 5vw;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--font-display);font-size:16px;font-weight:900;color:var(--ink);letter-spacing:0.04em}
+.footer-links{display:flex;gap:22px;flex-wrap:wrap}
+.footer-links a{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);text-decoration:none;letter-spacing:0.03em}
+.footer-links a:hover{color:var(--ink-soft)}
+.footer-copy{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint)}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
+<!-- EQ divider symbol (reused via <use>) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="eq" viewBox="0 0 240 20">
+    <rect x="0" y="6" width="4" height="8"/><rect x="10" y="2" width="4" height="16"/><rect x="20" y="8" width="4" height="4"/><rect x="30" y="0" width="4" height="20"/><rect x="40" y="5" width="4" height="10"/><rect x="50" y="9" width="4" height="2"/><rect x="60" y="3" width="4" height="14"/><rect x="70" y="7" width="4" height="6"/><rect x="80" y="1" width="4" height="18"/><rect x="90" y="8" width="4" height="4"/><rect x="100" y="4" width="4" height="12"/><rect x="110" y="9" width="4" height="2"/><rect x="120" y="2" width="4" height="16"/><rect x="130" y="6" width="4" height="8"/><rect x="140" y="0" width="4" height="20"/><rect x="150" y="8" width="4" height="4"/><rect x="160" y="3" width="4" height="14"/><rect x="170" y="7" width="4" height="6"/><rect x="180" y="1" width="4" height="18"/><rect x="190" y="9" width="4" height="2"/><rect x="200" y="4" width="4" height="12"/><rect x="210" y="6" width="4" height="8"/><rect x="220" y="2" width="4" height="16"/><rect x="230" y="8" width="4" height="4"/>
+  </symbol>
+</svg>
+
 <nav>
   <div class="nav-logo">
     <svg viewBox="0 0 210 105" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="60" width="22" height="40" rx="3" fill="#9D4EDD"/>
-      <rect x="28" y="44" width="22" height="56" rx="3" fill="#9D4EDD"/>
-      <rect x="56" y="28" width="22" height="72" rx="3" fill="#9D4EDD"/>
-      <rect x="84" y="48" width="22" height="52" rx="3" fill="#9D4EDD"/>
-      <rect x="112" y="18" width="22" height="82" rx="3" fill="#9D4EDD"/>
-      <rect x="140" y="40" width="22" height="60" rx="3" fill="#9D4EDD"/>
-      <rect x="168" y="56" width="22" height="44" rx="3" fill="#9D4EDD"/>
-      <circle cx="123" cy="12" r="12" fill="#9D4EDD"/>
-      <circle cx="117" cy="8" r="2.6" fill="#000"/>
-      <circle cx="129" cy="8" r="2.6" fill="#000"/>
-      <path d="M115 15 Q123 21 131 15" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <rect x="0" y="60" width="22" height="40" rx="3" fill="currentColor"/>
+      <rect x="28" y="44" width="22" height="56" rx="3" fill="currentColor"/>
+      <rect x="56" y="28" width="22" height="72" rx="3" fill="currentColor"/>
+      <rect x="84" y="48" width="22" height="52" rx="3" fill="currentColor"/>
+      <rect x="112" y="18" width="22" height="82" rx="3" fill="currentColor"/>
+      <rect x="140" y="40" width="22" height="60" rx="3" fill="currentColor"/>
+      <rect x="168" y="56" width="22" height="44" rx="3" fill="currentColor"/>
+      <circle cx="123" cy="12" r="12" fill="currentColor"/>
+      <circle class="face-mark" cx="117" cy="8" r="2.6"/>
+      <circle class="face-mark" cx="129" cy="8" r="2.6"/>
+      <path class="face-mark" d="M115 15 Q123 21 131 15" stroke-width="2" stroke-linecap="round" fill="none" stroke="#000"/>
     </svg>
     <span class="nav-logo-text">SPOTIGRAJ</span>
   </div>
   <div class="nav-right">
-    <a href="#zastepstwa" class="nav-link">Zastępstwa</a>
-    <a href="#funkcje" class="nav-link">Funkcje</a>
-    <a href="#polec" class="nav-link">Poleć i zyskaj</a>
+    <a href="#zastepstwa" class="nav-link">ZASTĘPSTWA</a>
+    <a href="#funkcje" class="nav-link">FUNKCJE</a>
+    <a href="#polec" class="nav-link">POLEĆ I ZYSKAJ</a>
     <a href="https://spotigraj.app" class="nav-cta-outline">Zaloguj się</a>
     <a href="https://spotigraj.app" class="nav-cta">Wejdź do aplikacji →</a>
+    <button class="fader" id="theme-toggle" type="button" aria-pressed="false" aria-label="Przełącz tryb jasny / ciemny">
+      <span class="fader-cap top">JASNY</span>
+      <span class="fader-track"><span class="fader-thumb"></span></span>
+      <span class="fader-cap bottom">CIEMNY</span>
+    </button>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-badge">🎵 Otwarta beta</div>
-  <h1>Gdzie muzyka<br><span>łączy ludzi.</span></h1>
-  <p>Pierwsza polska platforma networkingowa dla całego przemysłu muzycznego. Muzycy, managerowie, producenci, realizatorzy — wszyscy w jednym miejscu. Teraz z modułem zastępstw.</p>
-  <div class="hero-actions">
-    <a href="https://spotigraj.app" class="btn-primary">Zacznij za darmo →</a>
-    <a href="#zastepstwa" class="btn-outline">🚨 Zobacz zastępstwa</a>
-  </div>
-  <div class="hero-stats">
-    <div class="stat"><strong>60+</strong><span>ról do wyboru</span></div>
-    <div class="stat"><strong>150+</strong><span>gatunków muzycznych</span></div>
-    <div class="stat"><strong>0</strong><span>podobnych platform w PL</span></div>
+  <canvas id="hero-wave"></canvas>
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="dot"></span> OTWARTA BETA</div>
+    <h1>Gdzie muzyka<br><span>łączy ludzi.</span></h1>
+    <p>Pierwsza polska platforma networkingowa dla całego przemysłu muzycznego. Muzycy, managerowie, producenci, realizatorzy — wszyscy w jednym miejscu. Teraz z modułem zastępstw.</p>
+    <div class="hero-actions">
+      <a href="https://spotigraj.app" class="btn-primary">Zacznij za darmo →</a>
+      <a href="#zastepstwa" class="btn-outline">Zobacz zastępstwa</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><strong>60+</strong><span>ról do wyboru</span></div>
+      <div class="stat"><strong>150+</strong><span>gatunków muzycznych</span></div>
+      <div class="stat"><strong>00</strong><span>podobnych platform w PL</span></div>
+    </div>
   </div>
 </section>
 
-<div class="sep"></div>
+<svg class="eq-divider"><use href="#eq"/></svg>
 
-<!-- DLA KOGO -->
-<section>
-  <div class="center">
-    <div class="s-label">Dla kogo</div>
-    <h2 class="s-title">Cała branża w jednym miejscu</h2>
+<!-- LINEUP (Dla kogo) -->
+<section class="lineup">
+  <div class="center" style="margin-bottom:8px">
+    <div class="eyebrow">Skład</div>
+    <h2 class="s-title">Cała branża<br>w jednym line-upie</h2>
     <p class="s-sub">Spotigraj łączy każdą osobę ze świata muzyki — niezależnie od roli.</p>
   </div>
-  <div class="who-grid">
-    <div class="who-card"><div class="who-icon">🎤</div><h3>Muzycy i wykonawcy</h3><p>Wokaliści, instrumentaliści, producenci — znajdź skład lub projekt do współpracy.</p></div>
-    <div class="who-card"><div class="who-icon">🎧</div><h3>Producenci i DJ-e</h3><p>Beatmakerzy, sound designerzy, live act — połącz się z artystami.</p></div>
-    <div class="who-card"><div class="who-icon">📋</div><h3>Managerowie i agenci</h3><p>Booking, tour manager, agenci — znajdź artystów do reprezentowania.</p></div>
-    <div class="who-card"><div class="who-icon">🎚️</div><h3>Realizatorzy</h3><p>FOH, mastering, studio — połącz się z projektami wymagającymi Twoich umiejętności.</p></div>
-    <div class="who-card"><div class="who-icon">📸</div><h3>Media i promocja</h3><p>Fotografowie, dziennikarze, podcasterzy — oferuj usługi całej branży.</p></div>
-    <div class="who-card"><div class="who-icon">🏢</div><h3>Wytwórnie i labels</h3><p>Właściciele, dystrybutorzy, promotorzy — odkryj talenty i buduj partnerstwa.</p></div>
+  <div style="margin-top:48px">
+    <div class="lineup-row">
+      <div class="lineup-tag">VOX</div>
+      <div><div class="lineup-name">Muzycy i wykonawcy</div><div class="lineup-desc">Wokaliści, instrumentaliści, producenci — znajdź skład lub projekt do współpracy.</div></div>
+      <div class="lineup-role">WOKAL · INSTRUMENT<br>PRODUKCJA</div>
+    </div>
+    <div class="lineup-row">
+      <div class="lineup-tag">PRD</div>
+      <div><div class="lineup-name">Producenci i DJ-e</div><div class="lineup-desc">Beatmakerzy, sound designerzy, live act — połącz się z artystami.</div></div>
+      <div class="lineup-role">BEATMAKING<br>LIVE ACT</div>
+    </div>
+    <div class="lineup-row">
+      <div class="lineup-tag">MGT</div>
+      <div><div class="lineup-name">Managerowie i agenci</div><div class="lineup-desc">Booking, tour manager, agenci — znajdź artystów do reprezentowania.</div></div>
+      <div class="lineup-role">BOOKING<br>TOUR MANAGEMENT</div>
+    </div>
+    <div class="lineup-row">
+      <div class="lineup-tag">ENG</div>
+      <div><div class="lineup-name">Realizatorzy</div><div class="lineup-desc">FOH, mastering, studio — połącz się z projektami wymagającymi Twoich umiejętności.</div></div>
+      <div class="lineup-role">FOH · MASTERING<br>STUDIO</div>
+    </div>
+    <div class="lineup-row">
+      <div class="lineup-tag">MED</div>
+      <div><div class="lineup-name">Media i promocja</div><div class="lineup-desc">Fotografowie, dziennikarze, podcasterzy — oferuj usługi całej branży.</div></div>
+      <div class="lineup-role">FOTO · PRASA<br>PODCAST</div>
+    </div>
+    <div class="lineup-row">
+      <div class="lineup-tag">LBL</div>
+      <div><div class="lineup-name">Wytwórnie i labels</div><div class="lineup-desc">Właściciele, dystrybutorzy, promotorzy — odkryj talenty i buduj partnerstwa.</div></div>
+      <div class="lineup-role">DYSTRYBUCJA<br>PROMOCJA</div>
+    </div>
   </div>
 </section>
-
-<div class="sep"></div>
 
 <!-- ZASTĘPSTWA -->
 <section class="zast-section" id="zastepstwa">
-  <div>
-    <div class="s-label">Nowość · Tylko w Spotigraj</div>
-    <h2 class="s-title">Moduł zastępstw<br><span style="color:var(--purple)">i Stand By</span></h2>
-    <p class="s-sub">Muzyk zachorował godzinę przed koncertem? Spotigraj rozwiązuje ten problem w minuty.</p>
-  </div>
+  <div class="eyebrow">Nowość · tylko w Spotigraj</div>
+  <h2 class="s-title">Moduł zastępstw<br><span style="color:var(--accent-strong)">i Stand By</span></h2>
+  <p class="s-sub">Muzyk zachorował godzinę przed koncertem? Spotigraj rozwiązuje ten problem w minuty.</p>
   <div class="zast-grid">
     <div>
       <div class="zast-feature">
-        <h3>🚨 Pilne ogłoszenia zastępstw</h3>
-        <p>Opublikuj ogłoszenie z rolą, miastem, datą i opisem. Ogłoszenie wygasa po 48 godzinach automatycznie. Wszyscy użytkownicy widzą ogłoszenia — ale tylko Premium może je publikować.</p>
+        <div class="mk">01</div>
+        <div><h3>Pilne ogłoszenia zastępstw</h3><p>Opublikuj ogłoszenie z rolą, miastem, datą i opisem. Ogłoszenie wygasa po 48 godzinach automatycznie. Wszyscy użytkownicy widzą ogłoszenia — ale tylko Premium może je publikować.</p></div>
       </div>
       <div class="zast-feature">
-        <h3>🎯 Stand By — gotowy do wskazania</h3>
-        <p>Oznacz swój profil jako "Stand By" nawet gdy jesteś zajęty w stałym składzie. Pojawisz się na liście muzyków dostępnych na zastępstwo. Gdy ktoś szuka pilnie — zobaczy Twój numer telefonu od razu.</p>
+        <div class="mk">02</div>
+        <div><h3>Stand By — gotowy do wskazania</h3><p>Oznacz swój profil jako "Stand By" nawet gdy jesteś zajęty w stałym składzie. Pojawisz się na liście muzyków dostępnych na zastępstwo. Gdy ktoś szuka pilnie — zobaczy Twój numer telefonu od razu.</p></div>
       </div>
       <div class="zast-feature">
-        <h3>📞 Kontakt od razu</h3>
-        <p>Po wzajemnym matchu lub w module zastępstw — numer telefonu widoczny natychmiast. Zero zwłoki, zero pośredników. Dzwonisz, dogadujecie się, grasz.</p>
+        <div class="mk">03</div>
+        <div><h3>Kontakt od razu</h3><p>Po wzajemnym matchu lub w module zastępstw — numer telefonu widoczny natychmiast. Zero zwłoki, zero pośredników. Dzwonisz, dogadujecie się, grasz.</p></div>
       </div>
     </div>
     <div>
-      <div class="zast-mockup">
-        <div class="zast-badge">🚨 PILNE · Warszawa</div>
-        <div class="zast-role">Perkusista/Perkusistka</div>
-        <div class="zast-meta">📅 Dziś, 20:00 · Dodał: Tomek W. (Lider Zespołu)</div>
-        <div class="zast-desc">Wesele, repertuar pop/dance, ok. 5h grania. Płatne 600 zł. Potrzebny ktoś doświadczony.</div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:#555">Wygasa za 44h</span>
-          <a href="https://spotigraj.app" class="zast-btn">Zgłoś się →</a>
+      <div class="callsheet">
+        <div class="callsheet-head"><span>Pilne · Warszawa</span><span>Wygasa za 44h</span></div>
+        <div class="callsheet-body">
+          <div class="zast-role">Perkusista/Perkusistka</div>
+          <div class="zast-meta">DZIŚ, 20:00 · DODAŁ: TOMEK W. (LIDER ZESPOŁU)</div>
+          <div class="zast-desc">Wesele, repertuar pop/dance, ok. 5h grania. Płatne 600 zł. Potrzebny ktoś doświadczony.</div>
+          <div class="zast-foot">
+            <span>ID #4471</span>
+            <a href="https://spotigraj.app" class="zast-btn">Zgłoś się →</a>
+          </div>
         </div>
       </div>
-      <div class="standy-mockup">
-        <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#f59e0b;margin-bottom:12px">🎯 STAND BY — GOTOWI</div>
-        <div class="standy-row">
-          <div class="standy-av">AK</div>
-          <div class="standy-info"><div class="standy-name">Anna Kowalska</div><div class="standy-role">Wokalistka · Kraków</div></div>
-          <span class="standy-badge">🟢 Aktywna</span>
-        </div>
-        <div class="standy-row">
-          <div class="standy-av">MP</div>
-          <div class="standy-info"><div class="standy-name">Marek Piotrowski</div><div class="standy-role">Gitarzysta · Warszawa</div></div>
-          <span class="standy-badge">🟡 Zajęty</span>
-        </div>
-        <div class="standy-row">
-          <div class="standy-av">JS</div>
-          <div class="standy-info"><div class="standy-name">Julia Stawska</div><div class="standy-role">Skrzypaczka · Poznań</div></div>
-          <span class="standy-badge">🟢 Aktywna</span>
-        </div>
+      <div class="greenroom">
+        <div class="greenroom-head">Stand By — gotowi</div>
+        <div class="gr-row"><div class="gr-av">AK</div><div class="gr-info"><div class="gr-name">Anna Kowalska</div><div class="gr-role">WOKALISTKA · KRAKÓW</div></div><span class="gr-led on"></span></div>
+        <div class="gr-row"><div class="gr-av">MP</div><div class="gr-info"><div class="gr-name">Marek Piotrowski</div><div class="gr-role">GITARZYSTA · WARSZAWA</div></div><span class="gr-led busy"></span></div>
+        <div class="gr-row"><div class="gr-av">JS</div><div class="gr-info"><div class="gr-name">Julia Stawska</div><div class="gr-role">SKRZYPACZKA · POZNAŃ</div></div><span class="gr-led on"></span></div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="sep"></div>
+<svg class="eq-divider"><use href="#eq"/></svg>
 
-<!-- JAK DZIAŁA -->
+<!-- SIGNAL CHAIN (Jak działa) -->
 <section id="jak-dziala">
   <div class="center">
-    <div class="s-label">Jak to działa</div>
-    <h2 class="s-title">Cztery kroki do połączenia</h2>
+    <div class="eyebrow">Sygnał</div>
+    <h2 class="s-title">Cztery kroki<br>do połączenia</h2>
     <p class="s-sub">Żadnych grup na Facebooku. Żadnego zimnego outreachu. Tylko dopasowane kontakty.</p>
   </div>
-  <div class="steps">
-    <div class="step"><div class="step-num">1</div><h3>Utwórz profil</h3><p>Wybierz rolę (60+ opcji), gatunki (150+) i miasto. Zaznacz kogo szukasz — system dopasuje Cię do właściwych ludzi, nie Twoich konkurentów.</p></div>
-    <div class="step"><div class="step-num">2</div><h3>Ustaw status</h3><p>🟢 Aktywny, 🟡 Zajęty, 🔴 Niedostępny lub 🏖️ Wakacje. Możesz być zajęty ale Stand By na zastępstwa.</p></div>
-    <div class="step"><div class="step-num">3</div><h3>Match!</h3><p>Oboje zaakceptowali? Otwiera się czat i widzisz numer telefonu. Zero spamu — tylko sensowne połączenia.</p></div>
-    <div class="step"><div class="step-num">4</div><h3>Współpracuj</h3><p>Czat, zastępstwa, ogłoszenia projektów — całe narzędzie w jednym miejscu.</p></div>
+  <div class="chain">
+    <div class="chain-line"></div>
+    <div class="chain-steps">
+      <div class="chain-step"><div class="chain-jack">01</div><h3>Utwórz profil</h3><p>Wybierz rolę (60+ opcji), gatunki (150+) i miasto. System dopasuje Cię do właściwych ludzi, nie Twoich konkurentów.</p></div>
+      <div class="chain-step"><div class="chain-jack">02</div><h3>Ustaw status</h3><p>🟢 Aktywny, 🟡 Zajęty, 🔴 Niedostępny lub 🏖️ Wakacje. Możesz być zajęty, ale Stand By na zastępstwa.</p></div>
+      <div class="chain-step"><div class="chain-jack">03</div><h3>Match!</h3><p>Oboje zaakceptowali? Otwiera się czat i widzisz numer telefonu. Zero spamu — tylko sensowne połączenia.</p></div>
+      <div class="chain-step"><div class="chain-jack">04</div><h3>Współpracuj</h3><p>Czat, zastępstwa, ogłoszenia projektów — całe narzędzie w jednym miejscu.</p></div>
+    </div>
   </div>
 </section>
 
-<div class="sep"></div>
+<svg class="eq-divider"><use href="#eq"/></svg>
 
-<!-- FEATURES -->
+<!-- CHANNEL STRIPS (Funkcje) -->
 <section id="funkcje">
   <div class="center">
-    <div class="s-label">Funkcje</div>
-    <h2 class="s-title">Wszystko czego potrzebujesz</h2>
-    <p class="s-sub">Od pierwszego dopasowania po pilny telefon godzinę przed koncertem.</p>
+    <div class="eyebrow">Konsola</div>
+    <h2 class="s-title">Wszystko czego<br>potrzebujesz</h2>
+    <p class="s-sub">Trzynaście kanałów. Od pierwszego dopasowania po pilny telefon godzinę przed koncertem.</p>
   </div>
-  <div class="feat-grid">
-    <div class="feat-card"><div class="feat-icon">🎯</div><h3>Matchowanie procentowe</h3><p>Algorytm łączy według roli, gatunku, lokalizacji i tego kogo szukasz wzajemnie.</p></div>
-    <div class="feat-card"><div class="feat-icon">🔍</div><h3>Zaawansowane filtry</h3><p>Filtruj po gatunku, mieście, roli i statusie dostępności — znajdź dokładnie kogo potrzebujesz.</p></div>
-    <div class="feat-card"><div class="feat-icon">🚦</div><h3>Status dostępności</h3><p>🟢 Aktywny, 🟡 Zajęty, 🔴 Niedostępny lub 🏖️ Wakacje — zawsze wiadomo, czy warto pisać.</p></div>
-    <div class="feat-card"><div class="feat-icon">🚨</div><h3>Moduł zastępstw</h3><p>Pilne ogłoszenia zastępstw i lista muzyków Stand By gotowych do wskazania w każdej chwili.</p></div>
-    <div class="feat-card"><div class="feat-icon">📞</div><h3>Telefon po matchu</h3><p>Numer telefonu widoczny od razu po wzajemnym zaakceptowaniu. Dzwonisz, nie piszesz.</p></div>
-    <div class="feat-card"><div class="feat-icon">💬</div><h3>Czat po matchu</h3><p>Wiadomości tylko gdy oboje chcą współpracy. Zero niechcianych wiadomości.</p></div>
-    <div class="feat-card"><div class="feat-icon">🎭</div><h3>Wiele profesji <span class="feat-tag">Premium</span></h3><p>Jesteś gitarzystą, producentem i realizatorem w jednej osobie? Pokaż do 3 ról w profilu.</p></div>
-    <div class="feat-card"><div class="feat-icon">🎁</div><h3>Poleć i zdobądź Premium <span class="feat-tag">P4Z0</span></h3><p>Zaproś 4 znajomych do Spotigraj i dostajesz miesiąc Premium całkowicie za darmo — bez limitu.</p></div>
-    <div class="feat-card"><div class="feat-icon">📁</div><h3>Nieograniczone projekty <span class="feat-tag">Premium</span></h3><p>Twórz i dołączaj do dowolnej liczby projektów muzycznych — zespołów, składów, kolaboracji.</p></div>
-    <div class="feat-card"><div class="feat-icon">📊</div><h3>Statystyki profilu <span class="feat-tag">Premium</span></h3><p>Ile osób widziało Twój profil, ile razy się pojawiłeś i jak rośnie Twój zasięg.</p></div>
-    <div class="feat-card"><div class="feat-icon">⭐</div><h3>Odznaka Premium <span class="feat-tag">Premium</span></h3><p>Wyróżniająca odznaka przy profilu — sygnał dla branży że jesteś poważnym partnerem.</p></div>
-    <div class="feat-card"><div class="feat-icon">🔝</div><h3>Priorytet w wynikach <span class="feat-tag">Premium</span></h3><p>Twój profil pojawia się wyżej w wynikach — więcej muzyków Cię zobaczy i napisze.</p></div>
-    <div class="feat-card"><div class="feat-icon">🇵🇱</div><h3>Polski rynek</h3><p>Zbudowane dla polskiej branży muzycznej. Rozumiemy tę społeczność od środka.</p></div>
+  <div class="strip-list">
+    <div class="strip"><div class="strip-ch">CH.01</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Matchowanie procentowe</h3><p>Algorytm łączy według roli, gatunku, lokalizacji i tego kogo szukasz wzajemnie.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.02</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Zaawansowane filtry</h3><p>Filtruj po gatunku, mieście, roli i statusie dostępności — znajdź dokładnie kogo potrzebujesz.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.03</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Status dostępności</h3><p>🟢 Aktywny, 🟡 Zajęty, 🔴 Niedostępny lub 🏖️ Wakacje — zawsze wiadomo, czy warto pisać.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.04</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Moduł zastępstw</h3><p>Pilne ogłoszenia zastępstw i lista muzyków Stand By gotowych do wskazania w każdej chwili.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.05</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Telefon po matchu</h3><p>Numer telefonu widoczny od razu po wzajemnym zaakceptowaniu. Dzwonisz, nie piszesz.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.06</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Czat po matchu</h3><p>Wiadomości tylko gdy oboje chcą współpracy. Zero niechcianych wiadomości.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.07</div><div class="led-meter amber"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i></div><div class="strip-body"><h3>Wiele profesji <span class="strip-tag">Premium</span></h3><p>Jesteś gitarzystą, producentem i realizatorem w jednej osobie? Pokaż do 3 ról w profilu.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.08</div><div class="led-meter amber"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i></div><div class="strip-body"><h3>Poleć i zdobądź Premium <span class="strip-tag">P4Z0</span></h3><p>Zaproś 4 znajomych do Spotigraj i dostajesz miesiąc Premium całkowicie za darmo — bez limitu.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.09</div><div class="led-meter amber"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i></div><div class="strip-body"><h3>Nieograniczone projekty <span class="strip-tag">Premium</span></h3><p>Twórz i dołączaj do dowolnej liczby projektów muzycznych — zespołów, składów, kolaboracji.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.10</div><div class="led-meter amber"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i></div><div class="strip-body"><h3>Statystyki profilu <span class="strip-tag">Premium</span></h3><p>Ile osób widziało Twój profil, ile razy się pojawiłeś i jak rośnie Twój zasięg.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.11</div><div class="led-meter amber"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i></div><div class="strip-body"><h3>Odznaka Premium <span class="strip-tag">Premium</span></h3><p>Wyróżniająca odznaka przy profilu — sygnał dla branży że jesteś poważnym partnerem.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.12</div><div class="led-meter amber"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i></div><div class="strip-body"><h3>Priorytet w wynikach <span class="strip-tag">Premium</span></h3><p>Twój profil pojawia się wyżej w wynikach — więcej muzyków Cię zobaczy i napisze.</p></div></div>
+    <div class="strip"><div class="strip-ch">CH.13</div><div class="led-meter"><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i></div><div class="strip-body"><h3>Polski rynek</h3><p>Zbudowane dla polskiej branży muzycznej. Rozumiemy tę społeczność od środka.</p></div></div>
   </div>
 </section>
 
-<div class="sep"></div>
+<svg class="eq-divider"><use href="#eq"/></svg>
 
-<!-- P4Z0 REFERRAL -->
+<!-- P4Z0 TICKET -->
 <section class="p4z0-section" id="polec">
-  <div class="p4z0-grid">
-    <div>
-      <div class="s-label">Program poleceń</div>
-      <h2 class="s-title">Poleć czterem,<br><span style="color:var(--purple)">zapłać zerem.</span></h2>
-      <p class="s-sub">P4Z0 to najprostszy sposób na darmowe Premium — bez karty, bez subskrypcji, bez limitu powtórzeń.</p>
+  <div class="eyebrow">Program poleceń</div>
+  <h2 class="s-title">Poleć czterem,<br><span style="color:var(--accent-strong)">zapłać zerem.</span></h2>
+  <p class="s-sub">P4Z0 — najprostszy sposób na darmowe Premium. Bez karty, bez subskrypcji, bez limitu powtórzeń.</p>
+  <div class="ticket">
+    <div class="ticket-stub">
+      <div>
+        <div class="ticket-label">Backstage pass</div>
+        <div class="ticket-title">P4Z0</div>
+      </div>
+      <div class="ticket-admit">ADMIT: 1 MIESIĄC PREMIUM<br>WAŻNY: BEZTERMINOWO<br>LIMIT: BRAK</div>
     </div>
-    <div class="p4z0-steps">
-      <div class="p4z0-step">
-        <div class="p4z0-num">1</div>
-        <div><h3>Udostępnij swój link</h3><p>Każdy użytkownik dostaje unikalny link polecający — jedno kliknięcie w aplikacji.</p></div>
-      </div>
-      <div class="p4z0-step">
-        <div class="p4z0-num">2</div>
-        <div><h3>Znajomi dołączają</h3><p>4 osoby zakładają konto z Twojego linku i zaczynają korzystać z Spotigraj.</p></div>
-      </div>
-      <div class="p4z0-step">
-        <div class="p4z0-num">3</div>
-        <div><h3>Odbierasz miesiąc gratis</h3><p>Dostajesz miesiąc Premium za darmo. Kolejna czwórka? Kolejny darmowy miesiąc — bez limitu.</p></div>
+    <div class="ticket-body">
+      <div class="ticket-route">
+        <div class="ticket-hop"><div class="n">01</div><div><h3>Udostępnij swój link</h3><p>Każdy użytkownik dostaje unikalny link polecający — jedno kliknięcie w aplikacji.</p></div></div>
+        <div class="ticket-hop"><div class="n">02</div><div><h3>Znajomi dołączają</h3><p>4 osoby zakładają konto z Twojego linku i zaczynają korzystać z Spotigraj.</p></div></div>
+        <div class="ticket-hop"><div class="n">03</div><div><h3>Odbierasz miesiąc gratis</h3><p>Dostajesz miesiąc Premium za darmo. Kolejna czwórka? Kolejny darmowy miesiąc — bez limitu.</p></div></div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="sep"></div>
-
-<!-- BIG CTA -->
-<section class="big-cta">
-  <div class="big-cta-glow"></div>
-  <div class="s-label" style="position:relative">Dołącz teraz</div>
-  <h2 style="position:relative">Gotowy żeby dołączyć<br>do <span>świata muzyki</span>?</h2>
-  <p style="position:relative;color:#666;margin-bottom:16px">Pierwsza polska platforma networkingowa dla branży muzycznej.</p>
-  <!-- Testimonial -->
-  <div style="position:relative;max-width:480px;margin:0 auto 36px;background:#0d0d0d;border:1px solid rgba(157,78,221,0.15);border-radius:14px;padding:18px 22px;text-align:left">
-  <!-- testimonial dodamy gdy będą prawdziwe opinie -->
-  </div>
-  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative">
-    <a href="https://spotigraj.app" class="btn-primary" style="font-size:18px;padding:18px 48px">Zacznij za darmo →</a>
-  </div>
-  <div style="margin-top:14px;font-size:13px;color:#333;position:relative">Bez karty kredytowej · bezpieczna płatność Stripe</div>
+<!-- FINALE -->
+<section class="finale">
+  <div class="eyebrow">Dołącz teraz</div>
+  <h2 class="finale-title">Gotowy na<br><span>swój pierwszy match?</span></h2>
+  <p>Pierwsza polska platforma networkingowa dla branży muzycznej.</p>
+  <a href="https://spotigraj.app" class="btn-primary" style="font-size:17px;padding:18px 46px">Zacznij za darmo →</a>
+  <div class="finale-detail">BEZ KARTY KREDYTOWEJ · BEZPIECZNA PŁATNOŚĆ STRIPE</div>
 </section>
-
-<div class="sep"></div>
 
 <!-- FOOTER -->
 <footer>
@@ -347,6 +452,116 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 5vw;display:flex
   </div>
   <div class="footer-copy">© 2026 Spotigraj · gdzie muzyka łączy ludzi</div>
 </footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var STORAGE_KEY = 'spotigraj_theme';
+
+  function systemTheme(){
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function currentTheme(){
+    return root.getAttribute('data-theme') || systemTheme();
+  }
+
+  var stored = null;
+  try { stored = localStorage.getItem(STORAGE_KEY); } catch(e){}
+  if (stored === 'dark' || stored === 'light') root.setAttribute('data-theme', stored);
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- Hero waveform ----
+  var canvas = document.getElementById('hero-wave');
+  var ctx = canvas ? canvas.getContext('2d') : null;
+  var bars = [];
+  var BAR_COUNT = 64;
+
+  function seededRandom(seed){
+    return function(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  }
+
+  function buildBars(){
+    var rand = seededRandom(42);
+    bars = [];
+    for (var i = 0; i < BAR_COUNT; i++){
+      bars.push({ base: 0.15 + rand() * 0.75, phase: rand() * Math.PI * 2 });
+    }
+  }
+
+  function resizeCanvas(){
+    if (!canvas) return;
+    var rect = canvas.parentElement.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawFrame(t){
+    if (!ctx) return;
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    var style = getComputedStyle(root);
+    var color = style.getPropertyValue('--accent-strong').trim() || '#9D4EDD';
+    var gap = w / BAR_COUNT;
+    var barW = Math.max(2, gap * 0.45);
+    var midY = h * 0.62;
+    ctx.fillStyle = color;
+    for (var i = 0; i < bars.length; i++){
+      var b = bars[i];
+      var wobble = reduced ? 0 : Math.sin(t / 900 + b.phase) * 0.12;
+      var amp = Math.max(0.05, Math.min(1, b.base + wobble));
+      var barH = amp * h * 0.34;
+      var x = i * gap + gap / 2 - barW / 2;
+      ctx.globalAlpha = 0.22 + amp * 0.35;
+      ctx.fillRect(x, midY - barH, barW, barH * 2);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function loop(t){
+    drawFrame(t);
+    if (!reduced) requestAnimationFrame(loop);
+  }
+
+  function initWave(){
+    if (!canvas) return;
+    buildBars();
+    resizeCanvas();
+    drawFrame(0);
+    if (!reduced) requestAnimationFrame(loop);
+    var resizeTimer;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function(){ resizeCanvas(); if (reduced) drawFrame(0); }, 150);
+    });
+  }
+
+  // ---- Theme toggle ----
+  function syncToggle(toggle){
+    var isDark = currentTheme() === 'dark';
+    toggle.setAttribute('aria-pressed', String(isDark));
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    initWave();
+    var toggle = document.getElementById('theme-toggle');
+    if (toggle){
+      syncToggle(toggle);
+      toggle.addEventListener('click', function(){
+        var next = currentTheme() === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem(STORAGE_KEY, next); } catch(e){}
+        syncToggle(toggle);
+        drawFrame(performance.now());
+      });
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
