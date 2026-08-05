@@ -3499,6 +3499,7 @@ function showNotifHistory() {
   screen.style.display = 'flex';
   window.history.pushState({ overlay: 'notif-history' }, '');
   _saveViewState('notif-history');
+  setTimeout(() => _restoreScrollState('notif-history', list), 60);
 }
 
 function closeNotifHistory() {
@@ -3592,6 +3593,10 @@ function _restoreViewState() {
 let _scrollSaveTimer = null;
 function _scrollStateKey() {
   if (!document.getElementById('onboarding').classList.contains('hidden')) return 'onboarding';
+  if (!document.getElementById('notif-history-screen').classList.contains('hidden')) return 'notif-history';
+  if (!document.getElementById('modal-premium').classList.contains('hidden')) return 'premium';
+  if (!document.getElementById('modal-about').classList.contains('hidden')) return 'about';
+  if (!document.getElementById('modal-zastepstwo').classList.contains('hidden')) return 'zastepstwo';
   const screen = document.querySelector('.screen.active')?.id?.replace('s-', '') || 'discover';
   return 'screen:' + screen;
 }
@@ -5317,6 +5322,7 @@ function showPremiumModal(context) {
   // Backspace zamknie modal zamiast wyjść z appki
   window.history.pushState({ modal: 'premium' }, '');
   _saveViewState('premium');
+  setTimeout(() => _restoreScrollState('premium', document.getElementById('modal-premium-inner')), 60);
 }
 
 let currentPremPlan = 'monthly';
