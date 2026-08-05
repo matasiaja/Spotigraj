@@ -143,11 +143,6 @@ body.premium-mode .auth-logo {
 body.premium-mode #app {
   border-color: rgba(243,176,0,0.15);
 }
-body.premium-mode .bottom-nav {
-  border-top-color: rgba(243,176,0,0.2);
-}
-body.premium-mode .nav-btn.active { color: var(--gold); }
-body.premium-mode .nav-btn.active::before { background: var(--gold); }
 body.premium-mode .topbar { border-bottom-color: rgba(243,176,0,0.15); }
 body.premium-mode #prof-av { box-shadow: 0 0 0 3px var(--gold), 0 4px 20px rgba(243,176,0,0.3); }
 body.premium-mode .topbar-icon-btn { color: rgba(243,176,0,0.6); }
@@ -279,6 +274,10 @@ html, body {
 .btn-danger { background: linear-gradient(180deg, #ff8a80, var(--error-badge) 55%, #c22a20); color: var(--on-dark); border: none; box-shadow: 0 5px 0 #8a1c14, 0 9px 18px rgba(255,59,48,0.35), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -3px 6px rgba(0,0,0,.2); }
 .btn-danger:hover { background: linear-gradient(180deg, #ff8a80, var(--error-badge) 55%, #c22a20); }
 .btn-danger:active { background: linear-gradient(180deg, var(--error-badge), #8a1c14); box-shadow: 0 1px 0 #8a1c14, inset 0 4px 8px rgba(0,0,0,.45); transform: translateY(4px); }
+.btn-whatsapp { background: linear-gradient(180deg, #4be08a, #25D366 55%, #1a9e4a); color: #04140b; border: none; box-shadow: 0 5px 0 #157a37, 0 9px 18px rgba(37,211,102,0.35), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -3px 6px rgba(0,0,0,.2); }
+.btn-whatsapp:active { background: linear-gradient(180deg, #25D366, #157a37); box-shadow: 0 1px 0 #157a37, inset 0 4px 8px rgba(0,0,0,.45); transform: translateY(4px); }
+.btn-telegram { background: linear-gradient(180deg, #6cc8f5, #2AABEE 55%, #1f86c2); color: #04140b; border: none; box-shadow: 0 5px 0 #17638f, 0 9px 18px rgba(42,171,238,0.35), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -3px 6px rgba(0,0,0,.2); }
+.btn-telegram:active { background: linear-gradient(180deg, #2AABEE, #17638f); box-shadow: 0 1px 0 #17638f, inset 0 4px 8px rgba(0,0,0,.45); transform: translateY(4px); }
 .btn:disabled { opacity: .5; cursor: default; box-shadow: none; transform: none; }
 .err { color: var(--error); font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
 .field-invalid { border-color: var(--error) !important; box-shadow: 0 0 0 1px rgba(255,107,122,0.4); }
@@ -412,51 +411,52 @@ html, body {
 /* ── BOTTOM NAV ────────────────────────────── */
 .bottom-nav {
   display: flex;
+  gap: 9px;
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: calc(480px - 32px);
-  background: var(--surface-blur-deep);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 24px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
   z-index: 100;
-  overflow: hidden;
 }
 .nav-btn {
   flex: 1;
-  padding: 12px 0 10px;
-  background: none;
-  border: none;
+  min-width: 0;
+  padding: 11px 2px 9px;
+  background: linear-gradient(180deg, var(--navy4), var(--navy3));
+  border: 1px solid var(--border);
+  border-radius: 18px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 10px;
+  gap: 3px;
+  font-size: 9.5px;
   font-weight: 600;
   color: var(--muted);
-  transition: color .2s;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   position: relative;
+  box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 7px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.12), inset 0 -2px 5px rgba(0,0,0,.2);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s;
 }
-.nav-btn.active { color: var(--accent); }
-.nav-btn.active::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 0 0 4px 4px;
+.nav-btn:active {
+  background: rgba(0,0,0,.25);
+  box-shadow: 0 1px 0 rgba(0,0,0,.4), inset 0 3px 6px rgba(0,0,0,.4);
+  transform: translateY(3px);
 }
-.nav-icon { font-size: 22px; line-height: 1; }
+.nav-btn.active {
+  color: var(--on-dark);
+  background: linear-gradient(180deg, #c08bf5, var(--accent) 55%, var(--accent-dark));
+  border-color: transparent;
+  box-shadow: 0 4px 0 var(--accent-dark), 0 7px 14px rgba(157,78,221,.4), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 5px rgba(0,0,0,.2);
+}
+.nav-btn.active:active {
+  background: linear-gradient(180deg, var(--accent-dark), var(--accent-dark));
+  box-shadow: 0 1px 0 var(--accent-dark), inset 0 3px 6px rgba(0,0,0,.4);
+  transform: translateY(3px);
+}
+.nav-icon { font-size: 20px; line-height: 1; }
 
 /* ── SCREENS ───────────────────────────────── */
 .screen { display: none; }
@@ -1698,7 +1698,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
           <textarea id="appgrajd-desc" placeholder="Opis (opcjonalnie) — link: [tekst](profile/messages/discover/zastepstwa)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
           <div style="font-size:11px;color:var(--muted);margin-top:4px">Format linku: [tekst](profile) → kliknięcie przenosi na ekran profilu. Dostępne: discover, zastepstwa, messages, profile, appgrajd</div>
         </div>
-        <button onclick="submitAppgrajdEntry()" style="width:100%;padding:11px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-size:13px;font-weight:700;cursor:pointer">Opublikuj</button>
+        <button onclick="submitAppgrajdEntry()" class="btn btn-green" style="padding:11px;font-size:13px">Opublikuj</button>
         <div class="err" id="appgrajd-err" style="margin-top:8px"></div>
       </div>
       <div id="appgrajd-list"></div>
@@ -1740,8 +1740,8 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <textarea id="bug-desc" placeholder="Opisz co się stało lub co chciałbyś zmienić..." maxlength="1000"></textarea>
     <div id="bug-err" class="err"></div>
     <div class="bug-send-row">
-      <button onclick="closeBugModal()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-      <button id="bug-send-btn" onclick="sendBugReport()" style="flex:2;padding:12px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij →</button>
+      <button onclick="closeBugModal()" class="btn" style="flex:1;width:auto;padding:12px;font-size:14px">Anuluj</button>
+      <button id="bug-send-btn" onclick="sendBugReport()" class="btn btn-green" style="flex:2;width:auto;padding:12px;font-size:14px">Wyślij →</button>
     </div>
   </div>
 </div>
@@ -1753,8 +1753,8 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div id="appgrajd-delete-msg" style="font-size:13px;color:var(--muted2);margin-bottom:6px;line-height:1.5"></div>
     <div style="font-size:12px;color:var(--error-badge);margin-bottom:22px">Tej operacji nie można odwrócić.</div>
     <div style="display:flex;gap:10px">
-      <button onclick="closeAppgrajdDeleteModal()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-      <button id="appgrajd-delete-confirm-btn" onclick="confirmAppgrajdDelete()" style="flex:1;padding:12px;background:var(--error-badge);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Usuń</button>
+      <button onclick="closeAppgrajdDeleteModal()" class="btn" style="flex:1;width:auto;padding:12px;font-size:14px">Anuluj</button>
+      <button id="appgrajd-delete-confirm-btn" onclick="confirmAppgrajdDelete()" class="btn btn-danger" style="flex:1;width:auto;padding:12px;font-size:14px">Usuń</button>
     </div>
     <div id="appgrajd-delete-err" style="margin-top:10px;font-size:12px;color:var(--error-badge);text-align:center;min-height:16px"></div>
   </div>
@@ -1769,17 +1769,17 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">Udostępnij Spotigraj</div>
     <div style="font-size:13px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Wybierz sposób wysłania:</div>
     <div style="display:flex;gap:10px;margin-bottom:10px">
-      <button onclick="shareViaWhatsApp()" style="flex:1;padding:12px;background:#25D366;border:none;border-radius:50px;color:#04140b;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">WhatsApp</button>
-      <button onclick="shareViaTelegram()" style="flex:1;padding:12px;background:#2AABEE;border:none;border-radius:50px;color:#04140b;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Telegram</button>
+      <button onclick="shareViaWhatsApp()" class="btn btn-whatsapp" style="flex:1;width:auto;padding:12px;font-size:14px">WhatsApp</button>
+      <button onclick="shareViaTelegram()" class="btn btn-telegram" style="flex:1;width:auto;padding:12px;font-size:14px">Telegram</button>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:12px">
-      <button onclick="shareViaSms()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--text);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">SMS</button>
-      <button onclick="shareViaEmail()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--text);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Email</button>
+      <button onclick="shareViaSms()" class="btn" style="flex:1;width:auto;padding:12px;font-size:14px">SMS</button>
+      <button onclick="shareViaEmail()" class="btn" style="flex:1;width:auto;padding:12px;font-size:14px">Email</button>
     </div>
     <textarea id="share-link-input" readonly onclick="this.select()" rows="6" style="width:100%;padding:11px 14px;background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;cursor:text;resize:none;box-sizing:border-box">https://spotigraj.app</textarea>
     <div style="display:flex;gap:10px">
-      <button onclick="closeShareFallback()" style="flex:1;padding:12px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
-      <button onclick="copyShareLink()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Kopiuj</button>
+      <button onclick="closeShareFallback()" class="btn" style="flex:1;width:auto;padding:12px;font-size:14px">Zamknij</button>
+      <button onclick="copyShareLink()" class="btn btn-green" style="flex:1;width:auto;padding:12px;font-size:14px">Kopiuj</button>
     </div>
   </div>
 </div>
@@ -1806,7 +1806,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
       Wersja beta · <a href="https://spotigraj.app" style="color:var(--green);text-decoration:none">spotigraj.app</a><br>
       Kontakt: <a href="mailto:info@mattsmok.art" style="color:var(--green);text-decoration:none">info@mattsmok.art</a>
     </div>
-    <button onclick="closeAbout()" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Zamknij</button>
+    <button onclick="closeAbout()" class="btn btn-green" style="padding:12px;font-size:14px">Zamknij</button>
   </div>
 </div>
 
@@ -1848,7 +1848,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
         </div>
         <p style="font-size:11px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:16px">Podane dane wykorzystamy wyłącznie w celu kontaktu w sprawie programu Muzyczna Środa. Nie udostępniamy ich osobom trzecim.</p>
         <div id="ms-err" style="color:#ff6b7a;font-size:13px;margin-bottom:12px;min-height:16px"></div>
-        <button type="submit" id="ms-submit-btn" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:50px;color:var(--on-dark);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;margin-bottom:8px">Wyślij zgłoszenie</button>
+        <button type="submit" id="ms-submit-btn" class="btn btn-green" style="padding:14px;font-size:15px;margin-bottom:8px">Wyślij zgłoszenie</button>
       </form>
     </div>
   </div>
@@ -1876,8 +1876,8 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div class="field"><label>Data i godzina</label><input type="datetime-local" id="zast-date" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none"></div>
     <div class="field"><label>Opis (gatunek, wymagania, wynagrodzenie)</label><textarea id="zast-desc" placeholder="np. Wesele, repertuar pop/dance, znajomość mikrofonu, płatne 500 zł" style="width:100%;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea></div>
     <div style="display:flex;gap:10px;margin-top:4px">
-      <button onclick="closeAddZastepstwo()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);border-radius:30px;color:var(--muted);font-size:14px;cursor:pointer">Anuluj</button>
-      <button onclick="submitZastepstwo()" style="flex:2;padding:11px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-size:14px;font-weight:700;cursor:pointer">Opublikuj ogłoszenie</button>
+      <button onclick="closeAddZastepstwo()" class="btn" style="flex:1;width:auto;padding:11px;font-size:14px">Anuluj</button>
+      <button onclick="submitZastepstwo()" class="btn btn-green" style="flex:2;width:auto;padding:11px;font-size:14px">Opublikuj ogłoszenie</button>
     </div>
     <div class="err" id="zast-err" style="margin-top:10px"></div>
   </div>
@@ -1942,7 +1942,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <!-- Poleć appkę — zdobądź Premium za darmo (P4Z0) -->
     <div id="prem-referral-info" style="background:rgba(157,78,221,0.08);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);text-align:left">
       🎁 Zaproś 4 Spotigrajtones, którzy zaczną korzystać z appki — dostajesz miesiąc Premium gratis.
-      <button onclick="shareReferral()" style="width:100%;margin-top:10px;padding:11px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Poleć appkę</button>
+      <button onclick="shareReferral()" class="btn btn-green" style="margin-top:10px;padding:11px;font-size:14px">Poleć appkę</button>
     </div>
 
     <!-- Info o kuponie i płatny start trialu — schowane, priorytet ma P4Z0 -->
@@ -1951,7 +1951,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
         🎁 Masz kod promocyjny? Wpisz go poniżej (dotyczy planu miesięcznego):
         <input type="text" id="prem-promo-input" placeholder="Kod promocyjny (opcjonalnie)" style="width:100%;margin-top:8px;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;text-transform:uppercase" oninput="updatePremCta()">
       </div>
-      <button id="prem-cta-btn" onclick="startCheckout()" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em">
+      <button id="prem-cta-btn" onclick="startCheckout()" class="btn btn-green" style="padding:15px;font-size:15px;margin-bottom:8px;letter-spacing:0.01em">
         Zacznij 7 dni za darmo →
       </button>
       <div id="prem-cta-sub" style="font-size:11px;color:var(--muted);margin-bottom:12px">Bez zobowiązań · anuluj przed końcem trialu</div>
@@ -1969,7 +1969,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:20px;text-align:left">
       Nie musisz już płacić za Premium. Zaproś 4 nowych Spotigrajtones, którzy zaczną korzystać z appki — a dostajesz miesiąc Premium całkowicie za darmo. Bez limitu: każda kolejna czwórka to kolejny darmowy miesiąc.
     </div>
-    <button onclick="closeP4Z0Modal(); shareReferral();" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;letter-spacing:0.01em;font-family:inherit">
+    <button onclick="closeP4Z0Modal(); shareReferral();" class="btn btn-green" style="padding:14px;font-size:15px;margin-bottom:8px;letter-spacing:0.01em">
       Poleć appkę →
     </button>
     <button onclick="closeP4Z0Modal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">Może później</button>
@@ -2014,7 +2014,7 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
     <div style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:28px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px">
       Jeśli nie widzisz wiadomości w skrzynce głównej, <strong style="color:var(--text)">sprawdź folder SPAM / Wiadomości-śmieci</strong>.
     </div>
-    <button onclick="closeEmailVerifyOverlay()" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit">Rozumiem</button>
+    <button onclick="closeEmailVerifyOverlay()" class="btn btn-green" style="padding:14px;font-size:16px">Rozumiem</button>
   </div>
 </div>
 
@@ -4025,7 +4025,7 @@ async function loadAppgrajd() {
           <button onclick="selectPremiumFeedbackCat(this,'inna_uwaga')" class="pf-cat" style="padding:7px 13px;border:1.5px solid rgba(243,176,0,0.3);border-radius:50px;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💬 Inna uwaga</button>
         </div>
         <textarea id="pf-desc" placeholder="Napisz co chcesz nam przekazać..." style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:72px;font-family:inherit;box-sizing:border-box"></textarea>
-        <button onclick="submitPremiumFeedback()" style="width:100%;margin-top:10px;padding:11px;background:var(--gold);border:none;border-radius:30px;color:var(--on-accent);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Wyślij feedback</button>
+        <button onclick="submitPremiumFeedback()" class="btn btn-green" style="margin-top:10px;padding:11px;font-size:13px">Wyślij feedback</button>
         <div id="pf-msg" style="margin-top:8px;font-size:13px;text-align:center;min-height:18px"></div>
       </div>`);
   }
@@ -4064,8 +4064,8 @@ async function loadAppgrajd() {
             <textarea id="appgrajd-edit-desc-${entry.id}" placeholder="Opis (opcjonalnie)" style="width:100%;padding:10px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit"></textarea>
           </div>
           <div style="display:flex;gap:8px">
-            <button onclick="closeAppgrajdEdit()" style="flex:1;padding:10px;background:var(--navy3);border:1.5px solid var(--border);border-radius:50px;color:var(--muted2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Anuluj</button>
-            <button onclick="saveAppgrajdEdit('${entry.id}')" style="flex:2;padding:10px;background:var(--green);border:none;border-radius:50px;color:var(--on-accent);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Zapisz</button>
+            <button onclick="closeAppgrajdEdit()" class="btn" style="flex:1;width:auto;padding:10px;font-size:13px">Anuluj</button>
+            <button onclick="saveAppgrajdEdit('${entry.id}')" class="btn btn-green" style="flex:2;width:auto;padding:10px;font-size:13px">Zapisz</button>
           </div>
           <div id="appgrajd-edit-err-${entry.id}" style="margin-top:8px;font-size:12px;color:var(--error-badge);min-height:16px"></div>
         </div>` : '';
@@ -5388,7 +5388,7 @@ async function handleStripeReturn() {
         <div style="font-size:56px">🎉</div>
         <div style="font-size:24px;font-weight:800;color:var(--on-dark)">Witaj w Premium!</div>
         <div style="font-size:15px;color:var(--muted2)">Masz teraz nieograniczony dostęp<br>do wszystkich funkcji Spotigraj.</div>
-        <button onclick="this.parentElement.remove()" style="padding:14px 36px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-size:15px;font-weight:700;cursor:pointer">Zacznij korzystać →</button>`;
+        <button onclick="this.parentElement.remove()" class="btn btn-green" style="width:auto;padding:14px 36px;font-size:15px">Zacznij korzystać →</button>`;
       document.body.appendChild(popup);
     }, 500);
   } else if (params.get('premium') === 'cancel') {
@@ -5598,7 +5598,7 @@ async function contactStandBy(userId) {
           <div style="font-size:22px;font-weight:700;color:var(--warn)">${p.phone}</div>
           <a href="tel:${p.phone}" style="display:inline-block;margin-top:10px;padding:8px 20px;background:var(--warn);color:var(--on-accent);border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">Zadzwoń teraz</a>
         </div>
-        <button onclick="document.getElementById('standby-contact-popup').remove();openChat('${userId}')" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:30px;color:var(--on-accent);font-weight:700;cursor:pointer;margin-bottom:8px">💬 Napisz wiadomość</button>
+        <button onclick="document.getElementById('standby-contact-popup').remove();openChat('${userId}')" class="btn btn-green" style="padding:12px;margin-bottom:8px">💬 Napisz wiadomość</button>
         <button onclick="document.getElementById('standby-contact-popup').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer">Zamknij</button>
       </div>`;
     document.body.appendChild(popup);
