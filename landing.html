@@ -205,6 +205,17 @@ nav{position:sticky;top:0;z-index:100;background:color-mix(in srgb, var(--bg) 82
 .promo-step p{font-size:13px;color:rgba(255,255,255,0.78);line-height:1.6}
 
 /* ============ CLOSING CTA ============ */
+/* ============ FAQ ============ */
+.faq-list{display:flex;flex-direction:column;gap:14px;margin-top:48px;max-width:760px;margin-left:auto;margin-right:auto}
+.faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+.faq-item.open{border-color:var(--accent-strong)}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;background:none;border:none;text-align:left;font-family:inherit;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer}
+.faq-q .chev{flex-shrink:0;width:18px;height:18px;color:var(--accent-strong);transition:transform .2s}
+.faq-item.open .faq-q .chev{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease}
+.faq-a p{padding:0 24px 20px;font-size:14px;color:var(--ink-soft);line-height:1.7}
+.faq-item.open .faq-a{max-height:260px}
+
 .finale{text-align:center}
 .finale-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:72px 5vw;box-shadow:var(--shadow)}
 .finale-card{position:relative;overflow:hidden}
@@ -403,6 +414,34 @@ footer{border-top:1px solid var(--line)}
 </section>
 
 <!-- FINALE -->
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="center">
+      <div class="eyebrow">FAQ</div>
+      <h2 class="h2">Najczęstsze pytania</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Czy mój numer telefonu jest bezpieczny?<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l5 5 5-5"/></svg></button>
+        <div class="faq-a"><p>Twój numer widzą tylko osoby, z którymi wzajemnie się dopasujecie — nikt inny. Zero publicznego wystawiania danych kontaktowych.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Czy Spotigraj jest naprawdę darmowy?<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l5 5 5-5"/></svg></button>
+        <div class="faq-a"><p>Tak. Podstawowe funkcje — profil, dopasowania, czat — są bezpłatne. Premium (priorytet w wynikach, statystyki profilu, publikowanie zastępstw) możesz zdobyć bezpłatnie, polecając 4 znajomych (P4Z0).</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Co jeśli nie znajdę nikogo w mojej okolicy?<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l5 5 5-5"/></svg></button>
+        <div class="faq-a"><p>Spotigraj rośnie razem z branżą — im więcej osób dołącza, tym więcej dopasowań w Twoim mieście. Możesz też szukać poza swoją lokalizacją, jeśli jesteś otwarty na dojazdy lub zdalną współpracę.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Czy muszę podawać dane karty, żeby założyć konto?<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l5 5 5-5"/></svg></button>
+        <div class="faq-a"><p>Nie. Rejestracja i podstawowe korzystanie z apki nie wymagają karty płatniczej.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="finale">
   <div class="wrap">
     <div class="finale-card">
@@ -431,6 +470,12 @@ footer{border-top:1px solid var(--line)}
 </footer>
 
 <script>
+function toggleFaq(btn) {
+  var item = btn.closest('.faq-item');
+  var wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i){ if (i !== item) i.classList.remove('open'); });
+  item.classList.toggle('open', !wasOpen);
+}
 (function(){
   var root = document.documentElement;
   var STORAGE_KEY = 'spotigraj_theme';
