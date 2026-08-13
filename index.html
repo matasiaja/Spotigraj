@@ -495,6 +495,8 @@ html, body {
   box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.3);
 }
 .chip.on:active { box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
+.pf-cat { box-shadow: 0 3px 0 rgba(0,0,0,.35), 0 5px 10px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.1); transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s, border-color .15s; }
+.pf-cat:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3), inset 0 2px 4px rgba(0,0,0,.35); }
 
 /* ── PROFILE CARDS ─────────────────────────── */
 .profile-card {
@@ -1927,8 +1929,10 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
   .prem-tip-box::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--navy); }
   .prem-tip:hover .prem-tip-box, .prem-tip.open .prem-tip-box { display:block; }
   .prem-plan-toggle { display:flex; background:rgba(0,0,0,0.15); border-radius:50px; padding:3px; gap:3px; margin-bottom:14px; }
-  .prem-plan-btn { flex:1; padding:7px 10px; border:none; border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; background:transparent; color:rgba(0,0,0,0.6); transition:all .2s; font-family:inherit; }
-  .prem-plan-btn.active { background:var(--on-dark); color:var(--on-accent); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+  .prem-plan-btn { flex:1; padding:7px 10px; border:none; border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; background:transparent; color:rgba(0,0,0,0.6); transition:all .2s, transform .08s ease, box-shadow .08s ease; font-family:inherit; }
+  .prem-plan-btn:active { transform:translateY(1px); }
+  .prem-plan-btn.active { background:var(--on-dark); color:var(--on-accent); box-shadow:0 2px 0 rgba(0,0,0,.22), 0 4px 8px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.5); }
+  .prem-plan-btn.active:active { box-shadow:0 1px 0 rgba(0,0,0,.2), inset 0 2px 4px rgba(0,0,0,.15); transform:translateY(2px); }
   .prem-badge-save { display:inline-block; background:var(--on-accent); color:var(--green); font-size:10px; font-weight:800; padding:2px 8px; border-radius:50px; margin-left:4px; letter-spacing:0.03em; }
   .prem-social { display:flex; align-items:center; gap:8px; background:rgba(29,185,84,0.08); border:1px solid rgba(29,185,84,0.2); border-radius:10px; padding:10px 14px; margin-bottom:16px; text-align:left; }
   .prem-testimonial { background:var(--dark3); border-radius:10px; padding:12px 14px; margin-bottom:16px; text-align:left; }
