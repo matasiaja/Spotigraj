@@ -1,10 +1,11 @@
-const CACHE = 'spotigraj-v34';
+const CACHE = 'spotigraj-v35';
 const ASSETS = [
   '/',
   '/index.html',
   '/landing.html',
   '/manifest.json',
   '/new.png',
+  '/vendor/supabase.js',
 ];
 
 self.addEventListener('install', e => {
