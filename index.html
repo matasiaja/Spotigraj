@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="/vendor/supabase.js"></script>
 <script>
 (function(){var t=localStorage.getItem('spotigraj_theme')||'dark';if(t==='light')document.documentElement.setAttribute('data-theme','light');else document.documentElement.removeAttribute('data-theme');})();
 </script>
@@ -2149,6 +2149,22 @@ const customStorage = {
     try { sessionStorage.removeItem(key); } catch(e) {}
   }
 };
+
+// Biblioteka Supabase jest teraz hostowana lokalnie (/vendor/supabase.js), więc to nie powinno
+// się zdarzyć — ale gdyby mimo wszystko się nie załadowała (zerwana sieć w trakcie ładowania itp.),
+// pokazujemy czytelny komunikat zamiast zostawiać appkę zawieszoną na ekranie "Łączenie...".
+if (typeof supabase === 'undefined'){
+  const loadingScreen = document.getElementById('loading-screen');
+  if (loadingScreen){
+    loadingScreen.innerHTML = `
+      <div style="text-align:center;padding:0 24px;max-width:320px;">
+        <div style="font-size:15px;font-weight:600;margin-bottom:8px;">Nie udało się uruchomić</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px;">Nie udało się załadować wymaganej biblioteki. Sprawdź połączenie internetowe i spróbuj ponownie.</div>
+        <button onclick="location.reload()" style="background:#9D4EDD;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-weight:600;cursor:pointer;">Spróbuj ponownie</button>
+      </div>`;
+  }
+  throw new Error('Biblioteka Supabase nie została załadowana');
+}
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
