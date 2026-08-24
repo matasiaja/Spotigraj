@@ -2015,6 +2015,21 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
   </div>
 </div>
 
+<!-- UZUPEŁNIJ PROFIL — blokada programu partnerskiego -->
+<div id="modal-complete-profile" class="hidden" onclick="if(event.target===this)closeCompleteProfileModal()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay-bg-deep);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">📝</div>
+    <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:16px">Uzupełnij profil</div>
+    <div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:20px;text-align:left">
+      Aby odblokować możliwość polecania Spotigraj i dołączyć do programu partnerskiego, uzupełnij najpierw swój profil — imię, rolę i miasto.
+    </div>
+    <button onclick="closeCompleteProfileModal(); showEdit();" class="btn btn-green" style="padding:14px;font-size:15px;margin-bottom:8px;letter-spacing:0.01em">
+      Uzupełnij profil →
+    </button>
+    <button onclick="closeCompleteProfileModal()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">Może później</button>
+  </div>
+</div>
+
 <!-- CHANGE PASSWORD -->
 <div id="change-password-screen" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--dark);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
   <div style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:400px">
@@ -2343,6 +2358,14 @@ function showP4Z0AnnouncementIfNeeded() {
 function closeP4Z0Modal() {
   localStorage.setItem(P4Z0_SEEN_KEY, '1');
   const m = document.getElementById('modal-p4z0');
+  m.classList.add('hidden'); m.style.display = 'none';
+}
+function showCompleteProfileModal() {
+  const m = document.getElementById('modal-complete-profile');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+function closeCompleteProfileModal() {
+  const m = document.getElementById('modal-complete-profile');
   m.classList.add('hidden'); m.style.display = 'none';
 }
 
@@ -2696,7 +2719,7 @@ async function shareApp() {
 async function shareReferral() {
   if (!currentUser) return;
   if (!currentProfile?.full_name || !currentProfile?.role || !currentProfile?.city) {
-    showToast('Uzupełnij najpierw swój profil, żeby dołączyć do programu partnerskiego', 'warn', 5000);
+    showCompleteProfileModal();
     return;
   }
   const { data, error } = await sb.from('referral_links').select('short_id').eq('referrer_id', currentUser.id).single();
@@ -4874,6 +4897,7 @@ function showEdit() {
   }
   document.getElementById('app').classList.add('hidden');
   document.getElementById('onboarding').classList.remove('hidden');
+  obGoToStep(1);
   window.history.pushState({ overlay: 'edit-profile' }, '');
   _saveViewState('edit-profile');
   setTimeout(() => _restoreScrollState('onboarding', window), 60);
