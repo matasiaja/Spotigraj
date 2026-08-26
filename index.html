@@ -3979,9 +3979,14 @@ function calcMatch(p) {
   const theirGenres = p.genres || [];
   const theirLookingFor = p.looking_for || [];
 
-  // Gatunki wspólne (do 30 pkt)
+  // Gatunki wspólne — podobieństwo Jaccarda (część wspólna / suma unikalnych), do 30 pkt.
+  // Nie surowa liczba wspólnych gatunków: przy koncie z bardzo długą listą (np. ktoś zaznaczył
+  // większość katalogu przy onboardingu) surowa liczba trafiała w limit z prawie każdym kandydatem,
+  // więc sygnał tracił sens akurat dla tych profili — Jaccard normalizuje go względem rozmiaru list.
   const commonGenres = myGenres.filter(g => theirGenres.includes(g));
-  score += Math.min(30, commonGenres.length * 10);
+  const genreUnionSize = new Set([...myGenres, ...theirGenres]).size;
+  const genreSimilarity = genreUnionSize > 0 ? commonGenres.length / genreUnionSize : 0;
+  score += Math.round(genreSimilarity * 30);
 
   // Czy on/ona jest tym kogo ja szukam? (25 pkt)
   if (myLookingFor.includes(p.role)) score += 25;
