@@ -1279,8 +1279,20 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
           <option>Social Media Manager</option>
           <option>Specjalista PR</option>
         </optgroup>
+        <optgroup label="Nauczyciele Muzyki">
+          <option>Nauczyciel Wokalu/Nauczycielka Wokalu</option>
+          <option>Nauczyciel Gitary/Nauczycielka Gitary</option>
+          <option>Nauczyciel Gitary Basowej/Nauczycielka Gitary Basowej</option>
+          <option>Nauczyciel Perkusji/Nauczycielka Perkusji</option>
+          <option>Nauczyciel Fortepianu i Klawiszy/Nauczycielka Fortepianu i Klawiszy</option>
+          <option>Nauczyciel Skrzypiec/Nauczycielka Skrzypiec</option>
+          <option>Nauczyciel Instrumentów Dętych/Nauczycielka Instrumentów Dętych</option>
+          <option>Nauczyciel Teorii Muzyki i Solfeżu/Nauczycielka Teorii Muzyki i Solfeżu</option>
+          <option>Nauczyciel Kompozycji i Aranżacji/Nauczycielka Kompozycji i Aranżacji</option>
+          <option>Nauczyciel Produkcji Muzycznej/Nauczycielka Produkcji Muzycznej</option>
+          <option>Korepetytor Muzyczny/Korepetytorka Muzyczna</option>
+        </optgroup>
         <optgroup label="Inne">
-          <option>Nauczyciel Muzyki</option>
           <option>Student Kierunku Muzycznego</option>
           <option>Fan Muzyki</option>
           <option>Inne</option>
@@ -1302,7 +1314,8 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
           <optgroup label="Produkcja i Studio"><option>Realizator Dźwięku</option><option>Realizator Nagrań</option><option>Inżynier Masteringu</option><option>Inżynier Miksu</option></optgroup>
           <optgroup label="Management"><option>Manager Artysty</option><option>Booking Manager</option><option>Promotor</option><option>Organizator Wydarzeń</option></optgroup>
           <optgroup label="Media"><option>Dziennikarz Muzyczny</option><option>Podcaster</option><option>Fotograf Muzyczny</option><option>Grafik</option><option>Social Media Manager</option></optgroup>
-          <optgroup label="Inne"><option>Nauczyciel Muzyki</option><option>Student Kierunku Muzycznego</option><option>Inne</option></optgroup>
+          <optgroup label="Nauczyciele"><option>Nauczyciel Wokalu/Nauczycielka Wokalu</option><option>Nauczyciel Gitary/Nauczycielka Gitary</option><option>Nauczyciel Perkusji/Nauczycielka Perkusji</option><option>Nauczyciel Fortepianu i Klawiszy/Nauczycielka Fortepianu i Klawiszy</option><option>Korepetytor Muzyczny/Korepetytorka Muzyczna</option></optgroup>
+          <optgroup label="Inne"><option>Student Kierunku Muzycznego</option><option>Inne</option></optgroup>
           </select>
         </div>
         <div id="role3-wrap" class="hidden">
@@ -1319,7 +1332,8 @@ body.premium-mode #looking-for-grid .selected-preview { color: var(--purple-acce
           <optgroup label="Produkcja i Studio"><option>Realizator Dźwięku</option><option>Realizator Nagrań</option><option>Inżynier Masteringu</option><option>Inżynier Miksu</option></optgroup>
           <optgroup label="Management"><option>Manager Artysty</option><option>Booking Manager</option><option>Promotor</option><option>Organizator Wydarzeń</option></optgroup>
           <optgroup label="Media"><option>Dziennikarz Muzyczny</option><option>Podcaster</option><option>Fotograf Muzyczny</option><option>Grafik</option><option>Social Media Manager</option></optgroup>
-          <optgroup label="Inne"><option>Nauczyciel Muzyki</option><option>Student Kierunku Muzycznego</option><option>Inne</option></optgroup>
+          <optgroup label="Nauczyciele"><option>Nauczyciel Wokalu/Nauczycielka Wokalu</option><option>Nauczyciel Gitary/Nauczycielka Gitary</option><option>Nauczyciel Perkusji/Nauczycielka Perkusji</option><option>Nauczyciel Fortepianu i Klawiszy/Nauczycielka Fortepianu i Klawiszy</option><option>Korepetytor Muzyczny/Korepetytorka Muzyczna</option></optgroup>
+          <optgroup label="Inne"><option>Student Kierunku Muzycznego</option><option>Inne</option></optgroup>
           </select>
         </div>
       </div>
@@ -2232,7 +2246,8 @@ const ROLE_SECTIONS = [
   { label: 'Management', items: ['Manager Artysty','Manager Zespołu','Booking Manager','Tour Manager','Agent Koncertowy','Promotor','Organizator Wydarzeń','Wydawca Muzyczny'] },
   { label: 'Media i Promocja', items: ['Dziennikarz Muzyczny','Podcaster','Prezenter Radiowy','Fotograf Muzyczny','Wideofilmowiec','Grafik','Social Media Manager','Specjalista PR'] },
   { label: 'Zespół i Projekt', items: ['Lider Zespołu','Członek Zespołu','Solista','Projekt Muzyczny'] },
-  { label: 'Inne', items: ['Nauczyciel Muzyki','Student Kierunku Muzycznego','Fan Muzyki','Inne'] },
+  { label: 'Nauczyciele Muzyki', items: ['Nauczyciel Wokalu/Nauczycielka Wokalu','Nauczyciel Gitary/Nauczycielka Gitary','Nauczyciel Gitary Basowej/Nauczycielka Gitary Basowej','Nauczyciel Perkusji/Nauczycielka Perkusji','Nauczyciel Fortepianu i Klawiszy/Nauczycielka Fortepianu i Klawiszy','Nauczyciel Skrzypiec/Nauczycielka Skrzypiec','Nauczyciel Instrumentów Dętych/Nauczycielka Instrumentów Dętych','Nauczyciel Teorii Muzyki i Solfeżu/Nauczycielka Teorii Muzyki i Solfeżu','Nauczyciel Kompozycji i Aranżacji/Nauczycielka Kompozycji i Aranżacji','Nauczyciel Produkcji Muzycznej/Nauczycielka Produkcji Muzycznej','Korepetytor Muzyczny/Korepetytorka Muzyczna'] },
+  { label: 'Inne', items: ['Student Kierunku Muzycznego','Fan Muzyki','Inne'] },
 ];
 const COLORS = ['#534AB7','#1D9E75','#D85A30','#C0392B','#8E44AD','#2980B9','#27AE60','#E67E22'];
 
