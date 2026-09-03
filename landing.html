@@ -502,8 +502,9 @@ footer{border-top:1px solid var(--line)}
 </footer>
 
 <script>
-// Licznik aktywnych kont — dane z widoku public.active_accounts_count
-// (Supabase, tylko COUNT, anon key jest publiczny z założenia).
+// Licznik kont zweryfikowanych mailem — dane z widoku public.active_accounts_count
+// (count(*) WHERE email_confirmed_at IS NOT NULL; Supabase, tylko COUNT, anon key
+// jest publiczny z założenia).
 (function(){
   var COUNT_FALLBACK = 38;
   var CACHE_KEY = 'spotigraj_active_count';
