@@ -502,9 +502,11 @@ footer{border-top:1px solid var(--line)}
 </footer>
 
 <script>
-// Licznik kont zweryfikowanych mailem — dane z widoku public.active_accounts_count
-// (count(*) WHERE email_confirmed_at IS NOT NULL; Supabase, tylko COUNT, anon key
-// jest publiczny z założenia).
+// Licznik kont zweryfikowanych mailem — funkcja SECURITY DEFINER
+// public.get_active_accounts_count() (count(*) WHERE email_confirmed_at IS NOT NULL;
+// Supabase, tylko COUNT, anon key jest publiczny z założenia). Wcześniej zwykły widok
+// wprost na auth.users z grantem dla anon — Security Advisor flagował to jako
+// "auth_users_exposed" (krytyczne), stąd RPC do funkcji definer zamiast SELECT na widoku.
 (function(){
   var COUNT_FALLBACK = 38;
   var CACHE_KEY = 'spotigraj_active_count';
@@ -555,13 +557,15 @@ footer{border-top:1px solid var(--line)}
     var controller = window.AbortController ? new AbortController() : null;
     var timeoutId = controller ? setTimeout(function(){ controller.abort(); }, 3000) : null;
 
-    fetch(SUPABASE_URL + '/rest/v1/active_accounts_count?select=count', {
-      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
+    fetch(SUPABASE_URL + '/rest/v1/rpc/get_active_accounts_count', {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
       signal: controller ? controller.signal : undefined
     })
       .then(function(res){ if (!res.ok) throw new Error('bad status'); return res.json(); })
-      .then(function(rows){
-        var value = (rows && rows[0] && typeof rows[0].count === 'number') ? rows[0].count : COUNT_FALLBACK;
+      .then(function(result){
+        // RPC do funkcji zwracającej integer daje surową liczbę w body (nie tablicę wierszy jak SELECT z widoku).
+        var value = (typeof result === 'number') ? result : COUNT_FALLBACK;
         setCached(value);
         animateCount(el, value);
       })
