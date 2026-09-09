@@ -21,3 +21,6 @@ android-twa/
 
 # Supabase CLI local state
 supabase/.temp/
+
+google-play-store-listing.txt
+marketing-ads.txt
